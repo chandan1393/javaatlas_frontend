@@ -1,0 +1,142 @@
+<div class="wrap">
+  <app-version-tabs [active]="p().id" />
+
+  <header class="prod-head" [style.--c1]="p().c1" [style.--c2]="p().c2">
+    <span class="prod-mark" aria-hidden="true">{{ p().mark }}</span>
+    <div>
+      <p class="eyebrow">Version history</p>
+      <h1>{{ p().name }} versions</h1>
+      <p class="lede">{{ p().intro }}</p>
+    </div>
+  </header>
+
+  <div class="prod-stats" [style.--c1]="p().c1" [style.--c2]="p().c2">
+    <div class="pstat">
+      <span>Latest</span>
+      <strong>{{ latest().v }}</strong>
+      <small>{{ productDate(latest().date) }}</small>
+    </div>
+    <div class="pstat">
+      <span>Needs</span>
+      <strong>{{ latest().java ? 'Java ' + latest().java + '+' : '—' }}</strong>
+      <small>{{ latest().ee ?? '' }}</small>
+    </div>
+    <div class="pstat">
+      <span>Releases listed</span>
+      <strong>{{ released().length }}</strong>
+      <small>since {{ productDate(released()[released().length - 1].date) }}</small>
+    </div>
+    <div class="pstat">
+      <span>Release rhythm</span>
+      <strong class="small">{{ p().cadence }}</strong>
+    </div>
+  </div>
+
+  <section class="planner" aria-labelledby="pplan">
+    <h2 id="pplan">Upgrade planner</h2>
+    <p>Pick the version you’re on and the one you want. You’ll see everything that changes in between, oldest first, with breaking changes marked.</p>
+    <div class="plan-ctl">
+      <label for="pfrom">From</label>
+      <select id="pfrom" class="field" (change)="from.set($any($event.target).value)">
+        @for (v of released(); track v.v) {
+          <option [value]="v.v" [selected]="v.v === from()">{{ p().short }} {{ v.v }}</option>
+        }
+      </select>
+      <label for="pto">to</label>
+      <select id="pto" class="field" (change)="to.set($any($event.target).value)">
+        @for (v of released(); track v.v) {
+          <option [value]="v.v" [selected]="v.v === to()">{{ p().short }} {{ v.v }}</option>
+        }
+      </select>
+    </div>
+    @if (plan(); as pl) {
+      <p class="plan-sum" aria-live="polite">
+        <strong>{{ pl.steps }} release{{ pl.steps === 1 ? '' : 's' }}</strong> to go through, with <strong>{{ pl.added }}</strong> new features and
+        <strong>{{ pl.breaking }}</strong> breaking or removed items{{ pl.javaChange ? '. Java baseline: ' + pl.javaChange : '' }}{{ pl.eeChange ? '. Platform: ' + pl.eeChange : '' }}.
+      </p>
+      <div class="plan-out">
+        @for (g of pl.groups; track g.v.v) {
+          <div class="plan-group">
+            <h3>{{ p().short }} {{ g.v.v }} <span class="muted">{{ productDate(g.v.date) }}</span></h3>
+            <ul class="plain">
+              @for (f of g.features; track f.text) {
+                <li><span class="kind kind-{{ f.kind }}">{{ f.label }}</span> {{ f.text }}</li>
+              }
+            </ul>
+          </div>
+        }
+      </div>
+    } @else {
+      <p class="plan-sum">Choose a target version newer than your current one.</p>
+    }
+  </section>
+
+  <app-ad slot="listing" />
+
+  <div class="vtools">
+    <input class="field vsearch" type="search" placeholder="Search features, e.g. virtual threads" aria-label="Search features" [value]="query()" (input)="query.set($any($event.target).value)" />
+    <div class="filt" role="group" aria-label="Show">
+      @for (f of filters; track f.key) {
+        <button type="button" [attr.aria-pressed]="kind() === f.key" (click)="kind.set(f.key)">{{ f.label }}</button>
+      }
+    </div>
+  </div>
+  <p class="vcount">{{ p().support }}</p>
+
+  <div class="pvers" [style.--c1]="p().c1" [style.--c2]="p().c2">
+    @for (r of rows(); track r.v.v) {
+      <article class="pver" [id]="'v-' + r.v.v" [class.is-latest]="r.v.status === 'latest'" [class.is-planned]="r.v.status === 'planned'">
+        <div class="pver-side">
+          <div class="pver-num">{{ r.v.v }}</div>
+          <div class="pver-date">{{ r.v.status === 'planned' ? 'Expected ' : '' }}{{ productDate(r.v.date) }}</div>
+          <div class="vtags">
+            @if (statusLabel(r.v)) {
+              <span class="tag st-{{ r.v.status }}">{{ statusLabel(r.v) }}</span>
+            }
+            @if (r.v.java) {
+              <span class="tag">Java {{ r.v.java }}+</span>
+            }
+            @if (r.v.train) {
+              <span class="tag">Train {{ r.v.train }}</span>
+            }
+          </div>
+        </div>
+        <div class="pver-main">
+          @if (r.v.ee || r.v.bundles?.length) {
+            <div class="bundles">
+              @if (r.v.ee) {
+                <span class="bundle"><small>Platform</small>{{ r.v.ee }}</span>
+              }
+              @for (b of r.v.bundles ?? []; track b[0]) {
+                <span class="bundle"><small>{{ b[0] }}</small>{{ b[1] }}</span>
+              }
+            </div>
+          }
+          @if (r.features.length) {
+            <ul class="pfeats">
+              @for (f of r.features; track f.text) {
+                <li [class.star]="f.star"><span class="kind kind-{{ f.kind }}">{{ f.label }}</span><span>{{ f.text }}</span></li>
+              }
+            </ul>
+          }
+          @if (r.v.note) {
+            <p class="pver-note">{{ r.v.note }}</p>
+          }
+        </div>
+      </article>
+    } @empty {
+      <p class="nores">No changes match that search.</p>
+    }
+  </div>
+
+  <section class="sec-lite" aria-labelledby="more-h">
+    <h2 id="more-h">More version histories</h2>
+    <div class="prod-links">
+      <a routerLink="/versions" style="--c1: #ff6b1a; --c2: #e11d48"><span class="prod-mark sm">Jv</span>Java SE</a>
+      @for (o of others(); track o.id) {
+        <a [routerLink]="['/versions', o.id]" [style.--c1]="o.c1" [style.--c2]="o.c2"><span class="prod-mark sm">{{ o.mark }}</span>{{ o.name }}</a>
+      }
+      <a routerLink="/versions/compatibility" style="--c1: #3355ff; --c2: #7c4dff"><span class="prod-mark sm">≡</span>Compatibility matrix</a>
+    </div>
+  </section>
+</div>

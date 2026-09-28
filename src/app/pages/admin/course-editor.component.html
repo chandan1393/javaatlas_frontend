@@ -1,0 +1,135 @@
+<div class="editor">
+  <header class="adm-head row-between">
+    <div>
+      <p class="crumb"><a routerLink="/admin/content">Content</a></p>
+      <h1>{{ draft?.id ? draft?.title || 'Edit course' : 'New course' }}</h1>
+      @if (draft) {
+        <p class="muted">{{ stats().lectures }} lectures · {{ stats().minutes }} min · {{ stats().previews }} free previews · {{ stats().videos }} with video</p>
+      }
+    </div>
+    @if (draft) {
+      <span class="tag" [class.avail]="draft.published">{{ draft.published ? 'Published' : 'Draft' }}</span>
+    }
+  </header>
+
+  @if (!account.checked() || (account.isAdmin() && loading())) {
+    <p class="muted loading">Loading…</p>
+  } @else if (!account.isAdmin()) {
+    <div class="empty"><p>This page is only for admins.</p></div>
+  } @else if (!draft) {
+    <p class="err">{{ error() }}</p>
+  } @else {
+    <section class="panel" aria-label="Course details">
+      <div class="grid2">
+        <label class="fld">Title
+          <input [(ngModel)]="draft.title" (ngModelChange)="titleChanged()" maxlength="160" />
+        </label>
+        <label class="fld">URL name
+          <input [(ngModel)]="draft.slug" (input)="slugTouched = true" maxlength="80" />
+          <small>yoursite/courses/{{ draft.slug || 'course-name' }}</small>
+        </label>
+      </div>
+      <label class="fld">Subtitle (one sentence)
+        <input [(ngModel)]="draft.subtitle" maxlength="300" />
+      </label>
+      <label class="fld">Description
+        <textarea rows="5" [(ngModel)]="draft.description"></textarea>
+      </label>
+      <div class="fld">Course trailer (optional, shown to everyone on the course page)
+        <app-lecture-video [(value)]="draft.trailerUrl" [title]="(draft.title || 'Course') + ': trailer'" />
+        <small>A 1 to 3 minute intro that shows what learners will build. Courses with a trailer sell noticeably better.</small>
+      </div>
+      <label class="fld">What you’ll learn (one point per line)
+        <textarea rows="5" [(ngModel)]="outcomesText"></textarea>
+      </label>
+      <div class="grid3">
+        <label class="fld">Price in ₹ (0 = free)
+          <input type="number" min="0" step="1" [(ngModel)]="draft.priceInr" />
+        </label>
+        <label class="fld">Level
+          <select [(ngModel)]="draft.level">
+            <option value="Beginner">Beginner</option>
+            <option value="Intermediate">Intermediate</option>
+            <option value="Advanced">Advanced</option>
+          </select>
+        </label>
+        <label class="fld">Position in the catalog
+          <input type="number" step="1" [(ngModel)]="draft.sortOrder" />
+        </label>
+      </div>
+      <label class="toggle"><input type="checkbox" [(ngModel)]="draft.published" /> Published (visible and buyable in the catalog)</label>
+    </section>
+
+    <div class="bar-head">
+      <h2>Curriculum</h2>
+      <button type="button" class="btn btn-ghost btn-sm" (click)="addSection()">Add section</button>
+    </div>
+    <p class="muted small-note">
+      Lecture text supports <code>## headings</code>, <code>- bullets</code>, <code>`code`</code>, <code>**bold**</code> and fenced code blocks (three backticks).
+      Add a video to any lecture: upload it (Bunny Stream), pick it from your library, or paste a YouTube, Vimeo or .mp4 link.
+    </p>
+
+    @for (s of draft.sections; track s; let si = $index) {
+      <section class="panel" [attr.aria-label]="'Section ' + (si + 1)">
+        <div class="row-head">
+          <label class="fld grow">Section {{ si + 1 }}
+            <input [(ngModel)]="s.title" maxlength="160" placeholder="Section title" />
+          </label>
+          <div class="row-btns">
+            <button type="button" class="icon-btn" [disabled]="si === 0" (click)="move(draft.sections, si, -1)" aria-label="Move section up">↑</button>
+            <button type="button" class="icon-btn" [disabled]="si === draft.sections.length - 1" (click)="move(draft.sections, si, 1)" aria-label="Move section down">↓</button>
+            <button type="button" class="icon-btn" (click)="remove(draft.sections, si, 'section and its lectures')" aria-label="Remove section">✕</button>
+          </div>
+        </div>
+
+        @for (l of s.lectures; track l; let li = $index) {
+          <details class="lec-edit" [open]="!l.id">
+            <summary>
+              {{ li + 1 }}. {{ l.title || 'Untitled lecture' }}
+              <span class="muted">{{ l.durationMin }} min{{ l.freePreview ? ', free preview' : '' }}{{ l.videoUrl ? ', video' : '' }}</span>
+            </summary>
+            <div class="inner">
+              <div class="grid2">
+                <label class="fld">Lecture title
+                  <input [(ngModel)]="l.title" maxlength="160" />
+                </label>
+                <label class="fld">Length in minutes
+                  <input type="number" min="0" max="600" [(ngModel)]="l.durationMin" />
+                </label>
+              </div>
+              <div class="fld">Video
+                <app-lecture-video [(value)]="l.videoUrl" [title]="(draft.title ? draft.title + ': ' : '') + l.title" (durationFound)="l.durationMin = $event" />
+              </div>
+              <div class="fld">Lecture text
+                <app-md-editor [(value)]="l.content" />
+              </div>
+              <div class="row-between">
+                <label class="toggle"><input type="checkbox" [(ngModel)]="l.freePreview" /> Free preview (anyone can open it)</label>
+                <div class="row-btns">
+                  @if (l.id && draft.slug) {
+                    <a class="btn btn-ghost btn-sm" [routerLink]="['/courses', draft.slug, 'learn', l.id]" target="_blank">Preview as learner</a>
+                  }
+                  <button type="button" class="icon-btn" [disabled]="li === 0" (click)="move(s.lectures, li, -1)" aria-label="Move lecture up">↑</button>
+                  <button type="button" class="icon-btn" [disabled]="li === s.lectures.length - 1" (click)="move(s.lectures, li, 1)" aria-label="Move lecture down">↓</button>
+                  <button type="button" class="icon-btn" (click)="remove(s.lectures, li, 'lecture')" aria-label="Remove lecture">✕</button>
+                </div>
+              </div>
+            </div>
+          </details>
+        }
+        <button type="button" class="btn btn-ghost btn-sm" (click)="addLecture(s)">Add lecture</button>
+      </section>
+    }
+
+    <div class="save-bar">
+      <p class="err" role="alert">{{ error() }}</p>
+      <div class="cta">
+        @if (draft.id) {
+          <button type="button" class="btn btn-ghost" (click)="deleteCourse()">Delete</button>
+          <a class="btn btn-ghost" [routerLink]="['/courses', draft.slug]">View page</a>
+        }
+        <button type="button" class="btn btn-primary" [disabled]="saving()" (click)="save()">{{ saving() ? 'Saving…' : 'Save course' }}</button>
+      </div>
+    </div>
+  }
+</div>

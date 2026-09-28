@@ -1,0 +1,37 @@
+<div class="wrap">
+  <header class="page-head">
+    <h1>Interview flashcards</h1>
+    <p>{{ content.questions.length }} questions collected from every lesson, from core Java to microservices. Try answering out loud before you reveal the model answer.</p>
+  </header>
+  <div class="filt" role="group" aria-label="Filter by stage">
+    <button type="button" [attr.aria-pressed]="stageFilter() === 'all'" (click)="stageFilter.set('all')">All stages</button>
+    @for (s of content.stages; track s.id) {
+      <button type="button" [attr.aria-pressed]="stageFilter() === s.id" (click)="stageFilter.set(s.id)">{{ s.title }}</button>
+    }
+  </div>
+  <div class="iv-tools">
+    <p class="iv-prog" aria-live="polite">You know {{ knownCount() }} of {{ cards().length }} questions{{ stageFilter() === 'all' ? '.' : ' in this stage.' }}</p>
+    <div class="cta">
+      <button type="button" class="btn btn-ghost btn-sm" (click)="shuffle()">Shuffle</button>
+      <button type="button" class="btn btn-ghost btn-sm" (click)="toggleAll()">{{ showAll() ? 'Hide all answers' : 'Show all answers' }}</button>
+    </div>
+  </div>
+  <app-ad slot="listing" />
+  <div class="cards">
+    @for (c of cards(); track c.q.id) {
+      <article class="card" [class.known]="c.known">
+        <div class="from">From <a [routerLink]="['/learn', c.q.lesson.id]">{{ c.q.lesson.t }}</a></div>
+        <div class="qq">{{ c.q.q }}</div>
+        @if (c.open) {
+          <div class="ans">{{ c.q.a }}</div>
+        }
+        <div class="row">
+          <button type="button" class="btn btn-ghost btn-sm" [attr.aria-expanded]="c.open" (click)="toggle(c.q.id, c.open)">{{ c.open ? 'Hide answer' : 'Show answer' }}</button>
+          <button type="button" class="btn btn-ghost btn-sm" [class.on]="c.known" [attr.aria-pressed]="c.known" (click)="progress.toggleKnown(c.q.id)">
+            {{ c.known ? 'Known' : 'I know this' }}
+          </button>
+        </div>
+      </article>
+    }
+  </div>
+</div>

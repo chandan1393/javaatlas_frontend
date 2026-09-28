@@ -1,0 +1,293 @@
+<section class="stage-x ai-hero" aria-labelledby="ai-h">
+  <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="grid-bg" aria-hidden="true"></div>
+  <div class="wrap stage-in">
+    <p class="pill-x"><span class="pill-new">AI</span> Powered by Claude</p>
+    <h1 id="ai-h">Your <span class="grad-text">AI Java mentor</span>, on call.</h1>
+    <p class="lede-x">Explain code, catch bugs, fix errors, modernize old Java, and practise with quizzes and mock interviews. Free, no sign-up.</p>
+  </div>
+</section>
+
+<div class="wrap ai-wrap">
+  @if (ai.enabled() === false) {
+    <p class="ai-off" role="status">The AI Lab is taking a break right now. Lessons, paths and interview questions still work; please check back soon.</p>
+  }
+
+  <div class="tool-grid" role="tablist" aria-label="AI tools">
+    @for (t of tools; track t.id) {
+      <button type="button" role="tab" class="tool-card" [attr.aria-selected]="tool() === t.id" [style.--c1]="t.c1" [style.--c2]="t.c2" (click)="pick(t.id)">
+        <span class="sicon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path [attr.d]="t.icon" /></svg>
+        </span>
+        <strong>{{ t.name }}</strong>
+        <span>{{ t.desc }}</span>
+      </button>
+    }
+  </div>
+
+  <section class="ai-panel" [style.--c1]="current().c1" [style.--c2]="current().c2" role="tabpanel" [attr.aria-label]="current().name">
+    @switch (tool()) {
+      @case ('quiz') {
+        <div class="ai-form">
+          <h2>Quiz me</h2>
+          <p class="muted">Type any Java topic, or pick a lesson. You’ll get brand-new questions every time.</p>
+          <label class="fld">Topic
+            <input list="topics" placeholder="e.g. HashMap internals, Spring transactions, streams" [value]="topic()" (input)="topic.set($any($event.target).value)" (keydown.enter)="makeQuiz()" />
+          </label>
+          <datalist id="topics">
+            @for (s of topicSuggestions(); track s) {
+              <option [value]="s"></option>
+            }
+          </datalist>
+          <div class="ai-opts">
+            <span class="seg" role="group" aria-label="Level">
+              @for (l of levels; track l) {
+                <button type="button" [attr.aria-pressed]="level() === l" (click)="level.set(l)">{{ l }}</button>
+              }
+            </span>
+            <span class="seg" role="group" aria-label="Number of questions">
+              @for (n of ['5', '10']; track n) {
+                <button type="button" [attr.aria-pressed]="quizCount() === n" (click)="quizCount.set(n)">{{ n }} questions</button>
+              }
+            </span>
+          </div>
+          <button type="button" class="btn btn-primary" [disabled]="busy() || ai.enabled() === false" (click)="makeQuiz()">{{ busy() ? 'Writing your quiz…' : 'Generate quiz' }}</button>
+          <p class="err" role="alert">{{ error() }}</p>
+        </div>
+        @if (busy()) {
+          <div class="ai-skeleton" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        }
+        @if (quiz(); as qs) {
+          <div class="ai-quiz">
+            <p class="quiz-score" aria-live="polite">
+              <strong>{{ score().right }} / {{ score().total }}</strong> correct{{ score().answered < score().total ? ', ' + (score().total - score().answered) + ' to go' : '. Nice work!' }}
+            </p>
+            @for (q of qs; track $index; let i = $index) {
+              <div class="quiz">
+                <p class="q"><span class="qn">{{ i + 1 }}</span>{{ q.q }}</p>
+                @if (q.code) {
+                  <pre class="ai-code"><code>{{ q.code }}</code></pre>
+                }
+                <div class="opts">
+                  @for (o of q.options; track $index; let j = $index) {
+                    <button
+                      type="button"
+                      class="opt"
+                      [class.right]="picks()[i] !== undefined && j === q.answer"
+                      [class.wrong]="picks()[i] === j && j !== q.answer"
+                      [disabled]="picks()[i] !== undefined"
+                      (click)="answer(i, j)"
+                    >
+                      {{ o }}
+                    </button>
+                  }
+                </div>
+                @if (picks()[i] !== undefined) {
+                  <p class="explain"><strong>{{ picks()[i] === q.answer ? 'Correct.' : 'Not quite.' }}</strong> {{ q.why }}</p>
+                }
+              </div>
+            }
+            <button type="button" class="btn btn-ghost" (click)="makeQuiz()" [disabled]="busy()">New questions on this topic</button>
+          </div>
+        }
+      }
+
+      @case ('interview') {
+        @if (!thread().length) {
+          <div class="ai-form">
+            <h2>Mock interview</h2>
+            <p class="muted">The AI asks five questions one at a time, scores each answer out of 10, shows a model answer, and ends with a summary.</p>
+            <label class="fld">Topic
+              <select (change)="ivTopic.set($any($event.target).value)">
+                @for (t of interviewTopics; track t) {
+                  <option [value]="t" [selected]="t === ivTopic()">{{ t }}</option>
+                }
+              </select>
+            </label>
+            <span class="seg" role="group" aria-label="Role level">
+              @for (l of ['Junior', 'Mid-level', 'Senior']; track l) {
+                <button type="button" [attr.aria-pressed]="ivLevel() === l" (click)="ivLevel.set(l)">{{ l }}</button>
+              }
+            </span>
+            <div class="gap-top">
+              <button type="button" class="btn btn-primary" [disabled]="busy() || ai.enabled() === false" (click)="startInterview()">Start interview</button>
+            </div>
+            <p class="err" role="alert">{{ error() }}</p>
+          </div>
+        } @else {
+          <div class="iv">
+            <div class="iv-head">
+              <h2>{{ ivLevel() }} interview: {{ ivTopic() }}</h2>
+              <div class="row-btns">
+                <button type="button" class="btn btn-ghost btn-sm" (click)="finishInterview()" [disabled]="busy()">Finish and get summary</button>
+                <button type="button" class="btn btn-ghost btn-sm" (click)="resetInterview()">Start over</button>
+              </div>
+            </div>
+            <div class="iv-thread" #thread aria-live="polite">
+              @for (m of threadView(); track $index) {
+                @if (m.role === 'assistant') {
+                  <div class="msg a" [innerHTML]="m.html"></div>
+                } @else {
+                  <div class="msg u">{{ m.text }}</div>
+                }
+              }
+              @if (live() !== null) {
+                <div class="msg a">
+                  @if (live()) {
+                    <div [innerHTML]="liveHtml()"></div>
+                  } @else {
+                    <span class="typing"><i></i><i></i><i></i></span>
+                  }
+                </div>
+              }
+            </div>
+            <p class="err" role="alert">{{ error() }}</p>
+            <div class="ask">
+              <textarea rows="3" placeholder="Type your answer…" [value]="draft()" (input)="draft.set($any($event.target).value)" (keydown.control.enter)="sendAnswer()" (keydown.meta.enter)="sendAnswer()"></textarea>
+              @if (busy()) {
+                <button type="button" class="btn btn-ghost" (click)="stop()">Stop</button>
+              } @else {
+                <button type="button" class="btn btn-primary" (click)="sendAnswer()" [disabled]="!draft().trim()">Send</button>
+              }
+            </div>
+            <p class="small-note muted">Tip: Ctrl + Enter sends your answer.</p>
+          </div>
+        }
+      }
+
+      @case ('plan') {
+        <div class="ai-form">
+          <h2>Your study plan</h2>
+          <p class="muted">Tell the AI your goal and time. It builds a week-by-week plan from the {{ content.lessons.length }} JavaAtlas lessons, with a hands-on task each week.</p>
+          <label class="fld">Goal
+            <select (change)="goal.set($any($event.target).value)">
+              @for (g of goals; track g) {
+                <option [value]="g" [selected]="g === goal()">{{ g }}</option>
+              }
+            </select>
+          </label>
+          <div class="ai-opts">
+            <span class="seg" role="group" aria-label="Your level">
+              @for (l of levels; track l) {
+                <button type="button" [attr.aria-pressed]="level() === l" (click)="level.set(l)">{{ l }}</button>
+              }
+            </span>
+          </div>
+          <div class="grid2">
+            <label class="fld">Hours per week
+              <select (change)="hours.set($any($event.target).value)">
+                @for (h of ['3', '5', '8', '12', '20']; track h) {
+                  <option [value]="h" [selected]="h === hours()">{{ h }} hours</option>
+                }
+              </select>
+            </label>
+            <label class="fld">Weeks
+              <select (change)="weeks.set($any($event.target).value)">
+                @for (w of ['2', '4', '6', '8', '12']; track w) {
+                  <option [value]="w" [selected]="w === weeks()">{{ w }} weeks</option>
+                }
+              </select>
+            </label>
+          </div>
+          <button type="button" class="btn btn-primary" [disabled]="busy() || ai.enabled() === false" (click)="makePlan()">{{ busy() ? 'Planning your weeks…' : 'Build my plan' }}</button>
+          <p class="err" role="alert">{{ error() }}</p>
+        </div>
+        @if (busy()) {
+          <div class="ai-skeleton" aria-hidden="true"><i></i><i></i><i></i></div>
+        }
+        @if (plan(); as pl) {
+          <div class="plan-view">
+            <p class="plan-summary">{{ pl.summary }}</p>
+            <ol class="plan-weeks">
+              @for (w of planWeeks(); track $index; let i = $index) {
+                <li class="plan-week">
+                  <span class="wk">Week {{ i + 1 }}</span>
+                  <h3>{{ w.title }}</h3>
+                  <p>{{ w.focus }}</p>
+                  <ul>
+                    @for (l of w.items; track l.id) {
+                      <li><a [routerLink]="['/learn', l.id]">{{ l.t }}</a></li>
+                    }
+                  </ul>
+                  <p class="practice"><strong>Practice:</strong> {{ w.practice }}</p>
+                </li>
+              }
+            </ol>
+          </div>
+        }
+      }
+
+      @default {
+        <div class="ai-io">
+          <div class="ai-in">
+            <div class="ai-in-head">
+              <h2>{{ current().name }}</h2>
+              <div class="ex-chips">
+                @for (e of examples(); track e.label) {
+                  <button type="button" class="chip" (click)="useExample(e.text)">Try: {{ e.label }}</button>
+                }
+              </div>
+            </div>
+            <textarea
+              class="code-in"
+              spellcheck="false"
+              [attr.aria-label]="tool() === 'error' ? 'Error message or stack trace' : 'Java code'"
+              [placeholder]="tool() === 'error' ? 'Paste the error message, stack trace, or the failing code…' : 'Paste your Java code here…'"
+              [value]="code()"
+              (input)="code.set($any($event.target).value)"
+            ></textarea>
+            <div class="ai-opts">
+              @if (tool() === 'review' || tool() === 'modernize') {
+                <label class="inline-fld">Target
+                  <select class="field" (change)="target.set($any($event.target).value)">
+                    @for (j of javaTargets; track j) {
+                      <option [value]="j" [selected]="j === target()">Java {{ j }}</option>
+                    }
+                  </select>
+                </label>
+              }
+              @if (tool() === 'explain') {
+                <span class="seg" role="group" aria-label="Explain for">
+                  @for (l of levels; track l) {
+                    <button type="button" [attr.aria-pressed]="level() === l" (click)="level.set(l)">{{ l }}</button>
+                  }
+                </span>
+              }
+              <span class="grow"></span>
+              @if (busy()) {
+                <button type="button" class="btn btn-ghost" (click)="stop()">Stop</button>
+              } @else {
+                <button type="button" class="btn btn-primary" [disabled]="!code().trim() || ai.enabled() === false" (click)="run()">
+                  {{ tool() === 'explain' ? 'Explain it' : tool() === 'review' ? 'Review it' : tool() === 'error' ? 'Find the fix' : 'Modernize it' }}
+                </button>
+              }
+            </div>
+          </div>
+          <div class="ai-out" aria-live="polite">
+            <div class="ai-out-head">
+              <span class="ai-badge"><i aria-hidden="true"></i>{{ busy() ? 'Writing…' : output() ? 'Answer' : 'Waiting for your code' }}</span>
+              @if (output() && !busy()) {
+                <button type="button" class="btn btn-ghost btn-sm" (click)="copyOutput()">Copy</button>
+              }
+            </div>
+            @if (output()) {
+              <div class="ai-answer msg" [innerHTML]="outputHtml()"></div>
+            } @else if (busy()) {
+              <div class="ai-skeleton" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+            } @else {
+              <div class="ai-empty">
+                <p>Paste code on the left, or try an example. The answer appears here as it’s written.</p>
+              </div>
+            }
+            @if (truncated()) {
+              <p class="small-note muted">The answer was cut short. Try a smaller piece of code.</p>
+            }
+            <p class="err" role="alert">{{ error() }}</p>
+          </div>
+        </div>
+      }
+    }
+  </section>
+
+  <p class="small-note muted ai-note">AI can make mistakes. Check important answers against the lessons or the official docs. Don’t paste passwords, keys or private company code.</p>
+</div>

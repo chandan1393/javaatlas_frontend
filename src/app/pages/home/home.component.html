@@ -1,0 +1,445 @@
+<section class="hero-l" aria-labelledby="hero-h">
+  <div class="mesh" aria-hidden="true"><i class="m1"></i><i class="m2"></i><i class="m3"></i><i class="m4"></i></div>
+  <div class="wrap hero-l-in">
+    <div class="hero-l-copy">
+      <a class="pill-l" routerLink="/ai"><span class="pill-new">New</span> An AI mentor that reviews your Java code <span aria-hidden="true">→</span></a>
+      <h1 id="hero-h">Become a <span class="grad-warm">job&#8209;ready Java developer</span>, for free.</h1>
+      <p class="lede-l">
+        {{ total }} hands-on lessons take you from your first line of code to Spring Boot and microservices. Learn at your own pace, practise with an
+        AI mentor, and always know which Java version you’re using.
+      </p>
+      <div class="cta">
+        @if (lastLesson(); as last) {
+          <a class="btn btn-brand btn-lg" [routerLink]="['/learn', last.id]">Continue: {{ last.t }}</a>
+        } @else {
+          <a class="btn btn-brand btn-lg" routerLink="/paths">Start learning free</a>
+        }
+        <a class="btn btn-ghost btn-lg" routerLink="/courses">Explore courses</a>
+      </div>
+      <ul class="trust-row">
+        <li><span class="tr-ico" aria-hidden="true">✓</span>No sign-up to learn</li>
+        <li><span class="tr-ico" aria-hidden="true">✓</span>Beginner to advanced</li>
+        <li><span class="tr-ico" aria-hidden="true">✓</span>Updated for Java {{ content.latest }}</li>
+      </ul>
+    </div>
+
+    <div class="hero-l-visual" aria-hidden="true">
+      <div class="mock-browser">
+        <div class="mb-bar"><i></i><i></i><i></i><span class="mb-url">javaatlas.in/learn/streams</span></div>
+        <div class="mb-body">
+          <div class="mb-side">
+            <p class="mb-stage"><app-stage-icon stage="modern" size="sm" /> Modern Java</p>
+            <ul>
+              <li class="done"><i></i>Lambdas</li>
+              <li class="now"><i></i>Stream API</li>
+              <li><i></i>Collectors</li>
+              <li><i></i>Optional</li>
+              <li><i></i>Pattern matching</li>
+            </ul>
+          </div>
+          <div class="mb-main">
+            <span class="mb-crumb">Stage 4 · Lesson 2 of 7</span>
+            <strong class="mb-title">Stream API</strong>
+            <p class="mb-text">A stream processes a sequence of elements through a pipeline: a source, lazy steps, and one terminal step.</p>
+            <pre class="mb-code"><span class="tt">List</span>&lt;<span class="tt">String</span>&gt; names = orders.stream()
+    .filter(o -&gt; o.amount() &gt; <span class="tn">1000</span>)
+    .map(<span class="tt">Order</span>::customer)
+    .distinct()
+    .toList();</pre>
+          </div>
+        </div>
+      </div>
+      <div class="float-card fc-ai">
+        <span class="assist-orb sm"></span>
+        <div><strong>AI mentor</strong><span>Nothing runs until .toList(): streams are lazy.</span></div>
+      </div>
+      <div class="float-card fc-progress">
+        <span class="ring sm" style="--p: 71"><span>71%</span></span>
+        <div><strong>Modern Java</strong><span>5 of 7 lessons done</span></div>
+      </div>
+      <div class="float-card fc-quiz">
+        <span class="fc-check">✓</span>
+        <div><strong>Quiz passed</strong><span>5 / 5 correct</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="stack-strip">
+    <div class="wrap">
+      <p>Learn the stack companies hire for</p>
+      <ul>
+        @for (t of stack; track t.name) {
+          <li><i [style.background]="t.color"></i>{{ t.name }}</li>
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <section class="stats-x" aria-label="JavaAtlas in numbers">
+    <div class="stat-x" appSpot><strong [appCount]="total">{{ total }}</strong><span>free lessons</span></div>
+    <div class="stat-x" appSpot><strong [appCount]="content.stages.length">{{ content.stages.length }}</strong><span>stages, zero to production</span></div>
+    <div class="stat-x" appSpot><strong [appCount]="content.questions.length">{{ content.questions.length }}</strong><span>interview questions</span></div>
+    <div class="stat-x" appSpot><strong [appCount]="versionCount" suffix="+">{{ versionCount }}+</strong><span>releases tracked</span></div>
+    <div class="stat-x" appSpot><strong [appCount]="7">7</strong><span>AI tools</span></div>
+  </section>
+
+  <section class="sec" aria-labelledby="how-h">
+    <div class="sec-head center">
+      <div>
+        <p class="eyebrow">How it works</p>
+        <h2 id="how-h">From first line of code to your first Java job</h2>
+        <p class="sub">A clear path, lessons you can try as you read, and practice that feels like the real thing.</p>
+      </div>
+    </div>
+    <ol class="how">
+      @for (h of how; track h.title; let i = $index) {
+        <li class="how-step" appSpot [style.--c1]="h.c1" [style.--c2]="h.c2">
+          <span class="how-no">{{ i + 1 }}</span>
+          <span class="sicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path [attr.d]="h.icon" /></svg></span>
+          <h3>{{ h.title }}</h3>
+          <p>{{ h.text }}</p>
+          <a [routerLink]="h.link">{{ h.cta }} →</a>
+        </li>
+      }
+    </ol>
+  </section>
+
+  <section class="evolve" aria-labelledby="ev-h">
+    <div class="evolve-copy">
+      <p class="eyebrow">Watch Java evolve</p>
+      <h2 id="ev-h">The same program, from Java 7 to Java 25</h2>
+      <p>Tap a version and see the code rewrite itself. Every lesson tells you which Java it needs, so what you learn matches the code you’ll meet at work.</p>
+      <a class="btn btn-ghost" routerLink="/versions">Explore every Java version</a>
+    </div>
+    <figure class="codewin" aria-labelledby="cw-cap">
+      <div class="cw-top">
+        <span class="cw-file"><i aria-hidden="true"></i>TopStudents.java</span>
+        <div class="vtabs" role="group" aria-label="Show this code in Java version">
+          <span class="thumb" aria-hidden="true" [style.--i]="vIndex()"></span>
+          @for (v of versions; track v.v; let i = $index) {
+            <button type="button" [attr.aria-pressed]="i === vIndex()" [attr.aria-label]="'Java ' + v.v" (click)="pickVersion(i)">{{ v.v }}</button>
+          }
+        </div>
+      </div>
+      <div class="cw-body" aria-live="polite">
+        @for (line of lines(); track line.key) {
+          <div class="cw-line" [class.changed]="line.changed" [style.--n]="line.n"><span class="cw-ln">{{ line.n }}</span><span [innerHTML]="line.html"></span></div>
+        }
+      </div>
+      <figcaption class="cw-foot">
+        <p id="cw-cap"><strong>{{ current().note }}</strong></p>
+        @if (current().n >= 8) {
+          @if (isMine()) {
+            <span class="is-mine">Your JDK</span>
+          } @else {
+            <button type="button" class="btn btn-sm btn-glass" (click)="useAsJdk()">Use Java {{ current().v }} as my JDK</button>
+          }
+        }
+      </figcaption>
+    </figure>
+  </section>
+
+  <section class="sec" aria-labelledby="path-h">
+    <div class="sec-head">
+      <div>
+        <h2 id="path-h">{{ content.stages.length }} stages, first program to production</h2>
+        <p class="sub">
+          Work through them in order or jump to what you need.
+          {{ progress.doneCount() ? 'You’ve completed ' + progress.doneCount() + ' of ' + total + ' lessons.' : 'Progress is saved in this browser.' }}
+        </p>
+      </div>
+      <div class="track-btns">
+        <button type="button" class="icon-btn" aria-label="Scroll stages left" (click)="scrollTrack(-1)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <button type="button" class="icon-btn" aria-label="Scroll stages right" (click)="scrollTrack(1)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+    </div>
+    <ol class="track" #track role="list">
+      @for (s of stages(); track s.stage.id) {
+        <li style="list-style: none; display: flex">
+          <a class="stage" appSpot [routerLink]="['/learn', s.next.id]" style="flex: 1">
+            <div class="stage-top"><app-stage-icon [stage]="s.stage.id" /><span class="stage-no">Stage {{ s.no }}</span></div>
+            <h3>{{ s.stage.title }}</h3>
+            <p>{{ s.blurb }}</p>
+            <div class="stage-bar" aria-hidden="true"><i [style.width.%]="s.pct"></i></div>
+            <span class="meta">{{ s.stage.lessons.length }} lessons, {{ s.level }}{{ s.done ? ', ' + s.done + ' done' : '' }}</span>
+          </a>
+        </li>
+      }
+    </ol>
+  </section>
+
+  <section class="ruler-sec" aria-labelledby="rh">
+    <div class="ruler-head">
+      <h2 id="rh">Which Java do you use?</h2>
+      <div class="legend">
+        <span><i style="background: var(--ember-fill)"></i>Long-term support</span>
+        <span><i style="background: var(--blue-soft); box-shadow: inset 0 0 0 1px var(--blue)"></i>Available on your JDK</span>
+      </div>
+    </div>
+    <div class="ruler-scroll" #rulerScroll>
+      <div class="ruler" role="group" aria-label="Java versions">
+        @for (t of ticks(); track t.v.v) {
+          @if (t.pickable) {
+            <button type="button" class="tick" [class.lts]="t.v.lts" [class.avail]="t.avail" [class.sel]="t.sel" [style.--i]="t.i" [attr.aria-pressed]="t.sel" [attr.aria-label]="'Use ' + t.label" (click)="pick(t.v.n)">
+              @if (t.sel) {
+                <span class="pin">Your JDK</span>
+              }
+              <span class="lbl">{{ t.v.v }}</span>
+            </button>
+          } @else {
+            <span class="tick old" [class.lts]="t.v.lts" [class.avail]="t.avail" [class.planned]="t.v.planned" [style.--i]="t.i" [attr.title]="t.label">
+              <span class="lbl">{{ t.v.v }}</span>
+            </span>
+          }
+        }
+      </div>
+    </div>
+    <p class="readout" aria-live="polite"><strong>{{ readout().title }}</strong>{{ readout().rest }}</p>
+  </section>
+
+  <section class="sec" aria-labelledby="lp-h">
+    <div class="sec-head">
+      <div>
+        <h2 id="lp-h">Not sure where to start? Pick a path.</h2>
+        <p class="sub">Each path puts the right lessons in order for one goal, whatever your level.</p>
+      </div>
+      <a class="btn btn-ghost" routerLink="/topics">Browse all {{ total }} topics</a>
+    </div>
+    <div class="path-strip">
+      @for (p of content.paths; track p.id) {
+        <a class="path-chip" [routerLink]="['/paths', p.id]">
+          <span class="tag">{{ p.level }}</span>
+          <strong>{{ p.title }}</strong>
+          <span>{{ p.who }}</span>
+          <small>{{ p.lessons.length }} lessons</small>
+        </a>
+      }
+    </div>
+  </section>
+
+  <section class="sec perks" aria-labelledby="perks-h">
+    <div class="perks-in">
+      <div>
+        <p class="eyebrow">Free account</p>
+        <h2 id="perks-h">Learn free. Sign up to track it.</h2>
+        <p class="sub">Every lesson works without an account. A free account adds the things that keep you going.</p>
+        @if (account.me()) {
+          <a class="btn btn-brand" routerLink="/my/learning">Open My learning</a>
+        } @else {
+          <button type="button" class="btn btn-brand" (click)="signUp()">Create a free account</button>
+        }
+      </div>
+      <ul class="perk-grid">
+        @for (b of benefits; track b.t) {
+          <li class="perk" appSpot>
+            <span class="benefit-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path [attr.d]="b.icon" /></svg></span>
+            <strong>{{ b.t }}</strong>
+            <span>{{ b.d }}</span>
+          </li>
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="stage-x ai-show" aria-labelledby="ais-h">
+    <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="ai-show-in">
+      <div>
+        <p class="pill-x"><span class="pill-new">AI</span> AI Lab</p>
+        <h2 id="ais-h">A mentor that <span class="grad-text">knows Java inside out.</span></h2>
+        <p class="lede-x">Paste code for a walk-through or a senior-level review, decode that stack trace, or modernize old Java. Then test yourself with fresh quizzes and a scored mock interview.</p>
+        <ul class="ai-feats">
+          @for (f of aiFeatures; track f.name) {
+            <li><a [routerLink]="'/ai'" [queryParams]="{ tool: f.id }"><span class="ai-feat-dot" [style.--c1]="f.c1" [style.--c2]="f.c2"></span>{{ f.name }}</a></li>
+          }
+        </ul>
+        <a class="btn btn-light btn-lg" routerLink="/ai">Open the AI Lab</a>
+      </div>
+      <div class="ai-demo" aria-hidden="true">
+        <div class="ai-demo-top"><i></i><i></i><i></i><span>Review my code</span></div>
+        <div class="bubble u-code"><code>rs = st.executeQuery("select * from users where email = '" + email + "'");</code></div>
+        <div class="bubble a"><strong>SQL injection risk.</strong> The email is pasted straight into the query, so a crafted input can read or delete data. Use a PreparedStatement with a ? placeholder.</div>
+        <div class="bubble a"><strong>Resource leak.</strong> The connection is never closed. Wrap it in try-with-resources.</div>
+        <div class="bubble a"><span class="typing"><i></i><i></i><i></i></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="vh-h">
+    <div class="sec-head">
+      <div>
+        <p class="eyebrow">Version hub</p>
+        <h2 id="vh-h">Every version of Java, Spring and Hibernate</h2>
+        <p class="sub">Release dates, what changed, the Java each one needs, and an upgrade planner for each.</p>
+      </div>
+      <a class="btn btn-ghost" routerLink="/versions/compatibility">Compatibility matrix</a>
+    </div>
+    <div class="prod-grid">
+      <a class="prod-card" appSpot routerLink="/versions" style="--c1: #ff6b1a; --c2: #e11d48">
+        <span class="prod-mark">Jv</span>
+        <strong>Java SE</strong>
+        <span class="prod-latest">Java {{ content.latest }}</span>
+        <small>{{ content.released.length }} releases since 1996</small>
+      </a>
+      @for (p of products; track p.id) {
+        <a class="prod-card" appSpot [routerLink]="['/versions', p.id]" [style.--c1]="p.c1" [style.--c2]="p.c2">
+          <span class="prod-mark">{{ p.mark }}</span>
+          <strong>{{ p.name }}</strong>
+          <span class="prod-latest">{{ p.short }} {{ latestOf(p) }}</span>
+          <small>{{ releasesOf(p) }} releases since {{ firstYear(p) }}</small>
+        </a>
+      }
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="feat-h">
+    <div class="sec-head">
+      <div>
+        <h2 id="feat-h">Built to be used, not just read</h2>
+        <p class="sub">Try them right here. Every tile below works the same way it does inside the lessons.</p>
+      </div>
+    </div>
+    <div class="bento">
+      <article class="tile span-4" appSpot>
+        <h3>One lesson, three depths</h3>
+        <p>The same topic re-explains itself for where you are. Here’s “How HashMap works inside”:</p>
+        <span class="seg" role="group" aria-label="Explain it for">
+          <button type="button" [attr.aria-pressed]="depthDemo() === 'beginner'" (click)="depthDemo.set('beginner')">Beginner</button>
+          <button type="button" [attr.aria-pressed]="depthDemo() === 'developer'" (click)="depthDemo.set('developer')">Developer</button>
+          <button type="button" [attr.aria-pressed]="depthDemo() === 'interview'" (click)="depthDemo.set('interview')">Interview</button>
+        </span>
+        <div class="depth-demo" aria-live="polite">
+          @if (depthText(); as t) {
+            <p [attr.data-k]="depthDemo()">
+              @if (t.q) {
+                <span class="q">{{ t.q }}</span><br />
+              }
+              {{ t.a }}
+            </p>
+          }
+        </div>
+        <a class="more" routerLink="/learn/hashmap">Open the full lesson</a>
+      </article>
+
+      <article class="tile span-2" appSpot>
+        <h3>Interview flashcards</h3>
+        <p>{{ content.questions.length }} questions from every topic. Tap to reveal.</p>
+        <button type="button" class="flip" [class.on]="flipped()" [attr.aria-pressed]="flipped()" (click)="flipped.set(!flipped())">
+          <span class="flip-in">
+            <span class="flip-face flip-front">{{ flashcard.q }}<small>Tap to see the answer</small></span>
+            <span class="flip-face flip-back">{{ flashcard.a }}<small>Tap to flip back</small></span>
+          </span>
+        </button>
+        <a class="more" routerLink="/interview">Practise all questions</a>
+      </article>
+
+      <article class="tile span-3" appSpot>
+        <h3>Old way next to new way</h3>
+        <button type="button" class="switch" role="switch" [attr.aria-checked]="modern()" (click)="modern.set(!modern())">
+          <span class="knob" aria-hidden="true"></span>{{ modern() ? 'Java 8 and later' : 'Java 7' }}
+        </button>
+        <pre class="cmp-demo"><code [innerHTML]="cmpHtml()"></code></pre>
+        <a class="more" routerLink="/learn/lambdas">See it in the lambdas lesson</a>
+      </article>
+
+      <article class="tile span-3" appSpot>
+        <h3>Plan your upgrade</h3>
+        <div class="plan-demo">
+          <label for="pf">From</label>
+          <select id="pf" (change)="setPlan('from', $any($event.target).value)">
+            @for (n of planOptions; track n) {
+              <option [value]="n" [selected]="n === planFrom()">Java {{ n }}</option>
+            }
+          </select>
+          <label for="pt">to</label>
+          <select id="pt" (change)="setPlan('to', $any($event.target).value)">
+            @for (n of planOptions; track n) {
+              <option [value]="n" [selected]="n === planTo()">Java {{ n }}</option>
+            }
+          </select>
+        </div>
+        <p class="plan-num" aria-live="polite">
+          {{ planCount() }}
+          <small>{{ planTo() > planFrom() ? 'finished features you gain, plus every removal to check first' : 'Pick a target newer than where you start' }}</small>
+        </p>
+        <a class="more" routerLink="/versions">Open the full planner</a>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="courses-h">
+    <div class="sec-head">
+      <div>
+        <h2 id="courses-h">Go deeper with a course</h2>
+        <p class="sub">Project-based courses with free preview lectures. Pay once with UPI, cards or net banking.</p>
+      </div>
+      <a class="btn btn-ghost" routerLink="/courses">All courses</a>
+    </div>
+    <div class="course-grid">
+      @for (c of teaser(); track c.slug) {
+        <article class="ccard" appSpot>
+          <div class="cover" [class]="'cover lvl-' + c.level">
+            <span class="glyph" aria-hidden="true">{{ glyph(c.level) }}</span>
+            <span class="cover-tags">
+              @if (c.videoCount) {
+                <span class="tag">▶ Video</span>
+              }
+              <span class="tag">{{ c.level }}</span>
+            </span>
+          </div>
+          <div class="ccard-body">
+            <h2><a [routerLink]="['/courses', c.slug]">{{ c.title }}</a></h2>
+            <p>{{ c.subtitle }}</p>
+            <p class="cmeta">{{ c.lectureCount }} lectures, {{ hoursText(c.totalMinutes) }}{{ c.videoCount ? ' · ' + c.videoCount + (c.videoCount === 1 ? ' video' : ' videos') : '' }}</p>
+            <div class="ccard-foot">
+              <span class="price">{{ priceText(c.priceInr) }}</span>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+
+  @if (testimonials.length) {
+    <section class="sec" aria-labelledby="tm-h">
+      <div class="sec-head center"><div><p class="eyebrow">Learners</p><h2 id="tm-h">What learners say</h2></div></div>
+      <div class="tm-grid">
+        @for (t of testimonials; track t.name) {
+          <figure class="tm">
+            <blockquote>“{{ t.quote }}”</blockquote>
+            <figcaption><strong>{{ t.name }}</strong><span>{{ t.role }}</span></figcaption>
+          </figure>
+        }
+      </div>
+    </section>
+  }
+
+  <section class="sec faq-sec" aria-labelledby="faq-h">
+    <div class="sec-head center"><div><p class="eyebrow">Questions</p><h2 id="faq-h">Frequently asked questions</h2></div></div>
+    <div class="faq">
+      @for (f of faq; track f.q) {
+        <details>
+          <summary>{{ f.q }}</summary>
+          <p>{{ f.a }}</p>
+        </details>
+      }
+    </div>
+  </section>
+
+  <section class="cta-band warm" aria-labelledby="cta-h">
+    <div>
+      <h2 id="cta-h">Your first Java program is one click away.</h2>
+      <p>Start with lesson 1. No account, no card, no setup beyond installing Java.</p>
+    </div>
+    <div class="cta">
+      <a class="btn btn-light btn-lg" [routerLink]="['/learn', firstId]">Start lesson 1</a>
+      <a class="btn btn-glass btn-lg" routerLink="/ai">Try the AI mentor</a>
+    </div>
+  </section>
+</div>

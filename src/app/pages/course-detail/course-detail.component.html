@@ -1,0 +1,118 @@
+<div class="wrap">
+  @if (state() === 'loading') {
+    <p class="muted loading">Loading course…</p>
+  } @else if (state() === 'error') {
+    <div class="empty">
+      <h1>We couldn’t open this course</h1>
+      <p>{{ error() }}</p>
+      <a class="btn btn-primary" routerLink="/courses">See all courses</a>
+    </div>
+  } @else if (course(); as c) {
+    <header class="course-hero">
+      <div>
+        <p class="crumb"><a routerLink="/courses">Courses</a></p>
+        <h1>{{ c.title }}</h1>
+        <p class="lede">{{ c.subtitle }}</p>
+        <p class="cmeta">
+          {{ c.level }}, {{ c.lectureCount }} lectures, {{ hoursText(c.totalMinutes) }}{{ c.videoCount ? ', ' + c.videoCount + (c.videoCount === 1 ? ' video lecture' : ' video lectures') : '' }}
+          @if (!c.published) {
+            <span class="tag newer">Unpublished (only admins can see this)</span>
+          }
+        </p>
+      </div>
+      <aside class="buy-card" [class.has-trailer]="!!c.trailerUrl" aria-label="Enroll">
+        @if (c.trailerUrl) {
+          <div class="trailer">
+            <app-video [url]="c.trailerUrl" [title]="c.title + ' trailer'" />
+            <span class="trailer-tag">Course trailer</span>
+          </div>
+        }
+        <div class="price">{{ priceText(c.priceInr) }}</div>
+        @if (enrolled()) {
+          <a class="btn btn-primary w100" [routerLink]="['/courses', c.slug, 'learn']">
+            {{ done().size ? 'Continue learning' : 'Start learning' }}
+          </a>
+          <small>You own this course{{ done().size ? '. ' + done().size + ' of ' + c.lectureCount + ' lectures complete.' : '.' }}</small>
+        } @else {
+          <button type="button" class="btn btn-primary w100" (click)="enroll()">
+            {{ c.priceInr ? 'Enroll for ' + priceText(c.priceInr) : 'Enroll for free' }}
+          </button>
+          @if (firstPreview(); as p) {
+            <a class="btn btn-ghost w100" [routerLink]="['/courses', c.slug, 'learn', p.id]">Watch a free preview</a>
+          }
+          <small>{{ c.priceInr ? 'One-time payment through Razorpay (UPI, cards, net banking).' : 'Free. You just need an account.' }}</small>
+        }
+        <div class="includes">
+          <strong>This course includes</strong>
+          <ul>
+            @if (c.videoCount) {
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>{{ c.videoCount }} video lecture{{ c.videoCount === 1 ? '' : 's' }}, {{ hoursText(c.videoMinutes ?? 0) }} of video</li>
+            }
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h9l5 5v15H6zM14 2v6h6M9 13h8M9 17h6" /></svg>{{ c.lectureCount }} lectures with notes and code</li>
+            @if (previewCount()) {
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" /></svg>{{ previewCount() }} free preview{{ previewCount() === 1 ? '' : 's' }} before you buy</li>
+            }
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14a1 1 0 0 1 1 1v12H4V4a1 1 0 0 1 1-1zM2 20h20M9 16v4M15 16v4" /></svg>Learn on your phone, tablet or laptop</li>
+            @if (c.priceInr) {
+              <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>One-time payment, no subscription</li>
+            }
+          </ul>
+        </div>
+      </aside>
+    </header>
+
+    @if (c.outcomes.length) {
+      <section class="detail-sec" aria-labelledby="learn-h">
+        <h2 id="learn-h">What you’ll learn</h2>
+        <ul class="outcomes">
+          @for (o of c.outcomes; track o) {
+            <li>{{ o }}</li>
+          }
+        </ul>
+      </section>
+    }
+
+    @if (c.description) {
+      <section class="detail-sec" aria-labelledby="about-h">
+        <h2 id="about-h">About this course</h2>
+        <div class="prose rich" [innerHTML]="descriptionHtml()"></div>
+      </section>
+    }
+
+    <section class="detail-sec" aria-labelledby="cur-h">
+      <h2 id="cur-h">Curriculum</h2>
+      <p class="muted">{{ c.sections.length }} section{{ c.sections.length === 1 ? '' : 's' }}, {{ c.lectureCount }} lectures, {{ hoursText(c.totalMinutes) }}</p>
+      @for (s of c.sections; track $index) {
+        <div class="cur-sec">
+          <h3>{{ s.title }}</h3>
+          <ul class="cur-list">
+            @for (l of s.lectures; track l.id) {
+              <li>
+                <span class="cur-ico" [class.vid]="l.hasVideo" [attr.aria-label]="l.hasVideo ? 'Video' : 'Reading'">
+                  @if (l.hasVideo) {
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+                  } @else {
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h9l5 5v15H6zM14 2v6h6" /></svg>
+                  }
+                </span>
+                @if (enrolled() || l.freePreview) {
+                  <a [routerLink]="['/courses', c.slug, 'learn', l.id]">{{ l.title }}</a>
+                } @else {
+                  <span>{{ l.title }}</span>
+                }
+                @if (done().has(l.id)) {
+                  <span class="tag avail">Done</span>
+                } @else if (l.freePreview && !enrolled()) {
+                  <span class="tag avail">Free preview</span>
+                } @else if (!enrolled()) {
+                  <span class="lock">Locked</span>
+                }
+                <span class="dur">{{ l.durationMin }} min</span>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </section>
+  }
+</div>

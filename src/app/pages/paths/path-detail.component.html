@@ -1,0 +1,51 @@
+<div class="wrap">
+  @if (path(); as p) {
+    <header class="page-head">
+      <p class="crumb"><a routerLink="/paths">Learning paths</a></p>
+      <h1>{{ p.title }}</h1>
+      <p>{{ p.blurb }}</p>
+      <ul class="path-facts">
+        <li><strong>For:</strong> {{ p.who }}</li>
+        <li><strong>By the end:</strong> {{ p.outcome }}</li>
+        <li><strong>Size:</strong> {{ steps().length }} lessons ({{ time() }} of reading, plus time to try the code), {{ p.level.toLowerCase() }}</li>
+      </ul>
+      <div class="cta">
+        <a class="btn btn-primary" [routerLink]="['/learn', next().l.id]">{{ doneCount() ? 'Continue' : 'Start' }} with {{ next().l.t }}</a>
+      </div>
+      @if (doneCount()) {
+        <div class="path-progress">
+          <div class="bar" aria-hidden="true"><i [style.width.%]="(doneCount() / steps().length) * 100"></i></div>
+          <p class="cmeta">{{ doneCount() }} of {{ steps().length }} lessons done</p>
+        </div>
+      }
+    </header>
+
+    <ol class="steps">
+      @for (s of steps(); track s.l.id) {
+        <li class="step" [class.done]="s.done" [class.next]="s === next()">
+          <span class="step-no" aria-hidden="true">{{ s.done ? '✓' : s.no }}</span>
+          <div class="step-body">
+            <a [routerLink]="['/learn', s.l.id]">{{ s.l.t }}</a>
+            <span class="cmeta">{{ s.stage }}, {{ s.level.toLowerCase() }}, {{ s.minutes }} min{{ s.need ? ', needs Java ' + s.need : '' }}</span>
+          </div>
+          @if (s.done) {
+            <span class="sr">completed</span>
+          }
+        </li>
+      }
+    </ol>
+
+    @for (key of [p.id]; track key) {
+      <app-ad slot="listing" />
+    }
+
+    <section class="sec-lite" aria-labelledby="other-h">
+      <h2 id="other-h">Other paths</h2>
+      <ul class="other-paths">
+        @for (o of others(); track o.id) {
+          <li><a [routerLink]="['/paths', o.id]">{{ o.title }}</a> <span class="cmeta">{{ o.level }}</span></li>
+        }
+      </ul>
+    </section>
+  }
+</div>

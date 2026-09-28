@@ -1,0 +1,35 @@
+<div class="wrap">
+  <header class="page-head">
+    <h1>Learning paths</h1>
+    <p>Not sure what to learn next? Pick your goal and follow the lessons in order. Every path is free, and your progress is saved in this browser.</p>
+  </header>
+
+  <div class="path-grid">
+    @for (c of cards(); track c.p.id) {
+      <article class="path-card">
+        <div class="path-top">
+          <span class="tag">{{ c.p.level }}</span>
+          <span class="cmeta">{{ c.lessons.length }} lessons, {{ c.time }} reading</span>
+        </div>
+        <h2><a [routerLink]="['/paths', c.p.id]">{{ c.p.title }}</a></h2>
+        <p class="who">{{ c.p.who }}</p>
+        <p>{{ c.p.blurb }}</p>
+        @if (c.done) {
+          <div class="bar" aria-hidden="true"><i [style.width.%]="c.pct"></i></div>
+          <p class="cmeta">{{ c.done }} of {{ c.lessons.length }} done</p>
+        }
+        <div class="path-actions">
+          <a class="btn btn-primary btn-sm" [routerLink]="['/learn', c.next.id]">{{ c.done ? 'Continue' : 'Start' }}: {{ c.next.t }}</a>
+          <a class="btn btn-ghost btn-sm" [routerLink]="['/paths', c.p.id]">See all steps</a>
+        </div>
+      </article>
+    }
+  </div>
+
+  <app-ad slot="listing" />
+
+  <section class="sec-lite">
+    <h2>Prefer to browse?</h2>
+    <p>See every topic grouped by stage and level on the <a routerLink="/topics">all Java topics</a> page.</p>
+  </section>
+</div>

@@ -1,0 +1,52 @@
+<div class="wrap">
+  <header class="page-head">
+    <h1>All Java topics</h1>
+    <p>
+      {{ content.lessons.length }} topics and {{ content.subtopicCount }} subtopics in {{ content.stages.length }} stages, from your first program to production microservices. Filter by level or
+      search by name, or follow a <a routerLink="/paths">learning path</a> if you'd like a set order.
+    </p>
+  </header>
+
+  <div class="topic-tools">
+    <span class="seg" role="group" aria-label="Level">
+      @for (f of filters; track f.key) {
+        <button type="button" [attr.aria-pressed]="level() === f.key" (click)="level.set(f.key)">{{ f.label }}</button>
+      }
+    </span>
+    <input class="field topic-search" type="search" placeholder="Filter topics, e.g. stream" aria-label="Filter topics" [value]="query()" (input)="query.set($any($event.target).value)" />
+  </div>
+  <p class="vcount" aria-live="polite">{{ shown() }} {{ shown() === 1 ? 'topic' : 'topics' }}</p>
+
+  @for (g of groups(); track g.stage.id; let i = $index) {
+    <section class="topic-group" [attr.aria-labelledby]="'tg-' + g.stage.id">
+      <h2 [id]="'tg-' + g.stage.id"><app-stage-icon [stage]="g.stage.id" /><span><small class="topic-no">Stage {{ g.no }}</small>{{ g.stage.title }}</span></h2>
+      <p class="topic-blurb">{{ g.stage.blurb }}</p>
+      <ul class="topic-list">
+        @for (l of g.items; track l.id) {
+          <li>
+            <a [routerLink]="['/learn', l.id]">
+              <span class="dot" [class.done]="progress.done()[l.id]" aria-hidden="true"></span>
+              <span class="topic-t">{{ l.t }}</span>
+              <span class="lvl lvl-{{ l.lvl }}">{{ levelNames[l.lvl] }}</span>
+            </a>
+            @if (l.subs?.length) {
+              <details class="topic-subs" [open]="!!query().trim()">
+                <summary>{{ l.subs!.length }} subtopics</summary>
+                <ul>
+                  @for (st of l.subs; track st.id) {
+                    <li><a [routerLink]="['/learn', l.id]" [fragment]="'sub-' + st.id">{{ st.t }}</a></li>
+                  }
+                </ul>
+              </details>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+    @if (i === 1) {
+      <app-ad slot="listing" />
+    }
+  } @empty {
+    <p class="nores">No topics match that filter.</p>
+  }
+</div>

@@ -1,0 +1,279 @@
+@let l = lesson();
+<div class="learn">
+  <nav class="side" id="side" #side [class.open]="drawerOpen()" aria-label="All lessons">
+    <div class="side-top">
+      <h2>All lessons</h2>
+      <button class="icon-btn side-close" type="button" aria-label="Close lesson list" (click)="closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    @for (g of sidebar(); track g.stage.id) {
+      <details class="mod" [open]="g.current">
+        <summary>
+          <span class="num" [style.--p]="g.pct" aria-hidden="true"><b>{{ g.no }}</b></span>
+          <span>{{ g.stage.title }}</span>
+          <span class="count">{{ g.done }}/{{ g.stage.lessons.length }}<span class="sr"> complete</span></span>
+        </summary>
+        <ul class="les">
+          @for (item of g.items; track item.lesson.id) {
+            <li>
+              <a [routerLink]="['/learn', item.lesson.id]" [attr.aria-current]="item.lesson === l ? 'page' : null">
+                <span class="dot" [class.done]="item.done" aria-hidden="true"></span>
+                <span>{{ item.lesson.t }}</span>
+                @if (item.need) {
+                  <span class="need">Java {{ item.need }}+</span>
+                }
+                @if (item.done) {
+                  <span class="sr"> (completed)</span>
+                }
+              </a>
+              @if (item.lesson === l && l.subs?.length) {
+                <ol class="side-subs">
+                  @for (st of l.subs; track st.id) {
+                    <li><a [routerLink]="[]" [fragment]="'sub-' + st.id" (click)="closeDrawer()">{{ st.t }}</a></li>
+                  }
+                </ol>
+              }
+            </li>
+          }
+        </ul>
+      </details>
+    }
+  </nav>
+  @if (drawerOpen()) {
+    <div class="scrim" (click)="closeDrawer()"></div>
+  }
+
+  <article class="lesson" aria-labelledby="lt">
+    <div class="lesson-hero" [style.--c1]="stageStyle().c1" [style.--c2]="stageStyle().c2">
+    <div class="crumb-row">
+      <p class="crumb">
+        <app-stage-icon [stage]="stage().id" size="sm" />
+        Stage {{ stageNo() }}: <a [routerLink]="['/learn', stage().lessons[0].id]">{{ stage().title }}</a>, lesson {{ position() }} of
+        {{ stage().lessons.length }}
+      </p>
+      <button class="btn btn-ghost btn-sm side-toggle" type="button" aria-controls="side" (click)="openDrawer()">All lessons</button>
+    </div>
+    <h1 id="lt">{{ l.t }}</h1>
+    <div class="meta-row">
+      <span>{{ levelName() }}</span>
+      <span>{{ minutes() }} min read</span>
+      @if (l.min) {
+        <span class="since" [class.ok]="runs()" [class.no]="!runs()">&#64;since {{ l.min }}</span>
+        @if (runs()) {
+          <span>Code runs on your Java {{ progress.jdk() }}</span>
+        } @else {
+          <span class="need-txt">Code needs Java {{ l.min }}+. You picked {{ progress.jdk() }}.</span>
+        }
+      } @else {
+        <span class="since ok">all versions</span>
+      }
+    </div>
+    </div>
+
+    <div class="depth-row">
+      <span class="lbl" id="dl">Explain it for</span>
+      <span class="seg" role="group" aria-labelledby="dl">
+        @for (d of depths; track d.key) {
+          <button type="button" [attr.aria-pressed]="progress.depth() === d.key" (click)="progress.depth.set(d.key)">{{ d.name }}</button>
+        }
+      </span>
+      <span class="hint">{{ depthHint() }}</span>
+    </div>
+
+    @if (l.subs?.length) {
+      <nav class="sub-toc" aria-labelledby="toc-h">
+        <p id="toc-h"><strong>In this topic</strong> · {{ l.subs!.length }} subtopics</p>
+        <ol>
+          @for (st of l.subs; track st.id) {
+            <li><a [routerLink]="[]" [fragment]="'sub-' + st.id">{{ st.t }}</a></li>
+          }
+        </ol>
+      </nav>
+    }
+
+    @if (show().eli5 && l.eli5) {
+      <div class="eli5">
+        <h2>In plain words</h2>
+        <p>{{ l.eli5 }}</p>
+      </div>
+    }
+
+    <div class="prose" [innerHTML]="bodyHtml()"></div>
+    @for (key of [l.id]; track key) {
+      <app-ad slot="inArticle" />
+    }
+
+    @if (l.subs?.length) {
+      <div class="subs">
+        @for (st of l.subs; track st.id; let i = $index) {
+          <section class="sub" [id]="'sub-' + st.id" [attr.aria-labelledby]="'sub-h-' + st.id">
+            <h2 [id]="'sub-h-' + st.id"><span class="sub-no" aria-hidden="true">{{ i + 1 }}</span>{{ st.t }}</h2>
+            @if (st.min && st.min > progress.jdk()) {
+              <p class="since no sub-need">Needs Java {{ st.min }}; your JDK is {{ progress.jdk() }}</p>
+            }
+            <div class="prose" [innerHTML]="subHtml()[i]"></div>
+            @if (st.code) {
+              <app-code-block [src]="st.code" [lang]="st.lang ?? 'java'" [lesson]="l" />
+            }
+          </section>
+        }
+      </div>
+    }
+
+    @if (show().iq && l.iq) {
+      <section class="iq" aria-labelledby="iqh">
+        <h2 id="iqh">Interview questions</h2>
+        @for (qa of l.iq; track qa[0]) {
+          <details>
+            <summary>{{ qa[0] }}</summary>
+            <div class="a">{{ qa[1] }}</div>
+          </details>
+        }
+        <p><a routerLink="/interview">Practise every interview question</a></p>
+      </section>
+    }
+
+    @if (l.old && !l.neu) {
+      <h2>Old way vs new way</h2>
+      <div class="compare">
+        <app-code-block class="old" [src]="l.old" lang="java" [cap]="l.oldLabel ?? 'Before'" [lesson]="l" />
+        <app-code-block class="new" [src]="l.code" [lang]="l.lang ?? 'java'" [cap]="l.newLabel ?? 'Now'" [lesson]="l" />
+      </div>
+    } @else {
+      <h2>Example</h2>
+      <app-code-block [src]="l.code" [lang]="l.lang ?? 'java'" [lesson]="l" />
+      @if (l.old && l.neu) {
+        <h2>Old way vs new way</h2>
+        <div class="compare">
+          <app-code-block class="old" [src]="l.old" lang="java" [cap]="l.oldLabel ?? 'Before'" [lesson]="l" />
+          <app-code-block class="new" [src]="l.neu" lang="java" [cap]="l.newLabel ?? 'Now'" [lesson]="l" />
+        </div>
+      }
+    }
+    @for (m of l.more ?? []; track m.cap) {
+      <app-code-block [src]="m.src" [lang]="m.lang ?? 'java'" [cap]="m.cap" [lesson]="l" />
+    }
+
+    @if (l.trap) {
+      <div class="trap">
+        <h2>Common mistake</h2>
+        <p>{{ l.trap }}</p>
+      </div>
+    }
+
+    @if (show().pro && l.pro) {
+      <div class="pro">
+        <h2>Under the hood</h2>
+        <div class="prose" [innerHTML]="proHtml()"></div>
+      </div>
+    }
+
+    @if (l.quiz; as quiz) {
+      <section class="quiz" aria-labelledby="qz">
+        <h2 id="qz">Check yourself</h2>
+        <p class="q">{{ quiz[0] }}</p>
+        <div class="opts">
+          @for (option of quiz[1]; track $index) {
+            <button
+              type="button"
+              class="opt"
+              [disabled]="answered() !== null"
+              [class.right]="answered() !== null && $index === quiz[2]"
+              [class.wrong]="answered() === $index && $index !== quiz[2]"
+              (click)="answered.set($index)"
+            >
+              {{ option }}
+            </button>
+          }
+        </div>
+        <p class="explain" aria-live="polite">
+          @if (answered() !== null) {
+            <strong>{{ answered() === quiz[2] ? 'Correct.' : 'Not quite.' }}</strong> {{ quiz[3] }}
+          }
+        </p>
+      </section>
+    }
+
+    <section class="connect" aria-labelledby="cx">
+      <h2 id="cx">How this connects</h2>
+      <div class="connect-grid">
+        <div>
+          <h3>Know these first</h3>
+          @if (prereqs().length) {
+            <ul>
+              @for (p of prereqs(); track p.id) {
+                <li><a [routerLink]="['/learn', p.id]"><span class="dot" [class.done]="progress.done()[p.id]" aria-hidden="true"></span>{{ p.t }}</a></li>
+              }
+            </ul>
+          } @else {
+            <p>Nothing. This is a good place to start.</p>
+          }
+        </div>
+        <div>
+          <h3>Where this leads</h3>
+          @if (leadsTo().length) {
+            <ul>
+              @for (p of leadsTo(); track p.id) {
+                <li><a [routerLink]="['/learn', p.id]"><span class="dot" [class.done]="progress.done()[p.id]" aria-hidden="true"></span>{{ p.t }}</a></li>
+              }
+            </ul>
+          } @else {
+            <p>You've reached the end of this thread. Try a learning path for what's next.</p>
+          }
+        </div>
+      </div>
+      @if (paths().length) {
+        <p class="connect-paths">
+          Part of
+          @for (p of paths(); track p.id; let last = $last) {
+            <a [routerLink]="['/paths', p.id]">{{ p.title }}</a>{{ last ? '.' : ', ' }}
+          }
+        </p>
+      }
+    </section>
+
+    @for (key of [l.id]; track key) {
+      <app-ad slot="lessonEnd" />
+    }
+
+    <div class="done-row">
+      <p>{{ isDone() ? 'This lesson is marked complete.' : 'Finished reading? Mark it complete to track your progress.' }}</p>
+      <button type="button" class="btn btn-ghost btn-done" [attr.aria-pressed]="isDone()" (click)="toggleDone()">
+        {{ isDone() ? 'Completed' : 'Mark as complete' }}
+      </button>
+    </div>
+    @if (isDone() && !learning.signedIn()) {
+      <div class="login-nudge" role="status">
+        <div>
+          <strong>Saved in this browser only.</strong>
+          Create a free account to keep your progress on every device and see the date you’ll finish.
+        </div>
+        <button type="button" class="btn btn-brand btn-sm" (click)="signUp()">Create free account</button>
+      </div>
+    } @else if (learning.signedIn() && learning.pace().paceFinish && !learning.pace().complete) {
+      <p class="pace-line">
+        At your pace you’ll finish {{ learning.pace().targetLabel }} around <strong>{{ finishDate() }}</strong>.
+        <a routerLink="/my/learning">See your plan</a>
+      </p>
+    }
+    <nav class="pn" aria-label="Previous and next lesson">
+      @if (prev(); as p) {
+        <a class="prev" [routerLink]="['/learn', p.id]"><small>Previous</small>{{ p.t }}</a>
+      }
+      @if (next(); as n) {
+        <a class="next" [routerLink]="['/learn', n.id]"><small>Next</small>{{ n.t }}</a>
+      }
+    </nav>
+  </article>
+
+  <aside class="rail" aria-label="Lesson tools">
+    <section class="card-s" aria-labelledby="pg">
+      <h2 id="pg">Your progress</h2>
+      <div class="bar" aria-hidden="true"><i [style.width.%]="overallPct()"></i></div>
+      <p>{{ progress.doneCount() }} of {{ total }} lessons complete, {{ doneInStage() }} of {{ stage().lessons.length }} in this stage.</p>
+    </section>
+    <app-tutor [lesson]="l" />
+    @for (key of [l.id]; track key) {
+      <app-ad slot="sidebar" />
+    }
+  </aside>
+</div>

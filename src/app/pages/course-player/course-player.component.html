@@ -1,0 +1,122 @@
+@if (courseError()) {
+  <div class="wrap">
+    <div class="empty">
+      <h1>We couldn’t open this course</h1>
+      <p>{{ courseError() }}</p>
+      <a class="btn btn-primary" routerLink="/courses">See all courses</a>
+    </div>
+  </div>
+} @else if (!course()) {
+  <div class="wrap"><p class="muted loading">Loading course…</p></div>
+} @else if (course(); as c) {
+  <div class="player">
+    <nav class="side" id="side" [class.open]="drawerOpen()" aria-label="Course curriculum">
+      <div class="side-top">
+        <h2><a [routerLink]="['/courses', c.slug]">{{ c.title }}</a></h2>
+        <button class="icon-btn side-close" type="button" aria-label="Close curriculum" (click)="closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+      @if (enrolled()) {
+        <div class="pl-progress">
+          <div class="bar" aria-hidden="true"><i [style.width.%]="pct()"></i></div>
+          <p>{{ doneCount() }} of {{ flat().length }} lectures complete</p>
+        </div>
+      }
+      @for (s of c.sections; track $index) {
+        <div class="pl-sec">
+          <h3>{{ s.title }}</h3>
+          <ul class="les">
+            @for (l of s.lectures; track l.id) {
+              <li>
+                @if (enrolled() || l.freePreview || l.id === currentId()) {
+                  <a [routerLink]="['/courses', c.slug, 'learn', l.id]" [attr.aria-current]="l.id === currentId() ? 'page' : null">
+                    <span class="dot" [class.done]="completed().has(l.id)" aria-hidden="true"></span>
+                    <span>{{ l.title }}</span>
+                    @if (l.freePreview && !enrolled()) {
+                      <span class="need ok-txt">Preview</span>
+                    }
+                  </a>
+                } @else {
+                  <a [routerLink]="['/courses', c.slug, 'learn', l.id]" class="locked-link">
+                    <span class="dot" aria-hidden="true"></span>
+                    <span>{{ l.title }}</span>
+                    <span class="need muted">Locked</span>
+                  </a>
+                }
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </nav>
+    @if (drawerOpen()) {
+      <div class="scrim" (click)="closeDrawer()"></div>
+    }
+
+    <article class="lesson" aria-live="polite">
+      <div class="crumb-row">
+        <p class="crumb">
+          <a [routerLink]="['/courses', c.slug]">{{ c.title }}</a>@if (lecture(); as lec) {, {{ lec.sectionTitle }}}
+        </p>
+        <button class="btn btn-ghost btn-sm side-toggle" type="button" aria-controls="side" (click)="openDrawer()">Curriculum</button>
+      </div>
+
+      @switch (lectureState()) {
+        @case ('loading') {
+          <p class="muted loading">Loading lecture…</p>
+        }
+        @case ('locked') {
+          <div class="locked-box">
+            <h1>{{ current()?.title }}</h1>
+            <p>This lecture is part of the full course. Enroll to unlock all {{ c.lectureCount }} lectures.</p>
+            <div class="cta">
+              <button type="button" class="btn btn-primary" (click)="enroll()">{{ c.priceInr ? 'Enroll for ' + priceText(c.priceInr) : 'Enroll for free' }}</button>
+              <a class="btn btn-ghost" [routerLink]="['/courses', c.slug]">About this course</a>
+            </div>
+          </div>
+        }
+        @case ('error') {
+          <div class="locked-box">
+            <h1>This lecture didn’t load</h1>
+            <p>{{ lectureError() }}</p>
+          </div>
+        }
+        @default {
+          @if (lecture(); as lec) {
+            <h1 id="lt">{{ lec.title }}</h1>
+            <div class="meta-row">
+              <span>{{ lec.durationMin }} min</span>
+              @if (lec.freePreview && !enrolled()) {
+                <span class="tag avail">Free preview</span>
+              }
+            </div>
+            <app-video [url]="lec.videoUrl" />
+            <div class="prose rich" [innerHTML]="contentHtml()"></div>
+
+            @if (enrolled()) {
+              <div class="done-row">
+                <p>{{ completed().has(lec.id) ? 'Marked complete.' : 'Finished this lecture?' }}</p>
+                <button type="button" class="btn btn-ghost btn-done" [attr.aria-pressed]="completed().has(lec.id)" [disabled]="saving()" (click)="toggleComplete()">
+                  {{ completed().has(lec.id) ? 'Completed' : 'Mark as complete' }}
+                </button>
+              </div>
+            } @else {
+              <div class="cta-box">
+                <p><strong>Enjoying the preview?</strong> Enroll to unlock all {{ c.lectureCount }} lectures.</p>
+                <button type="button" class="btn btn-primary" (click)="enroll()">{{ c.priceInr ? 'Enroll for ' + priceText(c.priceInr) : 'Enroll for free' }}</button>
+              </div>
+            }
+          }
+        }
+      }
+
+      <nav class="pn" aria-label="Previous and next lecture">
+        @if (prev(); as p) {
+          <a class="prev" [routerLink]="['/courses', c.slug, 'learn', p.id]"><small>Previous</small>{{ p.title }}</a>
+        }
+        @if (next(); as n) {
+          <a class="next" [routerLink]="['/courses', c.slug, 'learn', n.id]"><small>Next</small>{{ n.title }}</a>
+        }
+      </nav>
+    </article>
+  </div>
+}

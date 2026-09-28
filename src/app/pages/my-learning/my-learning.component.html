@@ -1,0 +1,201 @@
+<div class="wrap ml">
+  @if (!account.checked()) {
+    <p class="muted loading">Loading…</p>
+  } @else if (!account.me()) {
+    <section class="ml-gate">
+      <div>
+        <p class="eyebrow">Free account</p>
+        <h1>Your progress, on every device, with a finish date.</h1>
+        <p class="lede-l">Lessons are free without an account. Create one and JavaAtlas remembers your progress everywhere and tells you exactly when you’ll finish.</p>
+        <ul class="benefits">
+          @for (b of benefits; track b.t) {
+            <li><span class="benefit-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path [attr.d]="b.icon" /></svg></span><div><strong>{{ b.t }}</strong><span>{{ b.d }}</span></div></li>
+          }
+        </ul>
+        <div class="cta">
+          <button type="button" class="btn btn-brand btn-lg" (click)="signUp()">Create a free account</button>
+          <button type="button" class="btn btn-ghost btn-lg" (click)="logIn()">Log in</button>
+        </div>
+        <p class="small-note muted">No card needed. Progress you’ve already made in this browser is added to your account.</p>
+      </div>
+      <div class="ml-preview" aria-hidden="true">
+        <span class="ml-preview-tag">Preview</span>
+        <div class="ml-prev-card">
+          <span class="ring" style="--p: 42"><span>42%</span></span>
+          <div><strong>Java from zero</strong><span>11 of 25 lessons done</span></div>
+        </div>
+        <div class="ml-prev-card">
+          <span class="ml-prev-big">12 Dec</span>
+          <div><strong>Your finish date</strong><span>At about 35 min a day, 5 days a week</span></div>
+        </div>
+        <div class="ml-prev-card">
+          <span class="ml-prev-big">6 days</span>
+          <div><strong>Study streak</strong><span>Keep it going tomorrow</span></div>
+        </div>
+      </div>
+    </section>
+  } @else {
+    <header class="page-head ml-head">
+      <p class="eyebrow">My learning</p>
+      <h1>{{ firstName() ? 'Hi ' + firstName() + ', here’s your progress' : 'Your progress' }}</h1>
+      @if (next(); as n) {
+        <div class="cta"><a class="btn btn-brand" [routerLink]="['/learn', n.id]">Continue: {{ n.t }}</a></div>
+      }
+    </header>
+
+    <div class="ml-stats">
+      <div class="ml-stat">
+        <span class="ring" [style.--p]="pct()"><span>{{ pct() }}%</span></span>
+        <div><strong>{{ pace().doneCount }} / {{ pace().total }}</strong><span>lessons in {{ pace().targetLabel }}</span></div>
+      </div>
+      <div class="ml-stat">
+        <span class="ml-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 6v6l4 2" /></svg></span>
+        <div><strong>{{ hours(pace().totalMinutes) }}</strong><span>studied in total</span></div>
+      </div>
+      <div class="ml-stat">
+        <span class="ml-ico warm" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-6 1-9z" /></svg></span>
+        <div><strong>{{ pace().streak }} day{{ pace().streak === 1 ? '' : 's' }}</strong><span>study streak</span></div>
+      </div>
+      <div class="ml-stat">
+        <span class="ml-ico green" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 15l4-4 3 3 5-6" /></svg></span>
+        <div>
+          <strong>{{ pace().thisWeekMinutes }} / {{ learning.goal().minutesPerDay * learning.goal().daysPerWeek }} min</strong>
+          <span>this week vs your goal</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ml-grid">
+      <section class="panel ml-pace" aria-labelledby="pace-h">
+        <h2 id="pace-h">Your pace</h2>
+        @if (pace().complete) {
+          <p class="ml-big">You’ve finished {{ pace().targetLabel }}. Brilliant work!</p>
+          <p class="muted">Pick another path in the planner, or practise with interview questions and the AI mock interview.</p>
+        } @else {
+          @if (pace().paceFinish) {
+            <p class="ml-big">You’ll finish around <strong>{{ date(pace().paceFinish) }}</strong></p>
+            <p>
+              Based on your last 4 weeks: about <strong>{{ pace().recentMinutesPerWeek }} minutes a week</strong> over {{ pace().activeDaysPerWeek }} days,
+              and {{ pace().lessonsPerWeek }} lessons a week.
+            </p>
+          } @else {
+            <p class="ml-big">With your plan, you’d finish around <strong>{{ date(pace().goalFinish) }}</strong></p>
+            <p>Study a few sessions and this switches to your real pace. We only count time when you’re actively reading a lesson.</p>
+          }
+          @if (pace().status) {
+            <p class="ml-status" [class]="'ml-status st-' + pace().status">
+              {{ pace().status === 'ahead' ? 'Ahead of your target date' : pace().status === 'on-track' ? 'On track for your target date' : 'Behind your target date' }}
+              · study about <strong>{{ pace().neededMinutesPerDay }} min</strong> on each study day to finish by {{ targetText() }}
+            </p>
+          }
+          <div class="bar ml-bar" aria-hidden="true"><i [style.width.%]="pct()"></i></div>
+          <p class="muted">{{ pace().remaining }} lessons left · about {{ hours(pace().remainingMinutes) }} of study</p>
+          @if (pace().personalFactor; as f) {
+            <p class="small-note muted">You spend about {{ f.toFixed(1) }}× our estimate per lesson, so these dates are adjusted to you.</p>
+          }
+        }
+      </section>
+
+      <section class="panel ml-plan" aria-labelledby="plan-h">
+        <h2 id="plan-h">Plan your finish date</h2>
+        <label class="fld">What do you want to finish?
+          <select (change)="setDraft({ pathId: $any($event.target).value || null })">
+            <option value="" [selected]="!draft().pathId">All {{ content.lessons.length }} lessons</option>
+            @for (p of content.paths; track p.id) {
+              <option [value]="p.id" [selected]="draft().pathId === p.id">{{ p.title }} ({{ p.lessons.length }} lessons)</option>
+            }
+          </select>
+        </label>
+        <label class="fld">Minutes a day: <strong>{{ draft().minutesPerDay }}</strong>
+          <input type="range" min="5" max="120" step="5" [value]="draft().minutesPerDay" (input)="setDraft({ minutesPerDay: +$any($event.target).value })" />
+        </label>
+        <div class="fld">Days a week
+          <span class="seg" role="group" aria-label="Days a week">
+            @for (d of [3, 4, 5, 6, 7]; track d) {
+              <button type="button" [attr.aria-pressed]="draft().daysPerWeek === d" (click)="setDraft({ daysPerWeek: d })">{{ d }}</button>
+            }
+          </span>
+        </div>
+        <label class="fld">Target date (optional)
+          <input type="date" [min]="minDate" [value]="draft().targetDate ?? ''" (change)="setDraft({ targetDate: $any($event.target).value || null })" />
+        </label>
+        <p class="ml-preview-line">
+          @if (draftPace().complete) {
+            Already finished.
+          } @else {
+            With this plan you’d finish around <strong>{{ date(draftPace().goalFinish) }}</strong>
+            @if (draftPace().neededMinutesPerDay; as need) {
+              · to hit your date you need about <strong>{{ need }} min</strong> a day
+            }
+          }
+        </p>
+        <button type="button" class="btn btn-primary" [disabled]="!dirty() || saving()" (click)="save()">{{ saving() ? 'Saving…' : 'Save my plan' }}</button>
+        @if (!draftPace().complete) {
+          <table class="ml-scen">
+            <caption>Finish dates at {{ draft().daysPerWeek }} days a week</caption>
+            <tbody>
+              @for (sc of draftPace().scenarios; track sc.minutesPerDay) {
+                <tr [class.on]="sc.minutesPerDay === draft().minutesPerDay">
+                  <th scope="row">{{ sc.minutesPerDay }} min a day</th>
+                  <td>{{ date(sc.finish) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </section>
+    </div>
+
+    <section class="panel" aria-labelledby="wk-h">
+      <div class="row-between">
+        <h2 id="wk-h">Weekly study time</h2>
+        <span class="muted">Dashed line: your weekly goal</span>
+      </div>
+      <svg class="ml-chart" viewBox="0 0 100 60" preserveAspectRatio="none" role="img" aria-label="Minutes studied per week for the last 12 weeks">
+        <line x1="0" x2="100" [attr.y1]="chart().goalY * 0.5 + 5" [attr.y2]="chart().goalY * 0.5 + 5" class="goal" />
+        @for (b of chart().bars; track b.x) {
+          <rect [attr.x]="b.x + 1.2" [attr.y]="55 - b.h * 0.5" width="6" [attr.height]="Math.max(0.6, b.h * 0.5)" rx="1.2" [class.cur]="b.current">
+            <title>{{ b.label }}: {{ b.minutes }} min</title>
+          </rect>
+        }
+      </svg>
+      <div class="ml-chart-labels">
+        @for (b of chart().bars; track b.x; let i = $index) {
+          <span>{{ i % 2 === 1 ? b.label : '' }}</span>
+        }
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="st-h">
+      <h2 id="st-h">Progress by stage</h2>
+      <ul class="ml-stages">
+        @for (x of stages(); track x.s.id) {
+          <li>
+            <app-stage-icon [stage]="x.s.id" size="sm" />
+            <div class="ml-stage-main">
+              <div class="row-between"><strong>{{ x.no }}. {{ x.s.title }}</strong><span class="muted">{{ x.count }}/{{ x.s.lessons.length }}</span></div>
+              <div class="bar" aria-hidden="true"><i [style.width.%]="x.pct"></i></div>
+            </div>
+            @if (x.next) {
+              <a [routerLink]="['/learn', x.next.id]" class="btn btn-ghost btn-sm">{{ x.count ? 'Continue' : 'Start' }}</a>
+            } @else {
+              <span class="tag avail">Done</span>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+
+    @if (recent().length) {
+      <section class="panel" aria-labelledby="rc-h">
+        <h2 id="rc-h">Recently completed</h2>
+        <ul class="ml-recent">
+          @for (r of recent(); track r.lesson!.id) {
+            <li><a [routerLink]="['/learn', r.lesson!.id]">{{ r.lesson!.t }}</a><span class="muted">{{ r.when }}</span></li>
+          }
+        </ul>
+      </section>
+    }
+    <p class="small-note muted">Study time counts only while a lesson is open and you’re active on it. Estimates assume about 15 to 25 minutes per lesson, including trying the code and the quiz, and adjust to you as you go.</p>
+  }
+</div>

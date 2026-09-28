@@ -1,0 +1,51 @@
+<div class="wrap">
+  <header class="page-head">
+    <h1>Courses</h1>
+    <p>Project-based courses that go deeper than the free lessons. Watch free previews first; you only need an account to enroll.</p>
+  </header>
+
+  @if (!account.checked()) {
+    <p class="muted loading">Loading courses…</p>
+  } @else {
+    @if (!account.online()) {
+      <p class="free-note">Enrollment opens soon. Every lesson on JavaAtlas stays free to read in the meantime.</p>
+    }
+    <div class="course-grid">
+      @for (c of account.courses(); track c.slug) {
+        <article class="ccard">
+          <div class="cover" [class]="'cover lvl-' + c.level">
+            <span class="glyph" aria-hidden="true">{{ glyph(c.level) }}</span>
+            <span class="cover-tags">
+              @if (c.videoCount) {
+                <span class="tag">▶ Video</span>
+              }
+              <span class="tag">{{ c.level }}</span>
+            </span>
+          </div>
+          <div class="ccard-body">
+            @if (account.enrolled().has(c.slug)) {
+              <div class="ccard-top"><span class="tag avail">Enrolled</span></div>
+            }
+            <h2>
+              @if (account.online()) {
+                <a [routerLink]="['/courses', c.slug]">{{ c.title }}</a>
+              } @else {
+                <span>{{ c.title }}</span>
+              }
+            </h2>
+            <p>{{ c.subtitle }}</p>
+            <p class="cmeta">{{ c.lectureCount }} lectures, {{ hoursText(c.totalMinutes) }}{{ c.videoCount ? ' · ' + c.videoCount + (c.videoCount === 1 ? ' video' : ' videos') : '' }}</p>
+            <div class="ccard-foot">
+              <span class="price">{{ priceText(c.priceInr) }}</span>
+              @if (account.online()) {
+                <a class="btn btn-sm" [class.btn-primary]="account.enrolled().has(c.slug)" [class.btn-ghost]="!account.enrolled().has(c.slug)" [routerLink]="account.enrolled().has(c.slug) ? ['/courses', c.slug, 'learn'] : ['/courses', c.slug]">
+                  {{ account.enrolled().has(c.slug) ? 'Continue' : 'View course' }}
+                </a>
+              }
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</div>

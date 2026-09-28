@@ -1,0 +1,102 @@
+@if (ui.dialog(); as d) {
+  <div class="modal" (click)="onBackdrop($event)">
+    <div class="sheet" #sheet role="dialog" aria-modal="true" aria-labelledby="dialogTitle" tabindex="-1" (keydown)="trapTab($event)">
+      @if (d.kind === 'info') {
+        @if (!d.waiting) {
+          <button type="button" class="icon-btn x" aria-label="Close" (click)="close()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        }
+        <h2 id="dialogTitle">{{ d.title }}</h2>
+        <p class="for">{{ d.text }}</p>
+        @if (!d.waiting) {
+          @if (d.action) {
+            <a class="btn btn-primary w100" [routerLink]="d.action.link" (click)="close()">{{ d.action.label }}</a>
+            <button type="button" class="btn btn-ghost w100 gap-top" (click)="close()">Close</button>
+          } @else {
+            <button type="button" class="btn btn-primary w100" (click)="close()">OK</button>
+          }
+        }
+      }
+      @if (d.kind === 'auth') {
+        <button type="button" class="icon-btn x" aria-label="Close" (click)="close()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        @if (d.mode === 'forgot') {
+          <h2 id="dialogTitle">Reset your password</h2>
+          @if (sentTo()) {
+            <div class="sent-box" role="status">
+              If an account exists for <strong>{{ sentTo() }}</strong>, a reset link is on its way. It works for 30 minutes. Check your spam folder if it doesn’t arrive in a few minutes.
+            </div>
+            <button type="button" class="btn btn-primary w100" (click)="setMode('login')">Back to log in</button>
+            <button type="button" class="btn btn-ghost w100 gap-top" (click)="sendReset()" [disabled]="submitting()">Send the link again</button>
+          } @else {
+            <p class="for">Enter the email you signed up with and we’ll send you a link to choose a new password.</p>
+            <label class="fld" style="margin-top: 14px">Email
+              <input type="email" autocomplete="email" inputmode="email" maxlength="254" [value]="email()" (input)="email.set($any($event.target).value)" (keydown.enter)="sendReset()" />
+            </label>
+            <p class="err" role="alert">{{ error() }}</p>
+            <button type="button" class="btn btn-primary w100" [disabled]="submitting()" (click)="sendReset()">{{ submitting() ? 'Sending…' : 'Send reset link' }}</button>
+            <button type="button" class="btn btn-ghost w100 gap-top" (click)="setMode('login')">Back to log in</button>
+          }
+        } @else {
+          @if (d.course) {
+            <h2 id="dialogTitle">{{ d.mode === 'signup' ? 'Create an account to enroll' : 'Log in to enroll' }}</h2>
+            <p class="for">{{ d.course.title }}, {{ priceText(d.course.priceInr) }}</p>
+          } @else {
+            <h2 id="dialogTitle">{{ d.mode === 'signup' ? 'Create your free account' : 'Welcome back' }}</h2>
+            <p class="for">
+              {{ d.mode === 'signup' ? 'Lessons stay free without an account. With one you also get:' : 'Log in to continue where you left off, on any device.' }}
+            </p>
+            @if (d.mode === 'signup') {
+              <ul class="dlg-benefits">
+                <li>Your progress saved on every device</li>
+                <li>A personal finish date based on your pace</li>
+                <li>Daily goal, weekly study time and streaks</li>
+                <li>Your courses and orders in one place</li>
+              </ul>
+            }
+          }
+          <div class="atabs" role="tablist">
+            <button type="button" role="tab" [attr.aria-selected]="d.mode === 'signup'" (click)="setMode('signup')">Create account</button>
+            <button type="button" role="tab" [attr.aria-selected]="d.mode === 'login'" (click)="setMode('login')">Log in</button>
+          </div>
+          @if (d.mode === 'signup') {
+            <label class="fld">Full name
+              <input autocomplete="name" maxlength="120" [value]="name()" (input)="name.set($any($event.target).value)" (keydown.enter)="submit()" />
+            </label>
+          }
+          <label class="fld">Email
+            <input type="email" autocomplete="email" inputmode="email" maxlength="254" [value]="email()" (input)="email.set($any($event.target).value)" (keydown.enter)="submit()" />
+          </label>
+          <label class="fld">Password
+            <span class="pw-wrap">
+              <input
+                [type]="showPassword() ? 'text' : 'password'"
+                maxlength="100"
+                [attr.autocomplete]="d.mode === 'signup' ? 'new-password' : 'current-password'"
+                [value]="password()"
+                (input)="password.set($any($event.target).value)"
+                (keydown.enter)="submit()"
+              />
+              <button type="button" class="pw-show" (click)="showPassword.set(!showPassword())" [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
+                {{ showPassword() ? 'Hide' : 'Show' }}
+              </button>
+            </span>
+          </label>
+          @if (d.mode === 'signup') {
+            <app-password-strength [value]="password()" />
+          } @else {
+            <div class="forgot-row"><button type="button" class="linkish" (click)="setMode('forgot')">Forgot password?</button></div>
+          }
+          <p class="err" role="alert">{{ error() }}</p>
+          <button type="button" class="btn btn-primary w100" [disabled]="submitting()" (click)="submit()">
+            @if (submitting()) {
+              {{ d.mode === 'signup' ? 'Creating account…' : 'Logging in…' }}
+            } @else if (d.course) {
+              {{ d.mode === 'signup' ? 'Create account and continue' : 'Log in and continue' }}
+            } @else {
+              {{ d.mode === 'signup' ? 'Create account' : 'Log in' }}
+            }
+          </button>
+        }
+      }
+    </div>
+  </div>
+}

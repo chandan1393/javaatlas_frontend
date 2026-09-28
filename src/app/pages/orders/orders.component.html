@@ -1,0 +1,60 @@
+<div class="wrap">
+  <header class="page-head">
+    <h1>Orders and account</h1>
+  </header>
+  @if (!account.checked()) {
+    <p class="muted loading">Loading…</p>
+  } @else if (!account.me()) {
+    <div class="empty">
+      <p>Log in to see your orders.</p>
+      <button type="button" class="btn btn-primary" (click)="ui.auth(null, 'login', '/my/orders')">Log in</button>
+    </div>
+  } @else {
+    <section class="detail-sec" aria-labelledby="orders-h">
+      <h2 id="orders-h">Orders</h2>
+      @if (orders() === null) {
+        <p class="muted">Loading your orders…</p>
+      } @else if (error()) {
+        <p class="err">{{ error() }}</p>
+      } @else if (!orders()!.length) {
+        <p class="muted">No orders yet. <a routerLink="/courses">Browse courses</a></p>
+      } @else {
+        <div class="table-wrap">
+          <table class="tbl">
+            <thead>
+              <tr><th>Date</th><th>Course</th><th>Amount</th><th>Status</th><th>Payment ID</th></tr>
+            </thead>
+            <tbody>
+              @for (o of orders(); track o.orderId) {
+                <tr>
+                  <td>{{ when(o.paidAt ?? o.createdAt) }}</td>
+                  <td><a [routerLink]="['/courses', o.courseSlug]">{{ o.courseTitle }}</a></td>
+                  <td>{{ money(o.amountPaise) }}</td>
+                  <td><span class="tag" [class.avail]="o.status === 'PAID'">{{ status(o.status) }}</span></td>
+                  <td class="mono">{{ o.paymentId === 'free' ? '—' : (o.paymentId ?? '—') }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <p class="muted small-note">Razorpay emails a payment receipt for every paid order. Quote the payment ID if you contact support.</p>
+      }
+    </section>
+
+    <section class="detail-sec panel narrow" aria-labelledby="pw-h">
+      <h2 id="pw-h">Change password</h2>
+      <p class="muted">Signed in as {{ account.me()?.email }}</p>
+      <label class="fld">Current password
+        <input type="password" autocomplete="current-password" [value]="current()" (input)="current.set($any($event.target).value)" />
+      </label>
+      <label class="fld">New password
+        <input type="password" autocomplete="new-password" [value]="next()" (input)="next.set($any($event.target).value)" />
+      </label>
+      <app-password-strength [value]="next()" />
+      <p class="err" role="status">{{ pwMessage() }}</p>
+      <button type="button" class="btn btn-primary" [disabled]="pwSaving() || !current() || !next()" (click)="changePassword()">
+        {{ pwSaving() ? 'Saving…' : 'Change password' }}
+      </button>
+    </section>
+  }
+</div>

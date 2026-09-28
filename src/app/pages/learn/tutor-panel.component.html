@@ -1,0 +1,40 @@
+@if (tutor.mode()) {
+  <section class="tutor" aria-labelledby="tt">
+    <h2 id="tt">Ask about this lesson</h2>
+    <p class="hint">Claude answers with this lesson, {{ depthName() }} depth and Java {{ progress.jdk() }} in mind.</p>
+    <div class="thread" #thread aria-live="polite">
+      @for (m of items(); track $index) {
+        @switch (m.role) {
+          @case ('user') {
+            <div class="msg u">{{ m.text }}</div>
+          }
+          @case ('assistant') {
+            <div class="msg a" [innerHTML]="m.html"></div>
+          }
+          @default {
+            <div class="msg note">{{ m.text }}</div>
+          }
+        }
+      }
+      @if (live() !== null) {
+        <div class="msg a" [innerHTML]="liveHtml()"></div>
+      }
+    </div>
+    @if (!items().length && live() === null) {
+      <div class="chips">
+        @for (s of suggestions; track s) {
+          <button type="button" class="chip" (click)="ask(s)">{{ s }}</button>
+        }
+      </div>
+    }
+    <div class="ask">
+      <label class="sr" for="askIn">Your question</label>
+      <textarea id="askIn" rows="2" placeholder="Type your doubt…" [value]="draft()" (input)="onInput($event)" (keydown)="onKey($event)"></textarea>
+      @if (tutor.busy()) {
+        <button type="button" class="btn btn-ghost btn-sm" (click)="tutor.stop()">Stop</button>
+      } @else {
+        <button type="button" class="btn btn-primary btn-sm" (click)="send()">Ask</button>
+      }
+    </div>
+  </section>
+}

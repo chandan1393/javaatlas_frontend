@@ -1,0 +1,145 @@
+<div class="wrap">
+  <app-version-tabs active="java" />
+  <header class="page-head">
+    <h1>Every Java version, and what it added</h1>
+    <p>
+      From JDK 1.0 in 1996 to Java {{ content.latest }} in {{ latestYear }}. Search for a feature to find the version that introduced it,
+      or plan an upgrade between any two versions.
+    </p>
+  </header>
+
+  <div class="tabs-row" id="timeline">
+    <span class="seg" role="tablist" aria-label="Timeline">
+      <button type="button" role="tab" [attr.aria-selected]="tab() === 'java'" (click)="tab.set('java')">Java SE</button>
+      <button type="button" role="tab" [attr.aria-selected]="tab() === 'eco'" (click)="tab.set('eco')">Spring, JPA and Hibernate</button>
+    </span>
+  </div>
+
+  @if (tab() === 'java') {
+    <section class="planner" aria-labelledby="plh">
+      <h2 id="plh">Upgrade planner</h2>
+      <p>See everything you gain, and everything that was removed, between two versions.</p>
+      <div class="plan-ctl">
+        <label for="pFrom">From</label>
+        <select class="field" id="pFrom" (change)="setFrom($any($event.target).value)">
+          @for (n of options; track n) {
+            <option [value]="n" [selected]="n === from()">Java {{ n }}{{ content.isLts(n) ? ' LTS' : '' }}</option>
+          }
+        </select>
+        <label for="pTo">to</label>
+        <select class="field" id="pTo" (change)="setTo($any($event.target).value)">
+          @for (n of options; track n) {
+            <option [value]="n" [selected]="n === to()">Java {{ n }}{{ content.isLts(n) ? ' LTS' : '' }}</option>
+          }
+        </select>
+      </div>
+      <div aria-live="polite">
+        @if (plan(); as p) {
+          <p class="plan-sum">
+            Java {{ from() }} to {{ to() }} spans <strong>{{ p.releases }} release{{ p.releases > 1 ? 's' : '' }}</strong>{{ p.lts.length ? ' (long-term support: ' + p.lts.join(', ') + ')' : '' }},
+            with <strong>{{ p.finishedCount }} finished features</strong> to adopt and <strong>{{ p.removed.length }} removals or restrictions</strong> to check before you migrate.
+          </p>
+          <div class="plan-out">
+            @for (g of p.groups; track g.type) {
+              <div class="plan-group">
+                <h3><i [class]="'k k-' + g.type" aria-hidden="true"></i>{{ g.name }} ({{ g.items.length }})</h3>
+                <ul>
+                  @for (f of g.items; track f.id) {
+                    <li>{{ f.text }} <span>Java {{ f.version.v }}</span></li>
+                  }
+                </ul>
+              </div>
+            }
+            @if (p.removed.length) {
+              <div class="plan-group warn">
+                <h3><i class="k k-x" aria-hidden="true"></i>Check before migrating ({{ p.removed.length }})</h3>
+                <ul>
+                  @for (f of p.removed; track f.id) {
+                    <li>{{ f.text }} <span>Java {{ f.version.v }}</span></li>
+                  }
+                </ul>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="plan-sum">Choose a target version newer than Java {{ from() }}.</p>
+        }
+      </div>
+    </section>
+    <app-ad slot="listing" />
+
+    <div class="vtools">
+      <label class="sr" for="vq">Search features</label>
+      <input class="field vsearch" id="vq" type="search" placeholder="Which version added… records, var, HTTP client" [value]="query()" (input)="query.set($any($event.target).value)" />
+      <div class="filt" role="group" aria-label="Feature type">
+        @for (t of typeFilters; track t.key) {
+          <button type="button" [attr.aria-pressed]="type() === t.key" (click)="type.set(t.key)">{{ t.name }}</button>
+        }
+      </div>
+      <label class="toggle"><input type="checkbox" [checked]="previews()" (change)="previews.set($any($event.target).checked)" /> Include previews and incubators</label>
+    </div>
+    <div class="legend-k" aria-hidden="true">
+      @for (k of typeKeys; track k) {
+        <span><i [class]="'k k-' + k"></i>{{ typeNames[k] }}</span>
+      }
+    </div>
+    <p class="vcount" aria-live="polite">{{ countText() }}</p>
+
+    @let t = timeline();
+    @if (t.filtering && !t.rows.length) {
+      <div class="nores">
+        No features match{{ query().trim() ? ' “' + query().trim() + '”' : ' this filter' }}. Try a shorter word{{ previews() ? '' : ', or include previews and incubators' }}.
+      </div>
+    }
+    @for (row of t.rows; track row.v.v) {
+      <article class="ver" [class.lts]="row.v.lts" [class.planned]="row.v.planned" [id]="'v-' + row.v.v" [attr.aria-label]="'Java ' + row.v.v">
+        <div>
+          <div class="vn">{{ row.v.v }}</div>
+          <div class="vdate">
+            {{ row.v.name }}{{ row.v.aka ? ', “' + row.v.aka + '”' : '' }}<br />{{ row.v.planned ? 'Planned for ' + fmtDate(row.v.date) : 'Released ' + fmtDate(row.v.date, true) }}
+          </div>
+          <div class="vtags">
+            @for (tag of tags(row.v); track tag.text) {
+              <span class="tag" [class]="'tag ' + tag.cls">{{ tag.text }}</span>
+            }
+          </div>
+        </div>
+        <div>
+          @if (row.note) {
+            <p class="muted" style="margin: 0 0 8px">{{ row.note }}</p>
+          }
+          <ul class="feats">
+            @for (f of row.feats; track f.id) {
+              <li class="feat" [id]="f.id" [class.hit]="hitId() === f.id">
+                <i [class]="'k k-' + f.type" aria-hidden="true"></i>
+                <span>
+                  {{ f.text }}
+                  @if (f.tag) {
+                    <span class="st">{{ f.tag }}</span>
+                  }
+                  <span class="sr"> ({{ typeNames[f.type] }})</span>
+                </span>
+              </li>
+            }
+          </ul>
+          @if (row.v.sig && !t.filtering) {
+            <app-code-block [src]="row.v.sig" lang="java" [cap]="'What Java ' + row.v.v + ' code looks like'" />
+          }
+        </div>
+      </article>
+    }
+  } @else {
+    <p class="vcount">Major releases of the frameworks taught on this site, newest first.</p>
+    <ul class="eco">
+      @for (e of ecoNewestFirst; track e.t) {
+        <li>
+          <div class="yr">{{ e.y }}</div>
+          <div>
+            <h3>{{ e.t }} <span class="tag">{{ e.track }}</span></h3>
+            <p>{{ e.p }}</p>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</div>

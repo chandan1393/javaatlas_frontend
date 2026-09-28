@@ -1,0 +1,77 @@
+<div>
+  <header class="adm-head">
+    <h1>Dashboard</h1>
+    <p class="muted">Your courses, students and revenue at a glance.</p>
+  </header>
+  @if (!account.checked()) {
+    <p class="muted loading">Loading…</p>
+  } @else if (!account.isAdmin()) {
+    <div class="empty">
+      <p>This page is only for admins. <a routerLink="/admin/login">Sign in as admin</a>.</p>
+    </div>
+  } @else {
+    @if (error()) {
+      <p class="err">{{ error() }}</p>
+    }
+    <div class="stats">
+      <div class="stat"><span>Paid orders</span><strong>{{ orders()?.paidCount ?? '…' }}</strong></div>
+      <div class="stat"><span>Revenue</span><strong>{{ orders() ? revenue() : '…' }}</strong></div>
+      <div class="stat"><span>Courses</span><strong>{{ courses()?.length ?? '…' }}</strong></div>
+    </div>
+
+    <div class="bar-head">
+      <h2>Courses</h2>
+      <a class="btn btn-primary btn-sm" routerLink="/admin/courses/new">New course</a>
+    </div>
+    @if (courses(); as list) {
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead>
+            <tr><th>Course</th><th>Status</th><th>Price</th><th>Lectures</th><th>Students</th><th></th></tr>
+          </thead>
+          <tbody>
+            @for (c of list; track c.id) {
+              <tr>
+                <td><strong>{{ c.title }}</strong><br /><span class="muted mono">/courses/{{ c.slug }}</span></td>
+                <td><span class="tag" [class.avail]="c.published">{{ c.published ? 'Published' : 'Draft' }}</span></td>
+                <td>{{ price(c.priceInr) }}</td>
+                <td>{{ lectures(c) }}</td>
+                <td>{{ c.enrollments }}</td>
+                <td><a [routerLink]="['/admin/courses', c.id]">Edit</a></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <p class="muted">Loading courses…</p>
+    }
+
+    <div class="bar-head"><h2>Recent orders</h2></div>
+    @if (orders(); as o) {
+      @if (!o.orders.length) {
+        <p class="muted">No orders yet.</p>
+      } @else {
+        <div class="table-wrap">
+          <table class="tbl">
+            <thead>
+              <tr><th>Date</th><th>Learner</th><th>Course</th><th>Amount</th><th>Status</th><th>Payment ID</th></tr>
+            </thead>
+            <tbody>
+              @for (row of o.orders; track row.orderId) {
+                <tr>
+                  <td>{{ when(row.paidAt ?? row.createdAt) }}</td>
+                  <td>{{ row.userEmail }}</td>
+                  <td>{{ row.courseTitle }}</td>
+                  <td>{{ money(row.amountPaise) }}</td>
+                  <td><span class="tag" [class.avail]="row.status === 'PAID'">{{ row.status === 'PAID' ? 'Paid' : row.status === 'FAILED' ? 'Failed' : 'Not completed' }}</span></td>
+                  <td class="mono">{{ row.paymentId ?? '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+  }
+</div>
