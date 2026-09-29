@@ -63,6 +63,14 @@ export const LEGAL: Record<string, LegalPage> = {
         body: `We use one essential cookie to keep you signed in. It can’t be read by scripts and isn’t used for tracking. Advertising partners may also set cookies, as described below.`,
       },
       {
+        h: 'Site analytics',
+        body: `To understand which lessons help most, we count page views, searches made on the site, lesson completions, checkouts and use of the AI tools. This runs on our own servers, with no cookies and no third-party analytics. We don’t store IP addresses: each visitor gets an anonymous code made from a one-way hash of the IP address, browser and a random value that changes every day and is then deleted, so visits can’t be linked across days or traced back to you. We also record the site that referred you, your type of device and, when available, your country. Search terms are stored without anything that identifies you, so don’t type personal details into the search box. If your browser sends Do Not Track or Global Privacy Control, nothing is recorded. Analytics data is deleted after 13 months.`,
+      },
+      {
+        h: 'Feedback',
+        body: `When you send feedback we store your message, the type of feedback, any rating, the page you were on, your type of device and, only if you enter them, your name and email address (used to reply to you). Answers to “Was this lesson helpful?” are stored without your name or email. We use feedback only to improve the site and to reply to you. To have your feedback deleted, contact us.`,
+      },
+      {
         h: 'Advertising',
         body: `Free pages may show ads served by Google AdSense.
 - Third-party vendors, including Google, use cookies to serve ads based on your previous visits to this website and other websites.

@@ -21,6 +21,7 @@ import { UiService } from '../core/ui.service';
               <a role="menuitem" routerLink="/my/learning" (click)="open.set(false)">My learning</a>
               <a role="menuitem" routerLink="/my/courses" (click)="open.set(false)">My courses</a>
               <a role="menuitem" routerLink="/my/orders" (click)="open.set(false)">Orders and receipts</a>
+              <a role="menuitem" routerLink="/feedback" (click)="open.set(false)">Send feedback</a>
               @if (account.isAdmin()) {
                 <a role="menuitem" routerLink="/admin" (click)="open.set(false)">Admin</a>
               }

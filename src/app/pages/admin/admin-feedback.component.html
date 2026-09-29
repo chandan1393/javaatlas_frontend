@@ -1,0 +1,136 @@
+<header class="adm-head an-head">
+  <div>
+    <h1>Feedback</h1>
+    <p class="muted">What learners tell you, from the feedback form and the “Was this lesson helpful?” buttons.</p>
+  </div>
+  <div class="an-tools">
+    <button type="button" class="btn btn-ghost btn-sm" (click)="exportCsv()">Export CSV</button>
+  </div>
+</header>
+
+@if (summary(); as s) {
+  <div class="an-kpis fb-kpis">
+    <div class="an-kpi"><span class="an-kpi-label">New</span><strong>{{ s.newCount }}</strong><span class="an-kpi-foot muted">waiting for you</span></div>
+    <div class="an-kpi">
+      <span class="an-kpi-label">Average rating</span>
+      <strong>{{ s.avgRating ? s.avgRating.toFixed(1) + ' ★' : '–' }}</strong>
+      <span class="an-kpi-foot muted">from {{ s.ratings }} rating{{ s.ratings === 1 ? '' : 's' }}</span>
+    </div>
+    @for (t of ['idea', 'bug', 'content', 'lesson']; track t) {
+      <div class="an-kpi"><span class="an-kpi-label">{{ typeLabel[t] }}s</span><strong>{{ s.byType[t] ?? 0 }}</strong><span class="an-kpi-foot muted">all time</span></div>
+    }
+  </div>
+}
+
+<div class="fb-toolbar">
+  <span class="seg" role="group" aria-label="Status">
+    @for (st of statuses; track st) {
+      <button type="button" [attr.aria-pressed]="status() === st" (click)="setStatus(st)">
+        {{ statusLabel[st] }}@if (st !== 'ALL' && inbox()) {<span class="fb-count-badge">{{ inbox()!.counts[st] ?? 0 }}</span>}
+      </button>
+    }
+  </span>
+  <select class="field" [value]="type()" (change)="setType($any($event.target).value)" aria-label="Type">
+    <option value="">All types</option>
+    @for (t of ['idea', 'bug', 'content', 'praise', 'other', 'lesson']; track t) {
+      <option [value]="t">{{ typeLabel[t] }}</option>
+    }
+  </select>
+  <input class="field" type="search" placeholder="Search messages, emails, pages…" [value]="q()" (input)="search($any($event.target).value)" />
+</div>
+
+@if (error()) {
+  <p class="err">{{ error() }}</p>
+}
+
+<section class="panel fb-list">
+  @if (inbox(); as box) {
+    @for (item of box.items; track item.id) {
+      <article class="fb-item" [class.open]="open() === item.id" [class.is-new]="item.status === 'NEW'">
+        <button type="button" class="fb-item-head" (click)="toggle(item)" [attr.aria-expanded]="open() === item.id">
+          <span class="fb-type t-{{ item.type }}">{{ typeLabel[item.type] ?? item.type }}</span>
+          @if (item.type === 'lesson') {
+            <span class="fb-verdict" [class.good]="item.helpful">{{ item.helpful ? '👍 Helpful' : '👎 Not helpful' }}</span>
+          }
+          @if (item.rating) {
+            <span class="fb-stars" [attr.aria-label]="item.rating + ' out of 5'">{{ '★'.repeat(item.rating) }}<span class="dim">{{ '★'.repeat(5 - item.rating) }}</span></span>
+          }
+          <span class="fb-snippet">{{ item.message || (item.lessonId ? lessonTitle(item.lessonId) : '(no message)') }}</span>
+          <span class="fb-meta">{{ when(item.createdAt) }}</span>
+          <span class="fb-status s-{{ item.status }}">{{ statusLabel[item.status] }}</span>
+        </button>
+        @if (open() === item.id) {
+          <div class="fb-body">
+            @if (item.message) {
+              <p class="fb-message">{{ item.message }}</p>
+            }
+            @if (reasons(item.reasons).length) {
+              <p class="fb-reasons">@for (r of reasons(item.reasons); track r) {<span class="chip">{{ r }}</span>}</p>
+            }
+            <dl class="fb-facts">
+              @if (item.lessonId) {
+                <div><dt>Lesson</dt><dd><a [routerLink]="['/learn', item.lessonId]" target="_blank">{{ lessonTitle(item.lessonId) }}</a></dd></div>
+              }
+              @if (item.page) {
+                <div><dt>Page</dt><dd><a [href]="item.page" target="_blank" rel="noopener">{{ item.page }}</a></dd></div>
+              }
+              <div><dt>From</dt><dd>{{ item.name || 'Anonymous' }}{{ item.email ? ' · ' + item.email : '' }}</dd></div>
+              <div><dt>Device</dt><dd>{{ item.device || '–' }}</dd></div>
+            </dl>
+            <label class="fld">Private note (only you see this)
+              <textarea rows="2" maxlength="2000" [value]="notes()[item.id] ?? ''" (input)="setNote(item.id, $any($event.target).value)"></textarea>
+            </label>
+            <div class="fb-body-actions">
+              @if (item.email) {
+                <a class="btn btn-primary btn-sm" [href]="reply(item)">Reply by email</a>
+              }
+              <button type="button" class="btn btn-ghost btn-sm" (click)="update(item, undefined, notes()[item.id] ?? '')">Save note</button>
+              @for (st of ['IN_PROGRESS', 'RESOLVED', 'ARCHIVED']; track st) {
+                @if (item.status !== st) {
+                  <button type="button" class="btn btn-ghost btn-sm" (click)="update(item, st)">Mark {{ statusLabel[st].toLowerCase() }}</button>
+                }
+              }
+              <button type="button" class="btn btn-ghost btn-sm danger" (click)="remove(item)">Delete</button>
+            </div>
+          </div>
+        }
+      </article>
+    } @empty {
+      <p class="muted fb-empty">{{ status() === 'NEW' ? 'No new feedback. You’re all caught up.' : 'Nothing here.' }}</p>
+    }
+    @if (pages() > 1) {
+      <nav class="fb-pager" aria-label="Pages">
+        <button type="button" class="btn btn-ghost btn-sm" [disabled]="page() === 0" (click)="go(page() - 1)">← Newer</button>
+        <span class="muted">Page {{ page() + 1 }} of {{ pages() }}</span>
+        <button type="button" class="btn btn-ghost btn-sm" [disabled]="page() + 1 >= pages()" (click)="go(page() + 1)">Older →</button>
+      </nav>
+    }
+  } @else {
+    <p class="muted">Loading…</p>
+  }
+</section>
+
+@if (lessonRows().length) {
+  <section class="panel">
+    <h2>How helpful are the lessons?</h2>
+    <p class="muted small-note">From the buttons at the end of each lesson. Lessons with the most “not helpful” answers come first: start improving these.</p>
+    <div class="table-wrap">
+      <table class="tbl">
+        <thead><tr><th>Lesson</th><th>Answers</th><th>Helpful</th><th>Main problems</th></tr></thead>
+        <tbody>
+          @for (l of lessonRows(); track l.lessonId) {
+            <tr>
+              <td><a [routerLink]="['/learn', l.lessonId]" target="_blank">{{ l.title }}</a></td>
+              <td>{{ l.total }}</td>
+              <td>
+                <span class="fb-pct" [class.low]="l.pct < 60">{{ l.pct }}%</span>
+                <span class="fb-pbar"><i [style.width.%]="l.pct"></i></span>
+              </td>
+              <td class="muted">{{ l.top.join(', ') || '–' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}

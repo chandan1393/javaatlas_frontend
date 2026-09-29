@@ -1,0 +1,258 @@
+<header class="adm-head an-head">
+  <div>
+    <h1>Analytics</h1>
+    <p class="muted">Visitors, searches, sign-ups and sales, counted by this site itself. No cookies, no personal data{{ report() ? ' · times in ' + report()!.timezone : '' }}.</p>
+  </div>
+  <div class="an-tools">
+    @if (report(); as r) {
+      <span class="an-live" title="Visitors with a page view in the last 5 minutes"><i aria-hidden="true"></i>{{ r.activeNow }} active now</span>
+    }
+    <span class="seg" role="group" aria-label="Period">
+      @for (r of ranges; track r.days) {
+        <button type="button" [attr.aria-pressed]="days() === r.days" (click)="setRange(r.days)">{{ r.label }}</button>
+      }
+    </span>
+    <button type="button" class="btn btn-ghost btn-sm" (click)="exportCsv()">Export CSV</button>
+  </div>
+</header>
+
+@if (error()) {
+  <p class="err">{{ error() }}</p>
+}
+@if (loading() && !report()) {
+  <div class="ai-skeleton" aria-hidden="true"><i></i><i></i><i></i></div>
+}
+
+@if (report(); as r) {
+  @if (empty()) {
+    <div class="panel an-empty">
+      <h2>No visits recorded yet</h2>
+      <p class="muted">Numbers appear here as soon as people browse the site. Your own visits while signed in as admin aren’t counted.</p>
+    </div>
+  }
+
+  <div class="an-kpis" [class.dim]="loading()">
+    @for (k of kpis(); track k.label) {
+      <div class="an-kpi">
+        <span class="an-kpi-label">{{ k.label }}</span>
+        <strong>{{ k.value }}</strong>
+        <span class="an-kpi-foot">
+          <span class="an-change" [class]="'an-change ' + k.change.dir" [title]="'Compared with the previous ' + (r.days === 1 ? 'day' : r.days + ' days')">{{ k.change.text }}</span>
+          <span class="muted">{{ k.hint }}</span>
+        </span>
+      </div>
+    }
+  </div>
+
+  <div class="an-grid2">
+    <section class="panel">
+      <div class="row-between"><h2>Traffic</h2><span class="an-legend"><i class="lv"></i>Visitors <i class="lp"></i>Page views</span></div>
+      <svg class="an-chart" viewBox="0 0 100 40" preserveAspectRatio="none" role="img" aria-label="Visitors and page views per day">
+        <path [attr.d]="traffic().area" class="area" />
+        <polyline [attr.points]="traffic().pageviews" class="pv" />
+        <polyline [attr.points]="traffic().visitors" class="vi" />
+        @for (d of traffic().dots; track $index) {
+          <circle [attr.cx]="d.x" [attr.cy]="d.y" r="0.9"><title>{{ d.title }}</title></circle>
+        }
+      </svg>
+      <div class="an-axis">
+        @for (l of traffic().labels; track $index) {
+          <span>{{ l }}</span>
+        }
+      </div>
+    </section>
+    <section class="panel">
+      <div class="row-between"><h2>Sign-ups and revenue</h2><span class="an-legend"><i class="ls"></i>Sign-ups <i class="lr"></i>Revenue</span></div>
+      <svg class="an-chart" viewBox="0 0 100 40" preserveAspectRatio="none" role="img" aria-label="Sign-ups and revenue per day">
+        @for (b of business(); track b.x) {
+          <g>
+            <title>{{ b.title }}</title>
+            <rect [attr.x]="b.x + 0.2" [attr.y]="38 - b.s" [attr.width]="b.w / 2" [attr.height]="b.s" class="s" />
+            <rect [attr.x]="b.x + 0.2 + b.w / 2" [attr.y]="38 - b.r" [attr.width]="b.w / 2" [attr.height]="b.r" class="r" />
+          </g>
+        }
+      </svg>
+      <div class="an-axis">
+        @for (l of traffic().labels; track $index) {
+          <span>{{ l }}</span>
+        }
+      </div>
+    </section>
+  </div>
+
+  <div class="an-grid3">
+    <section class="panel an-list">
+      <h2>Top pages</h2>
+      <ol>
+        @for (p of r.pages.slice(0, 12); track p.key) {
+          <li [style.--w.%]="bar(p.count, r.pages)"><a [routerLink]="p.key" target="_blank">{{ title(p.key) }}</a><span>{{ num(p.count) }}</span></li>
+        } @empty {
+          <li class="muted">No page views yet.</li>
+        }
+      </ol>
+    </section>
+
+    <section class="panel an-list">
+      <h2>What people search for</h2>
+      <ol>
+        @for (s of r.searches.slice(0, 12); track s.query) {
+          <li [style.--w.%]="(s.count / (r.searches[0]?.count || 1)) * 100">
+            <span class="q">{{ s.query }}</span><span>{{ num(s.count) }}</span>
+          </li>
+        } @empty {
+          <li class="muted">No searches yet.</li>
+        }
+      </ol>
+    </section>
+
+    <section class="panel an-list warn">
+      <h2>Searches with no results</h2>
+      <p class="muted small-note">People looked for these and found nothing: ideas for new lessons or subtopics.</p>
+      <ol>
+        @for (s of r.noResults.slice(0, 12); track s.query) {
+          <li><span class="q">{{ s.query }}</span><span>{{ num(s.count) }}</span></li>
+        } @empty {
+          <li class="muted">None. Every search found something.</li>
+        }
+      </ol>
+    </section>
+  </div>
+
+  <div class="an-grid3">
+    <section class="panel an-list">
+      <h2>Where visitors come from</h2>
+      <ol>
+        @for (p of r.referrers.slice(0, 10); track p.key) {
+          <li [style.--w.%]="bar(p.visitors, r.referrers, 'visitors')"><span class="q">{{ p.key }}</span><span>{{ num(p.visitors) }}</span></li>
+        } @empty {
+          <li class="muted">No referrers yet. Visitors so far came directly or from apps that hide the referrer.</li>
+        }
+      </ol>
+      @if (r.campaigns.length) {
+        <h3 class="an-sub">Campaign links (utm_source / utm_campaign)</h3>
+        <ol>
+          @for (c of r.campaigns.slice(0, 8); track c.key) {
+            <li [style.--w.%]="bar(c.visitors, r.campaigns, 'visitors')"><span class="q">{{ c.key }}</span><span>{{ num(c.visitors) }}</span></li>
+          }
+        </ol>
+      } @else {
+        <p class="small-note muted">Tip: add <code>?utm_source=instagram&amp;utm_campaign=reel1</code> to links you share to see which posts bring visitors.</p>
+      }
+    </section>
+
+    <section class="panel">
+      <h2>Devices</h2>
+      <ul class="an-devices">
+        @for (d of r.devices; track d.key) {
+          <li>
+            <div class="row-between"><strong>{{ d.key }}</strong><span>{{ ((d.visitors / deviceTotal()) * 100).toFixed(0) }}%</span></div>
+            <div class="bar" aria-hidden="true"><i [style.width.%]="(d.visitors / deviceTotal()) * 100"></i></div>
+          </li>
+        } @empty {
+          <li class="muted">No data yet.</li>
+        }
+      </ul>
+      <h2 class="an-h2b">Countries</h2>
+      @if (r.countries.length) {
+        <ol class="an-mini">
+          @for (c of r.countries.slice(0, 8); track c.key) {
+            <li><span>{{ c.key }}</span><span>{{ num(c.visitors) }}</span></li>
+          }
+        </ol>
+      } @else {
+        <p class="small-note muted">Countries appear when the site runs behind Cloudflare (it sends each visitor’s country).</p>
+      }
+    </section>
+
+    <section class="panel">
+      <h2>Busiest hours</h2>
+      <p class="muted small-note">Page views by hour. Busiest around {{ hourLabel(hours().peak) }}; a good time to post updates.</p>
+      <div class="an-hours" role="img" aria-label="Page views by hour of day">
+        @for (h of hours().bars; track h.hour) {
+          <span [style.height.%]="Math.max(3, h.pct)" [class.peak]="h.hour === hours().peak" [title]="hourLabel(h.hour) + ': ' + h.count + ' page views'"></span>
+        }
+      </div>
+      <div class="an-axis"><span>12 am</span><span>6 am</span><span>12 pm</span><span>6 pm</span><span>11 pm</span></div>
+    </section>
+  </div>
+
+  <div class="an-grid2">
+    <section class="panel">
+      <h2>From visitor to customer</h2>
+      <ul class="an-funnel">
+        @for (s of funnel(); track s.step) {
+          <li>
+            <div class="row-between"><strong>{{ s.step }}</strong><span>{{ num(s.count) }}</span></div>
+            <div class="an-fbar"><i [style.width.%]="Math.max(1.5, s.pct)"></i></div>
+            @if ($index > 0) {
+              <small class="muted">{{ s.pct.toFixed(1) }}% of visitors{{ s.fromPrev !== null ? ' · ' + s.fromPrev + '% of the step before' : '' }}</small>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>Courses</h2>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>Course</th><th>Page views</th><th>Orders</th><th>Revenue</th><th>Conversion</th></tr></thead>
+          <tbody>
+            @for (c of r.courses; track c.slug) {
+              <tr>
+                <td>{{ c.title }}</td>
+                <td>{{ num(c.views) }}</td>
+                <td>{{ num(c.orders) }}</td>
+                <td>{{ inr(c.revenuePaise) }}</td>
+                <td>{{ c.views ? ((c.orders / c.views) * 100).toFixed(1) + '%' : '–' }}</td>
+              </tr>
+            } @empty {
+              <tr><td colspan="5" class="muted">No courses yet.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div class="an-grid3">
+    <section class="panel an-list">
+      <h2>Most completed lessons</h2>
+      <ol>
+        @for (p of r.completions.slice(0, 10); track p.key) {
+          <li [style.--w.%]="bar(p.count, r.completions)"><span class="q">{{ title(p.key) }}</span><span>{{ num(p.count) }}</span></li>
+        } @empty {
+          <li class="muted">No lessons completed yet.</li>
+        }
+      </ol>
+    </section>
+    <section class="panel an-list">
+      <h2>AI tools used</h2>
+      <ol>
+        @for (t of r.aiTools; track t.key) {
+          <li [style.--w.%]="bar(t.count, r.aiTools)"><span class="q">{{ tool(t.key) }}</span><span>{{ num(t.count) }}</span></li>
+        } @empty {
+          <li class="muted">No AI questions yet.</li>
+        }
+      </ol>
+    </section>
+    <section class="panel an-list">
+      <h2>On the site right now</h2>
+      <ol>
+        @for (p of r.activePages; track p.key) {
+          <li><span class="q">{{ title(p.key) }}</span><span>{{ p.visitors }}</span></li>
+        } @empty {
+          <li class="muted">Nobody in the last 5 minutes.</li>
+        }
+      </ol>
+      <p class="small-note muted">Updates every minute.</p>
+    </section>
+  </div>
+
+  <section class="panel an-tip">
+    <strong>What people search on Google to find you</strong>
+    <p class="muted">Search terms from Google itself (impressions, clicks, position) are in Google Search Console, which is free. Verify your site there and submit sitemap.xml (see the README).</p>
+    <a class="btn btn-ghost btn-sm" href="https://search.google.com/search-console" target="_blank" rel="noopener">Open Search Console</a>
+  </section>
+  <p class="small-note muted">Visitors are counted once per day without cookies, so someone who comes on three different days counts three times. Visitors with Do Not Track turned on, bots and your own admin visits aren’t counted. Events are kept for 13 months.</p>
+}

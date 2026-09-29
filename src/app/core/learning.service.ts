@@ -6,6 +6,7 @@ import { ApiService } from './api.service';
 import { ContentService } from './content.service';
 import { computePace, Goal } from './pace';
 import { localDay, ProgressService } from './progress.service';
+import { AnalyticsService } from './analytics.service';
 
 interface LearningData {
   completed: { lessonId: string; completedAt: string | null }[];
@@ -30,6 +31,7 @@ export class LearningService {
   private readonly progress = inject(ProgressService);
   private readonly content = inject(ContentService);
   private readonly document = inject(DOCUMENT);
+  private readonly analytics = inject(AnalyticsService);
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly base = SETTINGS.apiBase.replace(/\/+$/, '');
 
@@ -100,6 +102,7 @@ export class LearningService {
   /** Marks a free lesson complete or not, locally and (when signed in) in the account. */
   toggleDone(lessonId: string): boolean {
     const now = this.progress.toggleDone(lessonId);
+    if (now) this.analytics.event('lesson_complete', `/learn/${lessonId}`);
     if (this.syncedFor()) {
       const url = `/api/me/learning/lessons/${encodeURIComponent(lessonId)}`;
       void (now ? this.api.put<void>(url, {}) : this.api.delete<void>(url)).catch(() => undefined);

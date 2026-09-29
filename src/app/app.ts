@@ -16,10 +16,12 @@ import { AdsService } from './core/ads.service';
 import { AiAssistantComponent } from './shared/ai-assistant.component';
 import { AiService } from './core/ai.service';
 import { LogoComponent } from './shared/logo.component';
+import { AnalyticsService } from './core/analytics.service';
+import { FeedbackDialogComponent } from './shared/feedback-dialog.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, SearchDialogComponent, DialogComponent, ToastComponent, AccountMenuComponent, AiAssistantComponent, LogoComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, SearchDialogComponent, DialogComponent, ToastComponent, AccountMenuComponent, AiAssistantComponent, LogoComponent, FeedbackDialogComponent],
   templateUrl: './app.html',
   host: { '(document:keydown)': 'onKey($event)', '(window:scroll)': 'onScroll()' },
 })
@@ -39,6 +41,7 @@ export class App {
   protected readonly adminPage = signal(/^\/admin(\/|$)/.test(inject(DOCUMENT).location?.pathname ?? ''));
   private readonly ads = inject(AdsService);
   private readonly ai = inject(AiService);
+  private readonly analytics = inject(AnalyticsService);
   protected readonly year = new Date().getFullYear();
   protected readonly brand = SETTINGS.brand;
   /** Reading progress (0-1) on lesson and lecture pages, otherwise null. */

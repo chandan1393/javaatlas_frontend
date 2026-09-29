@@ -232,6 +232,7 @@
     </section>
 
     @for (key of [l.id]; track key) {
+      <app-lesson-feedback [lessonId]="l.id" />
       <app-ad slot="lessonEnd" />
     }
 

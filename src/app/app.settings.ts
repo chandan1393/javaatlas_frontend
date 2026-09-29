@@ -3,8 +3,8 @@
  *
  * apiBase: where the Spring Boot backend lives.
  *   ''  = same site. Use this with the Docker/Caddy setup, and locally with `npm start` (proxied to :8080).
- *   'https://api.yourdomain.com' = backend on another subdomain, e.g. website on Vercel + backend on Railway.
- *   Then also set APP_CORS_ORIGINS=https://www.yourdomain.com on the backend.
+ *   'https://api.javaatlas.com' = backend on another subdomain, e.g. website on Vercel + backend on Railway.
+ *   Then also set APP_CORS_ORIGINS=https://javaatlas.com on the backend.
  *   Keep both on the same main domain so the sign-in cookie works.
  */
 export const SETTINGS = {
@@ -15,11 +15,11 @@ export const SETTINGS = {
   accent: '#6C4DFF',
 
   /**
-   * Your website's address, with https:// and without a trailing slash, e.g. 'https://www.javaatlas.in'.
+   * Your website's address, with https:// and without a trailing slash.
    * Used for canonical links, social previews, structured data, sitemap.xml and robots.txt.
    * Leave empty only for local testing: search engines need it.
    */
-  siteUrl: '',
+  siteUrl: 'https://javaatlas.com',
   /** One-line description for the home page and search results. */
   tagline: 'Free Java tutorials from your first program to Spring Boot and microservices, with interview prep and a Java version guide.',
   /** Google Search Console "HTML tag" verification code (just the content="…" value). Optional. */
@@ -28,7 +28,7 @@ export const SETTINGS = {
   /** Shown on the About, Contact, Privacy, Terms and Refund pages. Razorpay and AdSense both check these pages. */
   business: {
     legalName: 'Your Company Name',
-    email: 'support@example.com',
+    email: 'admin@javaatlas.com',
     address: 'Your City, State, India',
     /** Courts named in the Terms. */
     jurisdiction: 'Your City, India',

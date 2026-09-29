@@ -23,6 +23,8 @@ const clientOnly = [
   'admin',
   'admin/login',
   'admin/content',
+  'admin/analytics',
+  'admin/feedback',
   'admin/security',
   'admin/courses/new',
   'admin/courses/:id',

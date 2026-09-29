@@ -4,6 +4,7 @@ import { AccountService } from './account.service';
 import { ApiService, errorText, isApiError } from './api.service';
 import { CourseRef } from './models';
 import { UiService } from './ui.service';
+import { AnalyticsService } from './analytics.service';
 
 interface OrderResponse {
   free: boolean;
@@ -44,7 +45,10 @@ export class CheckoutService {
   private readonly document = inject(DOCUMENT);
   private scriptLoad: Promise<void> | null = null;
 
+  private readonly analytics = inject(AnalyticsService);
+
   enroll(course: CourseRef): void {
+    this.analytics.event('checkout_start', `/courses/${course.slug}`);
     if (!this.account.checked()) {
       this.ui.toast('Still connecting. Try again in a moment.');
       return;

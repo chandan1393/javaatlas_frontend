@@ -6,6 +6,7 @@ import { ProgressService } from '../../core/progress.service';
 import { absUrl, SeoService } from '../../core/seo.service';
 import { AdSlotComponent } from '../../shared/ad-slot.component';
 import { StageIconComponent } from '../../shared/stage-icon.component';
+import { AnalyticsService } from '../../core/analytics.service';
 
 type LevelFilter = 'all' | Level;
 
@@ -41,6 +42,13 @@ export class TopicsComponent {
       .filter((g) => g.items.length);
   });
   protected readonly shown = computed(() => this.groups().reduce((n, g) => n + g.items.length, 0));
+
+  private readonly analytics = inject(AnalyticsService);
+
+  protected onFilter(value: string): void {
+    this.query.set(value);
+    this.analytics.search(value, this.shown(), 'topics');
+  }
 
   constructor() {
     const seo = inject(SeoService);

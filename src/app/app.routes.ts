@@ -23,6 +23,7 @@ export const routes: Routes = [
   { path: 'courses/:slug', loadComponent: () => import('./pages/course-detail/course-detail.component').then((m) => m.CourseDetailComponent) },
   { path: 'courses/:slug/learn', loadComponent: () => import('./pages/course-player/course-player.component').then((m) => m.CoursePlayerComponent) },
   { path: 'courses/:slug/learn/:lectureId', loadComponent: () => import('./pages/course-player/course-player.component').then((m) => m.CoursePlayerComponent) },
+  { path: 'feedback', loadComponent: () => import('./pages/feedback/feedback.component').then((m) => m.FeedbackPageComponent) },
   { path: 'my/learning', loadComponent: () => import('./pages/my-learning/my-learning.component').then((m) => m.MyLearningComponent) },
   { path: 'my/courses', loadComponent: () => import('./pages/my-courses/my-courses.component').then((m) => m.MyCoursesComponent) },
   { path: 'my/orders', loadComponent: () => import('./pages/orders/orders.component').then((m) => m.OrdersComponent) },
@@ -40,6 +41,8 @@ export const routes: Routes = [
     canActivateChild: [adminGuard],
     children: [
       { path: '', loadComponent: () => import('./pages/admin/admin.component').then((m) => m.AdminComponent) },
+      { path: 'analytics', loadComponent: () => import('./pages/admin/admin-analytics.component').then((m) => m.AdminAnalyticsComponent) },
+      { path: 'feedback', loadComponent: () => import('./pages/admin/admin-feedback.component').then((m) => m.AdminFeedbackComponent) },
       { path: 'content', loadComponent: () => import('./pages/admin/admin-content.component').then((m) => m.AdminContentComponent) },
       { path: 'security', loadComponent: () => import('./pages/admin/admin-security.component').then((m) => m.AdminSecurityComponent) },
       {

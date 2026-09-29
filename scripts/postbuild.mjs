@@ -65,3 +65,14 @@ if (adsClient) {
   writeFileSync(join(dist, 'ads.txt'), `google.com, ${pub}, DIRECT, f08c47fec0942fa0\n`);
   console.log(`ads.txt: written for ${pub}`);
 }
+
+// Launch check: the legal pages are public, and Razorpay and AdSense review them.
+const placeholders = [
+  ['business.legalName', /legalName:\s*'Your Company Name'/],
+  ['business.address', /address:\s*'Your City, State, India'/],
+  ['business.jurisdiction', /jurisdiction:\s*'Your City, India'/],
+].filter(([, re]) => re.test(settings)).map(([name]) => name);
+if (placeholders.length) {
+  console.warn(`\n⚠  Still placeholders in src/app/app.settings.ts: ${placeholders.join(', ')}.`);
+  console.warn('   They appear on the About, Contact, Privacy, Terms and Refund pages. Fill them in before going live.\n');
+}

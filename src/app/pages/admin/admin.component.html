@@ -10,6 +10,16 @@
       <p>This page is only for admins. <a routerLink="/admin/login">Sign in as admin</a>.</p>
     </div>
   } @else {
+    @if (today(); as t) {
+      <a class="an-today" routerLink="/admin/analytics">
+        <span class="an-live"><i aria-hidden="true"></i>{{ t.activeNow }} active now</span>
+        <span><strong>{{ t.visitors }}</strong> visitors today</span>
+        <span><strong>{{ t.pageviews }}</strong> page views</span>
+        <span><strong>{{ t.searches }}</strong> searches</span>
+        <span><strong>{{ t.signups }}</strong> sign-ups</span>
+        <span class="an-today-go">Open analytics →</span>
+      </a>
+    }
     @if (error()) {
       <p class="err">{{ error() }}</p>
     }

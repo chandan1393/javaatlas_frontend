@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { ContentService } from '../core/content.service';
 import { SearchHit } from '../core/models';
 import { UiService } from '../core/ui.service';
+import { AnalyticsService } from '../core/analytics.service';
 
 @Component({
   selector: 'app-search-dialog',
@@ -18,6 +19,7 @@ export class SearchDialogComponent {
   protected readonly query = signal('');
   protected readonly selected = signal(0);
   protected readonly results = computed(() => this.content.search(this.query()));
+  private readonly analytics = inject(AnalyticsService);
   private readonly input = viewChild<ElementRef<HTMLInputElement>>('input');
   private returnFocus: HTMLElement | null = null;
 
@@ -41,6 +43,7 @@ export class SearchDialogComponent {
   protected onInput(value: string): void {
     this.query.set(value);
     this.selected.set(0);
+    this.analytics.search(value, this.results().length, 'site');
   }
 
   protected onKey(e: KeyboardEvent): void {

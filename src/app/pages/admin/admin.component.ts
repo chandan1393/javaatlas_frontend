@@ -1,6 +1,7 @@
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AccountService } from '../../core/account.service';
+import { ApiService } from '../../core/api.service';
 import { errorText } from '../../core/api.service';
 import { CourseApiService } from '../../core/course-api.service';
 import { fmtWhen, paiseText, priceText } from '../../core/markup';
@@ -21,10 +22,16 @@ export class AdminComponent {
   protected readonly when = fmtWhen;
   protected readonly money = paiseText;
   protected readonly price = priceText;
+  protected readonly today = signal<{ visitors: number; pageviews: number; searches: number; signups: number; activeNow: number } | null>(null);
+  private readonly http = inject(ApiService);
   protected readonly revenue = computed(() => paiseText(this.orders()?.revenuePaise ?? 0).replace('Free', '₹0'));
 
   constructor() {
     inject(SeoService).set({ title: 'Admin', description: 'Your JavaAtlas account.', path: '/admin', noindex: true });
+    void this.http
+      .get<{ activeNow: number; current: { visitors: number; pageviews: number; searches: number; signups: number } }>('/api/admin/analytics?days=1')
+      .then((r) => this.today.set({ ...r.current, activeNow: r.activeNow }))
+      .catch(() => undefined);
     effect(() => {
       const admin = this.account.isAdmin();
       if (!admin) return;

@@ -2,6 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { CourseRef } from './models';
 
 export type AuthMode = 'signup' | 'login' | 'forgot';
+export type FeedbackType = 'idea' | 'bug' | 'content' | 'praise' | 'other';
 
 export interface DialogAction {
   label: string;
@@ -25,6 +26,8 @@ export interface PendingHit {
 export class UiService {
   readonly dialog = signal<DialogState | null>(null);
   readonly searchOpen = signal(false);
+  /** The feedback dialog: null when closed, otherwise the type to preselect. */
+  readonly feedback = signal<FeedbackType | 'any' | null>(null);
   readonly pendingHit = signal<PendingHit | null>(null);
   readonly toastText = signal('');
   readonly toastVisible = signal(false);

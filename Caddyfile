@@ -1,5 +1,9 @@
-# DOMAIN = your domain for automatic HTTPS, or :80 for plain HTTP (local).
+# DOMAIN = "javaatlas.com, www.javaatlas.com" for automatic HTTPS on both, or :80 for plain HTTP (local).
 {$DOMAIN} {
+	# One address for search engines: www.javaatlas.com → javaatlas.com
+	@www header_regexp www Host ^www\.(.+)$
+	redir @www https://{re.www.1}{uri} permanent
+
 	encode zstd gzip
 
 	# Security headers for every response
