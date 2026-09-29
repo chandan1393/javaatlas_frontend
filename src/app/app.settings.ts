@@ -8,7 +8,7 @@
  *   Keep both on the same main domain so the sign-in cookie works.
  */
 export const SETTINGS = {
-  apiBase: 'https://javaatlasbackend-production.up.railway.app/',
+  apiBase: 'https://api.javaatlas.com',
   /** Name shown in the header, search results and the Razorpay checkout window. */
   brand: 'JavaAtlas',
   /** Color of the Razorpay checkout window. */
