@@ -3,34 +3,50 @@ import { Stage } from '../core/models';
 /** Stages 5-6: concurrency and the JVM, JDBC/JPA/Hibernate. */
 export const STAGES_B: Stage[] = [
 {id:`concurrency`,title:`Concurrency and the JVM`,level:`A`,blurb:`Threads, locks, CompletableFuture, virtual threads, memory and garbage collection.`,lessons:[
-{id:`threads`,t:`Threads and ExecutorService`,lvl:`I`,min:19,
-eli5:`A thread is a cook in a kitchen. More cooks can prepare dishes at the same time, but a head chef (the ExecutorService) should hand out orders instead of hiring a new cook for every dish.`,
-body:`A **thread** is an independent path of execution. You can start one with [[new Thread(runnable).start()]], but real code uses an **ExecutorService** (Java 5), a managed pool of threads.
+{id:`threads`,t:`Multithreading basics: threads, Runnable and Callable`,lvl:`B`,min:8,
+eli5:`A process is a restaurant; threads are the cooks inside it. The cooks share one kitchen (memory), so several dishes get made at once, but two cooks grabbing the same pan at the same moment causes trouble.`,
+body:`**Multithreading** lets one program do several things at the same time: serve many web requests at once, download files while the screen stays responsive, or use every CPU core for a big calculation.
+- A **process** is a running program with its own memory. A **thread** is a path of execution inside a process, and all threads of a process **share its memory** (the heap).
+- Every Java program starts with one thread, [[main]]. You create more by giving a [[Thread]] a task and calling [[start()]].
+- A task is a [[Runnable]] (no result) or a [[Callable<T>]] (returns a value and may throw).
+- A thread moves through states: NEW → RUNNABLE → (BLOCKED, WAITING or TIMED_WAITING) → TERMINATED.
+- [[Thread.sleep(ms)]] pauses the current thread; [[join()]] waits for another thread to finish.
 
-- [[Runnable]]: a task with no result.
-- [[Callable<T>]]: a task that returns a value and may throw.
-- [[Future<T>]]: a handle to a pending result; [[get()]] waits for it.
+This is the first step of the multithreading track. Next: what goes wrong when threads share data (race conditions and synchronization), then the tools professionals use (thread pools, CompletableFuture, concurrent collections).`,
+code:`public class Kitchen {
+    public static void main(String[] args) throws InterruptedException {
+        Runnable makeTea = () -> {
+            System.out.println("Tea started by " + Thread.currentThread().getName());
+            pause(500);
+            System.out.println("Tea ready");
+        };
 
-Thread states: NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING and TERMINATED.
+        Thread cook1 = new Thread(makeTea, "cook-1");
+        Thread cook2 = new Thread(() -> System.out.println("Toast by " + Thread.currentThread().getName()), "cook-2");
 
-Always shut executors down. Since Java 19, [[ExecutorService]] is [[AutoCloseable]], so try-with-resources does it for you.`,
-code:`try (ExecutorService pool = Executors.newFixedThreadPool(4)) {     // Java 19+: auto-close
-    Future<Integer> price = pool.submit(() -> fetchPrice("SPRING-101"));
-    Future<Integer> seats = pool.submit(() -> fetchSeats("SPRING-101"));
+        cook1.start();                 // both cooks now work at the same time
+        cook2.start();
 
-    System.out.println(price.get() + " / " + seats.get(2, TimeUnit.SECONDS));
-} catch (InterruptedException e) {
-    Thread.currentThread().interrupt();       // restore the interrupt flag
-} catch (ExecutionException | TimeoutException e) {
-    log.error("Lookup failed", e);
+        cook1.join();                  // main waits until both have finished
+        cook2.join();
+        System.out.println("Breakfast served by " + Thread.currentThread().getName());   // main
+    }
+
+    static void pause(long ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();       // keep the interrupt flag
+        }
+    }
 }`,
-pro:`Platform threads map one-to-one to OS threads and each reserves around 1 MB of stack, which is why pools are sized: roughly the number of cores for CPU-bound work, more for I/O-bound work. [[newCachedThreadPool]] can create unbounded threads under load; in production prefer a [[ThreadPoolExecutor]] with a bounded queue and a rejection policy. In Spring, configure a [[ThreadPoolTaskExecutor]] for [[@Async]].`,
-trap:`Calling thread.run() instead of thread.start(). run() executes on the current thread, so nothing happens in parallel.`,
-iq:[[`Runnable vs Callable?`,`Runnable.run() returns nothing and can't throw checked exceptions. Callable.call() returns a value and can throw; submit it to an ExecutorService to get a Future.`],
-[`What happens if you never shut down an ExecutorService?`,`Its non-daemon worker threads keep the JVM alive, so the application may never exit, and resources leak.`]],
+pro:`Sharing memory is what makes threads fast and what makes them dangerous: two threads changing the same variable can corrupt it, which is the next lesson. The **order of output between threads isn't guaranteed**; run the example a few times and it can change. In real applications you rarely create threads by hand: servers and [[ExecutorService]] manage pools of threads, and since Java 21 virtual threads make one thread per task cheap.`,
+trap:`Calling thread.run() instead of thread.start(). run() executes the task on the current thread, so nothing happens in parallel.`,
+iq:[[`Process vs thread?`,`A process is a running program with its own memory and resources. Threads run inside a process and share its heap, so they're cheaper to create and switch between, and they can communicate through shared objects, which is also why they need synchronization.`],
+[`Runnable vs Callable?`,`Runnable.run() returns nothing and can't throw checked exceptions. Callable.call() returns a value and can throw; run it with an ExecutorService (or a FutureTask) to get a Future for the result.`]],
 quiz:[`Which method actually starts a new thread?`,[`run()`,`start()`,`execute()`,`init()`],1,`start() asks the JVM to create a new thread, which then calls run().`]},
 
-{id:`sync`,t:`synchronized, volatile and locks`,lvl:`A`,
+{id:`sync`,t:`Race conditions and synchronization: synchronized, locks, volatile and atomics`,lvl:`I`,
 eli5:`A shared class notebook: synchronized is the rule that only one student writes at a time. volatile means everyone always reads the latest page, never an old photocopy.`,
 body:`When threads share mutable data you get **race conditions** and **visibility** problems.
 
@@ -70,7 +86,7 @@ iq:[[`synchronized vs volatile?`,`synchronized gives mutual exclusion and visibi
 [`How do you prevent deadlock?`,`Acquire locks in a consistent order, keep critical sections short, use tryLock with timeouts, or avoid nested locks by using higher-level concurrency utilities.`]],
 quiz:[`Is count++ on a volatile int thread-safe?`,[`Yes`,`No`,`Only on 64-bit JVMs`,`Only in Java 21+`],1,`It's a read-modify-write sequence; two threads can read the same value and both write back value + 1.`]},
 
-{id:`concurrent`,t:`Concurrency utilities: latches, semaphores and atomics`,lvl:`A`,min:9,
+{id:`concurrent`,t:`Concurrent collections and synchronizers: ConcurrentHashMap, CountDownLatch, CyclicBarrier and Semaphore`,lvl:`A`,min:9,
 eli5:`A CountDownLatch is a starting gun that waits until every runner is ready. A Semaphore is a car park with a fixed number of spaces. An atomic counter is a turnstile that never double-counts.`,
 body:`[[java.util.concurrent]] gives you tested building blocks, so you rarely need low-level [[wait]] and [[notify]]:
 - **Atomics** ([[AtomicInteger]], [[AtomicLong]], [[AtomicReference]], [[LongAdder]]): lock-free updates such as [[incrementAndGet]] and [[compareAndSet]].

@@ -27,7 +27,7 @@ export const PREREQS: Record<string, string[]> = {
   maven: ['packages'], logging: ['exceptions'], junit: ['maven', 'exceptions'], mockito: ['junit', 'interfaces'],
   debugging: ['exceptions'], annotations: ['interfaces'], json: ['records', 'maven'],
   // Concurrency and the JVM
-  threads: ['lambdas'], sync: ['threads'], concurrent: ['sync'], cf: ['threads', 'lambdas'],
+  threads: ['lambdas'], sync: ['threads'], concurrent: ['executors'], cf: ['executors', 'lambdas'],
   vthreads: ['threads'], memory: ['jvm', 'classes'], classloading: ['jvm', 'memory'],
   // JDBC, JPA and Hibernate
   jdbc: ['exceptions', 'maven'], orm: ['jdbc', 'annotations'], entities: ['orm'], lifecycle: ['entities'],
@@ -40,4 +40,20 @@ export const PREREQS: Record<string, string[]> = {
   // Microservices
   ms: ['boot', 'rest'], gateway: ['ms'], comm: ['ms'], resilience: ['comm'], saga: ['comm', 'tx'],
   deploy: ['boot'], cicd: ['deploy', 'testing'],
+  // OOP in practice
+  'overloading-vs-overriding': ['methods', 'pillars'], 'parent-reference': ['pillars', 'overloading-vs-overriding'],
+  'interface-vs-abstract': ['interfaces'], 'composition-vs-inheritance': ['pillars', 'interfaces'],
+  relationships: ['classes', 'composition-vs-inheritance'],
+  // Multithreading track
+  executors: ['threads', 'sync'],
+  // HashMap internals (a series: each part builds on the one before)
+  'hm-hashing': ['hashmap', 'object'], 'hm-buckets': ['hm-hashing'], 'hm-put': ['hm-buckets'], 'hm-get': ['hm-put'],
+  'hm-collision': ['hm-get'], 'hm-collision-resolution': ['hm-collision'], 'hm-load-factor': ['hm-collision-resolution'],
+  'hm-capacity': ['hm-load-factor'], 'hm-resize': ['hm-capacity'], 'hm-equals-hashcode': ['hm-resize', 'object'],
+  'hm-treeify': ['hm-equals-hashcode'], 'hm-java7-vs-java8': ['hm-treeify'], 'hm-mutable-keys': ['hm-java7-vs-java8', 'immutability'],
+  // Collections compared
+  'arraylist-vs-linkedlist': ['lists-sets-queues'], 'hashset-vs-treeset': ['lists-sets-queues', 'object'],
+  'hashmap-vs-hashtable': ['maps', 'hashmap'], 'hashmap-vs-concurrenthashmap': ['maps', 'sync'],
+  'hashmap-vs-linkedhashmap': ['maps'], 'comparable-vs-comparator': ['comparing'],
+  'iterator-vs-listiterator': ['lists-sets-queues'], 'fail-fast-vs-fail-safe': ['lists-sets-queues', 'concurrent'],
 };

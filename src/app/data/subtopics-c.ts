@@ -2,40 +2,6 @@ import { SubTopic } from '../core/models';
 
 /** Subtopics for modern Java and concurrency. Keyed by lesson id. */
 export const SUBTOPICS_C: Record<string, SubTopic[]> = {
-  lambdas: [
-    { id: 'syntax', t: 'Lambda syntax', body: `A lambda is a short anonymous function: parameters, an arrow, then an expression or a block. Parameter types are usually inferred.`, code: `Runnable hello = () -> System.out.println("Hi");
-Comparator<String> byLength = (a, b) -> Integer.compare(a.length(), b.length());
-Function<Integer, Integer> square = x -> x * x;
-BinaryOperator<Integer> add = (a, b) -> {
-    int sum = a + b;
-    return sum;
-};` },
-    { id: 'functional-interfaces', t: 'The built-in functional interfaces', body: `[[java.util.function]] covers most needs:
-- [[Function<T, R>]]: T in, R out. [[BiFunction]] takes two inputs.
-- [[Supplier<T>]]: nothing in, T out.
-- [[Consumer<T>]]: T in, nothing out.
-- [[Predicate<T>]]: T in, boolean out.
-- [[UnaryOperator<T>]] and [[BinaryOperator<T>]]: same type in and out.
-- Primitive versions such as [[IntPredicate]] and [[ToIntFunction]] avoid boxing.` },
-    { id: 'method-references', t: 'Method references', body: `When a lambda just calls an existing method, a method reference is shorter. There are four kinds:
-1. Static: [[Integer::parseInt]]
-2. On a specific object: [[System.out::println]]
-3. On any object of a type: [[String::toUpperCase]]
-4. Constructor: [[ArrayList::new]]`, code: `List<Integer> ids = texts.stream().map(Integer::parseInt).toList();
-names.forEach(System.out::println);
-List<String> upper = names.stream().map(String::toUpperCase).toList();
-Supplier<List<String>> fresh = ArrayList::new;`, min: 16 },
-    { id: 'capture', t: 'Capturing variables', body: `A lambda can use local variables from the enclosing method only if they're **effectively final** (never reassigned). Inside a lambda, [[this]] means the enclosing object, unlike in an anonymous class.`, code: `int limit = 100;               // effectively final
-orders.removeIf(o -> o.amount() > limit);
-// limit = 200;                // would make the lambda above a compile error` },
-    { id: 'composition', t: 'Composing functions', body: `Functional interfaces have default methods to combine them: [[andThen]] and [[compose]] for functions, [[and]], [[or]] and [[negate]] for predicates, and [[thenComparing]] and [[reversed]] for comparators.`, code: `Predicate<Order> paid = Order::isPaid;
-Predicate<Order> big = o -> o.amount() > 1000;
-orders.stream().filter(paid.and(big.negate())).toList();
-
-Function<String, String> trim = String::strip;
-Function<String, Integer> length = trim.andThen(String::length);`, min: 16 },
-    { id: 'where', t: 'Where lambdas show up', body: `Collections ([[forEach]], [[removeIf]], [[replaceAll]], [[computeIfAbsent]], [[sort]]), streams, [[Optional]], [[CompletableFuture]], executors and event listeners in frameworks. Once you know lambdas, a lot of modern Java reads naturally.` },
-  ],
   streams: [
     { id: 'create', t: 'Creating streams', body: `Streams come from collections, arrays, values, ranges, generators and files.`, code: `orders.stream();
 Stream.of("a", "b", "c");
@@ -71,45 +37,16 @@ BigDecimal total = items.stream().map(Item::price).reduce(BigDecimal.ZERO, BigDe
     .gather(Gatherers.windowFixed(2))
     .toList();          // [[1, 2], [3, 4], [5]]`, min: 24 },
   ],
-  threads: [
-    { id: 'create', t: 'Creating threads', body: `Give a [[Thread]] a [[Runnable]] (often a lambda) and call [[start()]], which runs it on a new thread. Calling [[run()]] directly just runs it on the current thread, a classic mistake.`, code: `Thread worker = new Thread(() -> System.out.println("Working on " + Thread.currentThread().getName()));
-worker.start();          // new thread
-// worker.run();         // same thread: not concurrent
-
-Thread vt = Thread.ofVirtual().start(() -> fetchPrices());   // Java 21 virtual thread`, min: 21 },
-    { id: 'lifecycle', t: 'Thread states', body: `A thread moves through [[NEW]] → [[RUNNABLE]] → ([[BLOCKED]], [[WAITING]], [[TIMED_WAITING]]) → [[TERMINATED]]. A thread dump ([[jcmd <pid> Thread.print]]) shows each thread's state, which is how you find stuck or deadlocked code.` },
-    { id: 'sleep-join-interrupt', t: 'sleep, join and interrupt', body: `[[sleep]] pauses the current thread; [[join]] waits for another thread to finish. [[interrupt()]] politely asks a thread to stop: blocking calls then throw [[InterruptedException]]. Handle it by stopping, and restore the flag if you can't rethrow.`, code: `Thread t = new Thread(() -> {
-    try {
-        while (true) { doWork(); Thread.sleep(1000); }
-    } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();   // keep the flag, then exit
-    }
-});
-t.start();
-t.interrupt();
-t.join();` },
-    { id: 'daemon', t: 'Daemon and user threads', body: `The JVM exits when all **user** threads finish; **daemon** threads (background helpers) don't keep it alive. Virtual threads are always daemon threads.` },
-    { id: 'executors', t: 'ExecutorService and thread pools', body: `Creating threads by hand doesn't scale. An [[ExecutorService]] reuses a pool of threads and queues tasks. Always shut it down; since Java 19 it's [[AutoCloseable]], so try-with-resources waits for tasks and closes it.`, code: `try (ExecutorService pool = Executors.newFixedThreadPool(4)) {
-    for (String url : urls) pool.submit(() -> download(url));
-}   // waits for all tasks, then shuts down
-
-try (var perTask = Executors.newVirtualThreadPerTaskExecutor()) {
-    urls.forEach(u -> perTask.submit(() -> download(u)));
-}`, min: 21 },
-    { id: 'callable-future', t: 'Callable and Future', body: `A [[Callable]] returns a value (and may throw). Submitting it gives a [[Future]]; [[get()]] waits for the result, preferably with a timeout. [[invokeAll]] runs a batch and waits for all.`, code: `Future<Integer> count = pool.submit(() -> countLines(path));
-try {
-    int lines = count.get(5, TimeUnit.SECONDS);
-} catch (TimeoutException e) {
-    count.cancel(true);
-}` },
-    { id: 'scheduled', t: 'Scheduled tasks', body: `A [[ScheduledExecutorService]] runs tasks after a delay or repeatedly. In Spring Boot, [[@Scheduled]] does the same with less code.`, code: `ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
-timer.scheduleAtFixedRate(this::refreshCache, 0, 10, TimeUnit.MINUTES);` },
-  ],
   sync: [
     { id: 'race', t: 'Race conditions', body: `[[count++]] is really read, add and write. When two threads do it at the same time, updates get lost. Any shared, changing data needs protection.`, code: `class Counter {
     private int count;
     void increment() { count++; }   // not thread-safe: two threads lose updates
 }` },
+    { id: 'synchronization', t: 'What synchronization guarantees', body: `Synchronization gives you two separate guarantees, and you usually need both:
+- **Mutual exclusion**: only one thread at a time runs a critical section, so read-modify-write steps like [[count++]] can't interleave.
+- **Visibility**: changes a thread makes before releasing a lock are seen by the next thread that acquires the same lock. Without it, another thread may keep seeing an old value, possibly forever.
+
+The tools, from simplest to most specialised: [[synchronized]], [[Lock]] objects, **atomic variables**, [[volatile]] (visibility only) and concurrent collections. The golden rule: **every** access to a shared, changing variable must be protected by the **same** lock. Better still, avoid sharing: immutable objects and thread-confined data need no synchronization at all.` },
     { id: 'synchronized', t: 'synchronized methods and blocks', body: `[[synchronized]] lets only one thread at a time hold an object's lock, and it also makes changes visible to the next thread that takes the lock. Lock the smallest block you can, and use a private lock object so outside code can't interfere. Locks are re-entrant: a thread can re-take a lock it already holds.`, code: `class Counter {
     private final Object lock = new Object();
     private int count;
@@ -118,13 +55,6 @@ timer.scheduleAtFixedRate(this::refreshCache, 0, 10, TimeUnit.MINUTES);` },
         synchronized (lock) { count++; }
     }
 }` },
-    { id: 'volatile', t: 'volatile: visibility, not atomicity', body: `A [[volatile]] field is always read from and written to main memory, so every thread sees the latest value. It's right for simple flags. It does **not** make compound actions like [[count++]] atomic; use [[AtomicInteger]] or a lock for those.`, code: `private volatile boolean running = true;
-
-void stop() { running = false; }          // other threads see this immediately
-void loop() { while (running) doWork(); }` },
-    { id: 'jmm', t: 'The Java Memory Model and happens-before', body: `Without synchronization, one thread may never see another's writes, or may see them out of order. **Happens-before** rules guarantee visibility: releasing a lock happens-before the next acquire of it; a [[volatile]] write happens-before later reads of it; [[Thread.start()]] happens-before the thread's actions; and a thread's actions happen-before another thread's successful [[join()]] on it.` },
-    { id: 'deadlock', t: 'Deadlock and how to avoid it', body: `Deadlock happens when two threads each hold a lock the other needs. Prevent it by always taking locks in the **same order**, holding locks briefly, avoiding calls to unknown code while holding a lock, or using [[tryLock]] with a timeout.` },
-    { id: 'wait-notify', t: 'wait and notify', body: `[[wait()]] releases the lock and sleeps until another thread calls [[notify()]]/[[notifyAll()]]. Always call [[wait]] in a loop that re-checks the condition. In new code, prefer [[BlockingQueue]], [[CountDownLatch]] or [[Condition]], which are far easier to get right.` },
     { id: 'locks', t: 'ReentrantLock, ReadWriteLock and StampedLock', body: `[[java.util.concurrent.locks]] offers more control than [[synchronized]]: [[tryLock]] with timeouts, interruptible waiting, fairness and several [[Condition]]s. [[ReentrantReadWriteLock]] lets many readers in at once but only one writer. Always unlock in [[finally]].`, code: `private final ReentrantLock lock = new ReentrantLock();
 
 void transfer(Account from, Account to, long paise) throws InterruptedException {
@@ -139,6 +69,25 @@ void transfer(Account from, Account to, long paise) throws InterruptedException 
         throw new IllegalStateException("busy, try again");
     }
 }` },
+    { id: 'deadlock', t: 'Deadlock and how to avoid it', body: `Deadlock happens when two threads each hold a lock the other needs. Prevent it by always taking locks in the **same order**, holding locks briefly, avoiding calls to unknown code while holding a lock, or using [[tryLock]] with a timeout.` },
+    { id: 'volatile', t: 'volatile: visibility, not atomicity', body: `A [[volatile]] field is always read from and written to main memory, so every thread sees the latest value. It's right for simple flags. It does **not** make compound actions like [[count++]] atomic; use [[AtomicInteger]] or a lock for those.`, code: `private volatile boolean running = true;
+
+void stop() { running = false; }          // other threads see this immediately
+void loop() { while (running) doWork(); }` },
+    { id: 'atomic', t: 'Atomic variables', body: `[[AtomicInteger]], [[AtomicLong]], [[AtomicBoolean]] and [[AtomicReference]] update a single value **atomically without locks**, using the CPU's compare-and-set (CAS) instruction. [[incrementAndGet()]], [[updateAndGet()]] and [[compareAndSet(expected, new)]] are the everyday methods. They're perfect for counters, IDs and flags. For counters updated by many threads at once, [[LongAdder]] scales better. Atomics protect one variable; to keep several variables consistent together, you still need a lock.`, code: `class Counter {
+    private final AtomicInteger count = new AtomicInteger();
+    void increment() { count.incrementAndGet(); }       // atomic and lock-free
+    int get() { return count.get(); }
+}
+
+AtomicReference<String> status = new AtomicReference<>("NEW");
+boolean mine = status.compareAndSet("NEW", "PROCESSING");   // only ONE thread can win this
+
+LongAdder pageViews = new LongAdder();
+pageViews.increment();                                      // best for very hot counters
+long total = pageViews.sum();` },
+    { id: 'jmm', t: 'The Java Memory Model and happens-before', body: `Without synchronization, one thread may never see another's writes, or may see them out of order. **Happens-before** rules guarantee visibility: releasing a lock happens-before the next acquire of it; a [[volatile]] write happens-before later reads of it; [[Thread.start()]] happens-before the thread's actions; and a thread's actions happen-before another thread's successful [[join()]] on it.` },
+    { id: 'wait-notify', t: 'wait and notify', body: `[[wait()]] releases the lock and sleeps until another thread calls [[notify()]]/[[notifyAll()]]. Always call [[wait]] in a loop that re-checks the condition. In new code, prefer [[BlockingQueue]], [[CountDownLatch]] or [[Condition]], which are far easier to get right.` },
     { id: 'threadlocal', t: 'ThreadLocal and ScopedValue', body: `A [[ThreadLocal]] gives each thread its own copy of a value, such as the current user or request id. In thread pools, always [[remove()]] it when done, or the value leaks into the next task. Java 25 finalised [[ScopedValue]], a safer, immutable alternative that works well with virtual threads.`, code: `private static final ThreadLocal<String> REQUEST_ID = new ThreadLocal<>();
 
 void handle(Request r) {

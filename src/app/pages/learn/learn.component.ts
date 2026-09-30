@@ -7,6 +7,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ORGANIZATION, SeoService, absUrl } from '../../core/seo.service';
 import { LearningService } from '../../core/learning.service';
 import { LessonFeedbackComponent } from '../../shared/lesson-feedback.component';
+import { HashmapLabComponent } from '../../shared/hashmap-lab.component';
 import { AdSlotComponent } from '../../shared/ad-slot.component';
 import { StageIconComponent } from '../../shared/stage-icon.component';
 import { DEFAULT_STAGE_STYLE, STAGE_STYLE } from '../../data/stage-style';
@@ -18,7 +19,7 @@ import { TutorPanelComponent } from './tutor-panel.component';
 
 @Component({
   selector: 'app-learn',
-  imports: [RouterLink, CodeBlockComponent, TutorPanelComponent, AdSlotComponent, StageIconComponent, LessonFeedbackComponent],
+  imports: [RouterLink, CodeBlockComponent, TutorPanelComponent, AdSlotComponent, StageIconComponent, LessonFeedbackComponent, HashmapLabComponent],
   templateUrl: './learn.component.html',
   host: { '(document:keydown.escape)': 'closeDrawer()' },
 })
@@ -155,6 +156,9 @@ export class LearnComponent {
     });
   }
 
+  /** Comparison table cells: escaped text with [[code]] and **bold**. */
+  protected readonly vsHtml = computed(() => (this.lesson().vs?.rows ?? []).map((r) => r.map(inlineHtml)));
+
   protected readonly subHtml = computed(() => (this.lesson().subs ?? []).map((st) => md(st.body)));
 
   protected readonly finishDate = computed(() => {
@@ -188,4 +192,9 @@ export class LearnComponent {
     const current = side?.querySelector<HTMLElement>('a[aria-current]');
     if (side && current && side.scrollHeight > side.clientHeight) current.scrollIntoView({ block: 'nearest' });
   }
+}
+
+function inlineHtml(text: string): string {
+  const esc = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return esc.replace(/\[\[(.+?)\]\](?!\])/g, '<code>$1</code>').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
 }

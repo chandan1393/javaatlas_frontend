@@ -3,6 +3,8 @@ export const STAGE_STYLE: Record<string, { c1: string; c2: string; icon: string 
   fundamentals: { c1: '#3355FF', c2: '#22D3EE', icon: 'M8 6 2 12l6 6M16 6l6 6-6 6' },
   oop: { c1: '#7C4DFF', c2: '#C084FC', icon: 'M12 2 3 7v10l9 5 9-5V7zM3 7l9 5 9-5M12 12v10' },
   core: { c1: '#0EA5E9', c2: '#6366F1', icon: 'M12 3 2 8l10 5 10-5zM2 13l10 5 10-5M2 18l10 5 10-5' },
+  'hashmap-internals': { c1: '#14B8A6', c2: '#0EA5E9', icon: 'M3 4h18v4H3zM3 10h18v4H3zM3 16h18v4H3zM7 6h.01M7 12h.01M7 18h.01' },
+  'collections-compared': { c1: '#F43F5E', c2: '#A855F7', icon: 'M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h4zM15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4zM12 2v20' },
   modern: { c1: '#F59E0B', c2: '#FF6B1A', icon: 'M12 3l1.8 4.9L19 9.7l-4.9 1.8L12 17l-1.8-5.5L5 9.7l5.2-1.8zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z' },
   dsa: { c1: '#10B981', c2: '#14B8A6', icon: 'M6 3a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM18 15a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM6 9v3a3 3 0 0 0 3 3h6' },
   design: { c1: '#EC4899', c2: '#F97316', icon: 'M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z' },

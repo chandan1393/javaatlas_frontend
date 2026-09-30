@@ -33,6 +33,10 @@ export interface Lesson {
   quiz?: [string, string[], number, string];
   /** Subtopics shown as numbered sections with their own table of contents (see data/subtopics-*.ts). */
   subs?: SubTopic[];
+  /** A side-by-side comparison table, for "X vs Y" lessons. Cells may use [[code]] and **bold**. */
+  vs?: { a: string; b: string; rows: [string, string, string][] };
+  /** An interactive lab shown after the explanation, e.g. 'hashmap:collision'. */
+  lab?: string;
 }
 
 export interface SubTopic {

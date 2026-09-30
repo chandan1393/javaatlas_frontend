@@ -495,7 +495,7 @@ iq:[[`What are the four pillars of OOP?`,`Encapsulation, abstraction, inheritanc
 [`Why doesn't Java allow multiple inheritance of classes?`,`To avoid the diamond problem, where two parents define the same method and state. A class can implement several interfaces; if two default methods clash, it must override the method and choose explicitly.`]],
 quiz:[`Which modifier allows access from subclasses in other packages?`,[`private`,`package-private`,`protected`,`none of these`],2,`protected means the same package plus subclasses anywhere.`]},
 
-{id:`interfaces`,t:`Abstract classes vs interfaces`,lvl:`I`,min:9,
+{id:`interfaces`,t:`Interfaces and abstract classes: the basics`,lvl:`I`,min:9,
 eli5:`An interface is a job description ("must be able to drive"). An abstract class is a half-built house: some rooms are finished, the rest are left for you.`,
 body:`An **interface** declares what a type can do. Since Java 8 it can also contain **default** and **static** methods, and since Java 9 **private** methods that share code between defaults. Fields in interfaces are always [[public static final]] constants.
 
@@ -792,7 +792,7 @@ iq:[[`ArrayList vs LinkedList?`,`ArrayList is backed by an array: fast random ac
 [`HashSet vs LinkedHashSet vs TreeSet?`,`HashSet: O(1), no order. LinkedHashSet: O(1), keeps insertion order. TreeSet: O(log n), sorted by natural order or a Comparator.`]],
 quiz:[`Which structure keeps its keys sorted?`,[`HashMap`,`LinkedHashMap`,`TreeMap`,`ConcurrentHashMap`],2,`TreeMap is a red-black tree ordered by key.`]},
 
-{id:`lists-sets-queues`,t:`Lists, sets and queues in practice`,lvl:`I`,min:21,
+{id:`lists-sets-queues`,t:`Every List, Set and Queue: ArrayList to BlockingQueue`,lvl:`I`,min:21,
 eli5:`Pick the container by the question you'll ask most: "what's at position 5?" (list), "have I seen this before?" (set), or "who's next?" (queue).`,
 body:`**Lists** keep insertion order and allow duplicates.
 - [[ArrayList]]: fast access by position; the default choice.
@@ -879,10 +879,12 @@ body:`[[HashMap]] stores entries in an array of **buckets**.
 
 1. [[put(k, v)]] computes [[k.hashCode()]], mixes the high bits into the low bits, then picks a bucket with [[hash & (n - 1)]].
 2. If the bucket is empty, the entry goes in. Otherwise Java walks the bucket comparing keys with [[equals()]]: the same key means the value is replaced, a new key is appended.
-3. Since **Java 8**, a bucket holding 8 or more entries (in a table of at least 64 buckets) becomes a **red-black tree**, so worst-case lookup is O(log n) instead of O(n).
+3. Since **Java 8**, when a new entry is added to a bucket that already holds 8, the bucket becomes a **red-black tree** (if the table has at least 64 buckets; otherwise it resizes), so worst-case lookup is O(log n) instead of O(n).
 4. When the size passes **capacity × load factor** (16 × 0.75 = 12 by default), the table doubles and the entries are redistributed.
 
-One [[null]] key is allowed. [[HashMap]] is not thread-safe.`,
+One [[null]] key is allowed. [[HashMap]] is not thread-safe.
+
+Want to see every step? The **HashMap internals** stage is a 13-part series with an interactive lab.`,
 code:`Map<String, Integer> stock = new HashMap<>(64);    // presize if you know roughly how many
 
 stock.put("java-book", 10);
@@ -900,9 +902,9 @@ pro:`A power-of-two capacity makes [[& (n - 1)]] a fast modulo, and the hash spr
 trap:`Using a mutable object as a key and changing it after insertion. The entry becomes unreachable.`,
 iq:[[`What happens when two keys have the same hashCode?`,`They go into the same bucket, stored as a linked list, or a tree once there are 8 or more entries in Java 8+. get() walks the bucket and uses equals() to find the matching key.`],
 [`Why is the default load factor 0.75?`,`It balances memory against collisions. A higher value saves space but makes chains longer; a lower one wastes space. 0.75 keeps average chains very short.`]],
-quiz:[`In Java 8+, what does a crowded bucket turn into?`,[`An array`,`A red-black tree`,`A skip list`,`A new HashMap`],1,`Buckets treeify at 8 entries (when capacity is at least 64) for O(log n) worst-case lookups.`]},
+quiz:[`In Java 8+, what does a crowded bucket turn into?`,[`An array`,`A red-black tree`,`A skip list`,`A new HashMap`],1,`A bucket that already holds 8 nodes is treeified on the next insert (when the table has at least 64 buckets) for O(log n) worst-case lookups.`]},
 
-{id:`maps`,t:`Maps in practice`,lvl:`I`,min:9,
+{id:`maps`,t:`Every Map: HashMap, LinkedHashMap, TreeMap, Hashtable and ConcurrentHashMap`,lvl:`I`,min:9,
 eli5:`A map is a dictionary: look up a word (the key) to get its meaning (the value). Different maps are different kinds of dictionary: unordered, in the order words were added, or alphabetical.`,
 body:`Choosing a map:
 - [[HashMap]]: fastest, no order. The default.

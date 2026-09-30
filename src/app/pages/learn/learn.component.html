@@ -98,6 +98,31 @@
     }
 
     <div class="prose" [innerHTML]="bodyHtml()"></div>
+
+    @if (l.vs; as vs) {
+      <section class="vs" aria-labelledby="vs-h">
+        <h2 id="vs-h">Side by side</h2>
+        <div class="table-wrap">
+          <table class="vs-table">
+            <thead>
+              <tr><th scope="col"></th><th scope="col">{{ vs.a }}</th><th scope="col">{{ vs.b }}</th></tr>
+            </thead>
+            <tbody>
+              @for (row of vsHtml(); track $index) {
+                <tr><th scope="row" [innerHTML]="row[0]"></th><td [innerHTML]="row[1]"></td><td [innerHTML]="row[2]"></td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+    @if (l.lab?.startsWith('hashmap')) {
+      @for (key of [l.id]; track key) {
+        <app-hashmap-lab [preset]="l.lab!.split(':')[1] || 'basic'" />
+      }
+    }
+
     @for (key of [l.id]; track key) {
       <app-ad slot="inArticle" />
     }

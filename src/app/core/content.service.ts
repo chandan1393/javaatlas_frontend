@@ -1,14 +1,12 @@
 import { Injectable } from '@angular/core';
-import { STAGES_A } from '../data/lessons-a';
-import { STAGES_B } from '../data/lessons-b';
-import { STAGES_C } from '../data/lessons-c';
-import { STAGES_D } from '../data/lessons-d';
 import { PREREQS } from '../data/connections';
 import { LearningPath, PATHS } from '../data/paths';
 import { PRODUCTS } from '../data/products';
 import { SUBTOPICS_A } from '../data/subtopics-a';
 import { SUBTOPICS_B } from '../data/subtopics-b';
 import { SUBTOPICS_C } from '../data/subtopics-c';
+import { SUBTOPICS_D } from '../data/subtopics-d';
+import { CURRICULUM } from '../data/curriculum';
 import { ECO, VERSIONS } from '../data/versions';
 import { fmtDate, ordinal, plain, words } from './markup';
 import { Feature, FeatType, Lesson, Question, SearchHit, Stage, TYPE_NAMES, VersionEntry } from './models';
@@ -44,7 +42,7 @@ function parseFeature(str: string, version: VersionEntry, index: number): Featur
 @Injectable({ providedIn: 'root' })
 export class ContentService {
   /** Learning order: basics, then algorithms, design and tools, then concurrency, data, Spring and microservices. */
-  readonly stages: Stage[] = [...STAGES_A, ...STAGES_D, ...STAGES_B, ...STAGES_C];
+  readonly stages: Stage[] = CURRICULUM;
   readonly paths: LearningPath[] = PATHS;
   readonly lessons: Lesson[] = this.stages.flatMap((s) => s.lessons);
   readonly versions: VersionEntry[] = VERSIONS;
@@ -64,7 +62,7 @@ export class ContentService {
   private index: IndexEntry[] | null = null;
 
   constructor() {
-    const subtopics = { ...SUBTOPICS_A, ...SUBTOPICS_B, ...SUBTOPICS_C };
+    const subtopics = { ...SUBTOPICS_A, ...SUBTOPICS_B, ...SUBTOPICS_C, ...SUBTOPICS_D };
     for (const s of this.stages) {
       for (const l of s.lessons) {
         this.byId.set(l.id, l);
@@ -241,3 +239,4 @@ export class ContentService {
     return (this.index = idx);
   }
 }
+

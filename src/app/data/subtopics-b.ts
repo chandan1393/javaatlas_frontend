@@ -31,6 +31,27 @@ System.out.println(a.name());   // Harrier` },
         this.priceInr = priceInr;
     }
 }` },
+    { id: 'this-vs-super', t: 'Constructor chaining: this() vs super()', body: `- [[this(...)]] calls **another constructor of the same class**, so shared set-up code lives in one place.
+- [[super(...)]] calls a **constructor of the parent class**, so the parent part of the object is built first.
+- Either call must be the **first statement** in a constructor, so you can't use both in the same constructor.
+- If you write neither, the compiler inserts [[super()]] for you. If the parent has no no-argument constructor, that fails to compile, and you must call [[super(args)]] yourself.
+- Since Java 25, statements that don't touch [[this]] (such as validating arguments) may come before [[this(...)]] or [[super(...)]].`, code: `class Person {
+    protected final String name;
+    Person(String name) { this.name = name; }            // no no-arg constructor
+}
+
+class Employee extends Person {
+    private final String dept;
+
+    Employee(String name) {
+        this(name, "General");                           // this(): reuse the other constructor
+    }
+
+    Employee(String name, String dept) {
+        super(name);                                     // super(): build the Person part first
+        this.dept = dept;
+    }
+}` },
     { id: 'this', t: 'The this keyword', body: `[[this]] is the current object. Use it to tell a field apart from a parameter with the same name, to pass the current object to another method, or to call another constructor ([[this(...)]]).` },
     { id: 'init-order', t: 'Initialisation order', body: `When an object is created: static fields and static blocks run once when the class first loads; then, for each object, field initialisers and instance blocks run in order, then the constructor body. With inheritance, the parent's part is built first.`, code: `class Demo {
     static { System.out.println("1. class loaded (once)"); }

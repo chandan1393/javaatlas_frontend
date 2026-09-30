@@ -1,8 +1,5 @@
 import { RenderMode, ServerRoute } from '@angular/ssr';
-import { STAGES_A } from './data/lessons-a';
-import { STAGES_B } from './data/lessons-b';
-import { STAGES_C } from './data/lessons-c';
-import { STAGES_D } from './data/lessons-d';
+import { CURRICULUM } from './data/curriculum';
 import { PATHS } from './data/paths';
 import { PRODUCTS } from './data/products';
 
@@ -36,7 +33,7 @@ export const serverRoutes: ServerRoute[] = [
     path: 'learn/:id',
     renderMode: RenderMode.Prerender,
     async getPrerenderParams() {
-      return [...STAGES_A, ...STAGES_D, ...STAGES_B, ...STAGES_C].flatMap((s) => s.lessons).map((l) => ({ id: l.id }));
+      return CURRICULUM.flatMap((s) => s.lessons).map((l) => ({ id: l.id }));
     },
   },
   {
