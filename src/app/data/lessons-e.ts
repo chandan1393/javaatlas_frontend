@@ -55,7 +55,7 @@ iq:[[`Can you overload a method by changing only the return type?`,`No. The comp
 [`Can a static method be overridden?`,`No. A static method with the same signature in a subclass hides the parent's; which one runs depends on the reference type, not the object.`]],
 quiz:[`Object o = "hi"; with greet(Object) and greet(String) defined, what does greet(o) call?`,[`greet(String)`,`greet(Object)`,`It doesn't compile`,`It depends on the JVM`],1,`Overloads are chosen at compile time from the declared type, and o is declared as Object.`]},
 
-{id:`parent-reference`,t:`What happens when a child object is assigned to a parent reference?`,lvl:`I`,min:16,
+{id:`parent-reference`,lab:`memory:upcasting`,t:`What happens when a child object is assigned to a parent reference?`,lvl:`I`,min:16,
 eli5:`A universal TV remote (the parent reference) controlling a smart TV (the child object): you only get the buttons the remote has, but when you press Power, the smart TV turns on in its own way.`,
 body:`[[Animal a = new Dog();]] creates a **Dog object** and stores a reference to it in a variable of type **Animal**. Two types are now involved, and each decides something different:
 - The **reference type** (Animal) decides **what you can call**. The compiler only allows methods and fields declared in Animal.
@@ -278,7 +278,7 @@ quiz:[`An Order creates its OrderLines, and they're deleted when the order is de
 // Concurrency: the advanced step after the basics and synchronization
 // ---------------------------------------------------------------------------------------------
 const EXECUTORS: Lesson =
-{id:`executors`,t:`ExecutorService, ThreadPoolExecutor and Future`,lvl:`A`,min:8,
+{id:`executors`,lab:`threadpool:bounded`,t:`ExecutorService, ThreadPoolExecutor and Future`,lvl:`A`,min:8,
 eli5:`Instead of hiring a new cook for every order, a restaurant keeps a team of cooks and an order board. The ExecutorService is the head chef: you hand over tasks, and it gives them to whichever cook is free.`,
 body:`Creating a new thread for every task is slow (each platform thread is an OS thread with its own stack) and dangerous under load (thousands of threads can exhaust memory). An **ExecutorService** (Java 5) keeps a **pool** of reusable threads and a **queue** of waiting tasks.
 - [[submit(task)]] accepts a [[Runnable]] or a [[Callable]] and returns a [[Future]]; [[execute(runnable)]] just runs it.
@@ -705,7 +705,7 @@ quiz:[`A key's email (used in hashCode) changes after put(). What does get(sameO
 // Collections compared: the classic "X vs Y" questions
 // ---------------------------------------------------------------------------------------------
 const COMPARED: Lesson[] = [
-{id:`arraylist-vs-linkedlist`,t:`ArrayList vs LinkedList`,lvl:`I`,min:8,
+{id:`arraylist-vs-linkedlist`,lab:`array:arraylist`,t:`ArrayList vs LinkedList`,lvl:`I`,min:8,
 eli5:`An ArrayList is a row of numbered seats: you can jump to seat 500 instantly, but adding a seat in the middle makes everyone after it shuffle along. A LinkedList is a treasure hunt: adding a clue anywhere is easy once you're standing there, but reaching clue 500 means following 499 clues first.`,
 body:`Both implement [[List]]: they keep insertion order, allow duplicates and allow [[null]]. The difference is the data structure underneath:
 - **ArrayList** is a **resizable array**. [[get(i)]] is instant (O(1)). Adding at the end is O(1) on average (it grows by 50% when full). Inserting or removing in the middle shifts the elements after it, which is O(n).

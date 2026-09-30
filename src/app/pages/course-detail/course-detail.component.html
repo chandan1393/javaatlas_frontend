@@ -58,6 +58,19 @@
             }
           </ul>
         </div>
+        @if (c.priceInr && !enrolled()) {
+          <div class="promise">
+            <strong>Buy with confidence</strong>
+            <ul>
+              <li>Full refund within {{ refundDays }} days if you've completed less than 25% of the course. <a routerLink="/refunds">Refund policy</a></li>
+              @if (previewCount()) {
+                <li>Watch {{ previewCount() }} lecture{{ previewCount() === 1 ? '' : 's' }} free before you pay.</li>
+              }
+              <li>The full syllabus is below, so you know exactly what you're buying.</li>
+              <li>Lifetime access, including every future update to this course.</li>
+            </ul>
+          </div>
+        }
       </aside>
     </header>
 

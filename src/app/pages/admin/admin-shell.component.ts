@@ -12,6 +12,7 @@ const ICONS = {
   add: 'M12 5v14M5 12h14',
   shield: 'M12 3l8 3v6c0 4.5-3.4 8.4-8 9-4.6-.6-8-4.5-8-9V6z',
   site: 'M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3',
+  templates: 'M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z',
 };
 
 /** Layout for every admin page: sidebar navigation and the signed-in admin. */
@@ -82,6 +83,7 @@ export class AdminShellComponent {
     { link: '/admin/feedback', label: 'Feedback', icon: ICONS.inbox, exact: false },
     { link: '/admin/content', label: 'Content', icon: ICONS.content, exact: false },
     { link: '/admin/courses/new', label: 'New course', icon: ICONS.add, exact: true },
+    { link: '/admin/templates', label: 'Course templates', icon: ICONS.templates, exact: false },
     { link: '/admin/security', label: 'Security', icon: ICONS.shield, exact: false },
   ];
 

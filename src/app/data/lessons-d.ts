@@ -43,7 +43,7 @@ iq:[[`What is the time complexity of HashMap.get?`,`O(1) on average, and O(log n
 [`What does amortised O(1) mean?`,`Most operations take constant time but a few are expensive (such as resizing); averaged over many operations, the cost per operation is constant.`]],
 quiz:[`Two nested loops over the same array of n items are typically…`,[`O(n)`,`O(log n)`,`O(n²)`,`O(1)`],2,`n iterations inside n iterations gives n × n steps.`]},
 
-{id:`sorting`,t:`Sorting and searching`,lvl:`I`,
+{id:`sorting`,lab:`array:binary-search`,t:`Sorting and searching`,lvl:`I`,
 eli5:`Sorting is putting books on a shelf in order; searching is finding one. Once the shelf is sorted, you can find any book by checking the middle of the remaining section each time.`,
 body:`In real code, use the library: [[Arrays.sort]], [[List.sort]] or [[Collections.sort]]. Java uses **dual-pivot quicksort** for primitives and **TimSort** (stable, O(n log n)) for objects.
 

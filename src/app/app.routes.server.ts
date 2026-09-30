@@ -20,6 +20,7 @@ const clientOnly = [
   'admin',
   'admin/login',
   'admin/content',
+  'admin/templates',
   'admin/analytics',
   'admin/feedback',
   'admin/security',

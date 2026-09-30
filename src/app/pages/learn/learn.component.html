@@ -117,9 +117,9 @@
       </section>
     }
 
-    @if (l.lab?.startsWith('hashmap')) {
+    @if (l.lab; as lab) {
       @for (key of [l.id]; track key) {
-        <app-hashmap-lab [preset]="l.lab!.split(':')[1] || 'basic'" />
+        <app-lab [spec]="lab" />
       }
     }
 

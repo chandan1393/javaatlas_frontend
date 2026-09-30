@@ -9,6 +9,7 @@ import { hoursText, priceText, richText } from '../../core/markup';
 import { VideoComponent } from '../../shared/video.component';
 import { CourseDetail } from '../../core/models';
 import { absUrl, ORGANIZATION, SeoService } from '../../core/seo.service';
+import { SETTINGS } from '../../app.settings';
 
 @Component({
   selector: 'app-course-detail',
@@ -29,6 +30,7 @@ export class CourseDetailComponent {
   protected readonly state = signal<'loading' | 'ready' | 'error'>('loading');
   protected readonly error = signal('');
   protected readonly priceText = priceText;
+  protected readonly refundDays = SETTINGS.business.refundDays;
   protected readonly hoursText = hoursText;
 
   protected readonly enrolled = computed(() => !!this.course()?.enrolled || this.account.enrolled().has(this.slug()));
@@ -62,14 +64,14 @@ export class CourseDetailComponent {
       const minutes = lectures.reduce((sum, l) => sum + (l.durationMin ?? 0), 0);
       this.seo.set({
         title: c.title,
-        description: `${c.subtitle}. ${c.description}`,
+        description: c.subtitle || plainText(c.description),
         path: `/courses/${c.slug}`,
         jsonLd: [
           {
             '@context': 'https://schema.org',
             '@type': 'Course',
             name: c.title,
-            description: c.description || c.subtitle,
+            description: c.subtitle || plainText(c.description),
             provider: ORGANIZATION,
             educationalLevel: c.level,
             inLanguage: 'en',
@@ -85,4 +87,9 @@ export class CourseDetailComponent {
       this.state.set('error');
     }
   }
+}
+
+/** Course descriptions are Markdown; search engines get plain sentences. */
+function plainText(md: string): string {
+  return md.replace(/^#+\s*/gm, '').replace(/^[-*]\s+/gm, '').replace(/[*`]/g, '').replace(/\s+/g, ' ').trim().slice(0, 300);
 }

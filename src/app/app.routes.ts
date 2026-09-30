@@ -44,6 +44,7 @@ export const routes: Routes = [
       { path: 'analytics', loadComponent: () => import('./pages/admin/admin-analytics.component').then((m) => m.AdminAnalyticsComponent) },
       { path: 'feedback', loadComponent: () => import('./pages/admin/admin-feedback.component').then((m) => m.AdminFeedbackComponent) },
       { path: 'content', loadComponent: () => import('./pages/admin/admin-content.component').then((m) => m.AdminContentComponent) },
+      { path: 'templates', loadComponent: () => import('./pages/admin/admin-templates.component').then((m) => m.AdminTemplatesComponent) },
       { path: 'security', loadComponent: () => import('./pages/admin/admin-security.component').then((m) => m.AdminSecurityComponent) },
       {
         path: 'courses/new',

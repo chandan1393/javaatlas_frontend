@@ -101,12 +101,12 @@ type Preset = 'basic' | 'fruits' | 'collision' | 'capacity' | 'resize' | 'treeif
       <div class="hml-settings">
         <label>new HashMap&lt;&gt;(<select class="field" [value]="requested()" (change)="setCapacity(+$any($event.target).value)" aria-label="Initial capacity">
           @for (c of capacities; track c) {
-            <option [value]="c">{{ c }}</option>
+            <option [value]="c" [selected]="c === requested()">{{ c }}</option>
           }
         </select>,
         <select class="field" [value]="lf()" (change)="setLoadFactor(+$any($event.target).value)" aria-label="Load factor">
           @for (f of factors; track f) {
-            <option [value]="f">{{ f }}f</option>
+            <option [value]="f" [selected]="f === lf()">{{ f }}f</option>
           }
         </select>)</label>
         <button type="button" class="btn btn-ghost btn-sm" (click)="reset()">Empty the map</button>

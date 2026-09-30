@@ -6,6 +6,7 @@ import { errorText, isApiError } from '../../core/api.service';
 import { CheckoutService } from '../../core/checkout.service';
 import { CourseApiService } from '../../core/course-api.service';
 import { priceText, richText } from '../../core/markup';
+import { LabComponent, splitLabs } from '../../shared/lab.component';
 import { CourseDetail, LectureView } from '../../core/models';
 import { UiService } from '../../core/ui.service';
 import { VideoComponent } from '../../shared/video.component';
@@ -15,7 +16,7 @@ import { LearningService } from '../../core/learning.service';
 /** Watch/read a course lecture by lecture, with progress. */
 @Component({
   selector: 'app-course-player',
-  imports: [RouterLink, VideoComponent],
+  imports: [RouterLink, VideoComponent, LabComponent],
   templateUrl: './course-player.component.html',
   host: { '(document:keydown.escape)': 'closeDrawer()' },
 })
@@ -54,7 +55,8 @@ export class CoursePlayerComponent {
     const i = this.flat().findIndex((l) => l.id === this.currentId());
     return i >= 0 ? (this.flat()[i + 1] ?? null) : null;
   });
-  protected readonly contentHtml = computed(() => richText(this.lecture()?.content ?? ''));
+  /** Lecture text, split around "::lab ..." lines so interactive labs appear inside the text. */
+  protected readonly contentParts = computed(() => splitLabs(this.lecture()?.content ?? '').map((p) => (p.lab ? { lab: p.lab } : { html: richText(p.md ?? '') })));
   protected readonly doneCount = computed(() => this.flat().filter((l) => this.completed().has(l.id)).length);
   protected readonly pct = computed(() => (this.flat().length ? Math.round((this.doneCount() / this.flat().length) * 100) : 0));
 

@@ -90,7 +90,13 @@
               }
             </div>
             <app-video [url]="lec.videoUrl" />
-            <div class="prose rich" [innerHTML]="contentHtml()"></div>
+            @for (part of contentParts(); track $index) {
+              @if (part.lab) {
+                <app-lab [spec]="part.lab" />
+              } @else {
+                <div class="prose rich" [innerHTML]="part.html"></div>
+              }
+            }
 
             @if (enrolled()) {
               <div class="done-row">

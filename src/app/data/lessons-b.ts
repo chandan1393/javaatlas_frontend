@@ -46,7 +46,7 @@ iq:[[`Process vs thread?`,`A process is a running program with its own memory an
 [`Runnable vs Callable?`,`Runnable.run() returns nothing and can't throw checked exceptions. Callable.call() returns a value and can throw; run it with an ExecutorService (or a FutureTask) to get a Future for the result.`]],
 quiz:[`Which method actually starts a new thread?`,[`run()`,`start()`,`execute()`,`init()`],1,`start() asks the JVM to create a new thread, which then calls run().`]},
 
-{id:`sync`,t:`Race conditions and synchronization: synchronized, locks, volatile and atomics`,lvl:`I`,
+{id:`sync`,lab:`threads:race`,t:`Race conditions and synchronization: synchronized, locks, volatile and atomics`,lvl:`I`,
 eli5:`A shared class notebook: synchronized is the rule that only one student writes at a time. volatile means everyone always reads the latest page, never an old photocopy.`,
 body:`When threads share mutable data you get **race conditions** and **visibility** problems.
 
@@ -86,7 +86,7 @@ iq:[[`synchronized vs volatile?`,`synchronized gives mutual exclusion and visibi
 [`How do you prevent deadlock?`,`Acquire locks in a consistent order, keep critical sections short, use tryLock with timeouts, or avoid nested locks by using higher-level concurrency utilities.`]],
 quiz:[`Is count++ on a volatile int thread-safe?`,[`Yes`,`No`,`Only on 64-bit JVMs`,`Only in Java 21+`],1,`It's a read-modify-write sequence; two threads can read the same value and both write back value + 1.`]},
 
-{id:`concurrent`,t:`Concurrent collections and synchronizers: ConcurrentHashMap, CountDownLatch, CyclicBarrier and Semaphore`,lvl:`A`,min:9,
+{id:`concurrent`,lab:`threads:atomic`,t:`Concurrent collections and synchronizers: ConcurrentHashMap, CountDownLatch, CyclicBarrier and Semaphore`,lvl:`A`,min:9,
 eli5:`A CountDownLatch is a starting gun that waits until every runner is ready. A Semaphore is a car park with a fixed number of spaces. An atomic counter is a turnstile that never double-counts.`,
 body:`[[java.util.concurrent]] gives you tested building blocks, so you rarely need low-level [[wait]] and [[notify]]:
 - **Atomics** ([[AtomicInteger]], [[AtomicLong]], [[AtomicReference]], [[LongAdder]]): lock-free updates such as [[incrementAndGet]] and [[compareAndSet]].
@@ -187,7 +187,7 @@ iq:[[`Virtual vs platform threads?`,`Platform threads wrap OS threads: expensive
 [`Do virtual threads make code faster?`,`They raise throughput (more concurrent tasks) for I/O-bound workloads. Each individual task is no faster, and CPU-bound work gains nothing.`]],
 quiz:[`Should you pool virtual threads?`,[`Yes, always`,`No, create one per task`,`Only in Spring`,`Only with synchronized`],1,`They're cheap to create; pooling defeats the purpose.`]},
 
-{id:`memory`,t:`JVM memory and garbage collection`,lvl:`A`,
+{id:`memory`,lab:`memory:gc`,t:`JVM memory and garbage collection`,lvl:`A`,
 eli5:`The heap is a big shared warehouse, each thread has its own small desk (the stack), and the garbage collector is a cleaner who removes boxes that nobody points to any more.`,
 body:`The main JVM memory areas:
 - **Heap**: every object. Split into a **young** generation (Eden and survivor spaces) and an **old** generation.

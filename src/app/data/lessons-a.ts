@@ -165,7 +165,7 @@ iq:[[`Can you change an array's size?`,`No, the length is fixed. Create a new ar
 [`Array or ArrayList?`,`Arrays: fixed size, can hold primitives, slightly faster. ArrayList: resizable, objects only (so primitives get boxed), a rich API, and works with generics and streams.`]],
 quiz:[`What is the last valid index of new int[5]?`,[`5`,`4`,`6`,`0`],1,`Indexes run from 0 to length minus 1.`]},
 
-{id:`methods`,t:`Methods and pass-by-value`,lvl:`B`,
+{id:`methods`,lab:`memory:pass-by-value`,t:`Methods and pass-by-value`,lvl:`B`,
 eli5:`A method is a named recipe. You hand it ingredients (arguments), and it may hand you back a dish (the return value).`,
 body:`A method has a return type, a name, parameters and a body. Methods with the same name but different parameter lists are **overloaded**.
 
@@ -193,7 +193,7 @@ iq:[[`Is Java pass-by-reference for objects?`,`No. It passes a copy of the refer
 [`Overloading vs overriding?`,`Overloading: same name, different parameters, chosen at compile time. Overriding: a subclass redefines an inherited method with the same signature, chosen at runtime.`]],
 quiz:[`A method does list = new ArrayList<>() on its parameter. The caller's list is…`,[`Replaced`,`Unchanged`,`Set to null`,`Cleared`],1,`Only the method's local copy of the reference is reassigned.`]},
 
-{id:`strings`,t:`Strings, StringBuilder and text blocks`,lvl:`B`,min:15,
+{id:`strings`,lab:`memory:string-pool`,t:`Strings, StringBuilder and text blocks`,lvl:`B`,min:15,
 eli5:`A String is like text printed on paper: to change it, you print a new page. A StringBuilder is a whiteboard you can keep editing.`,
 body:`[[String]] is **immutable**. Methods like [[toUpperCase()]] return a new string and leave the original alone. String literals are kept in the **string pool**, so identical literals share one object.
 
@@ -297,7 +297,7 @@ iq:[[`Why not use double for money?`,`double stores binary fractions, so values 
 [`Random vs SecureRandom?`,`Random is fast but predictable from its seed. SecureRandom uses a cryptographically strong source; use it for tokens, passwords and OTPs.`]],
 quiz:[`Which correctly checks that two BigDecimal amounts have the same value?`,[`a == b`,`a.equals(b)`,`a.compareTo(b) == 0`,`a.doubleValue() == b.doubleValue()`],2,`compareTo ignores scale, so 2.0 and 2.00 compare as equal; equals also compares the scale.`]},
 
-{id:`recursion`,t:`Recursion`,lvl:`B`,min:16,
+{id:`recursion`,lab:`memory:recursion`,t:`Recursion`,lvl:`B`,min:16,
 eli5:`Recursion is a set of nesting dolls: to open the big doll you open a smaller doll inside it, until you reach the tiny one that doesn't open.`,
 body:`A **recursive** method calls itself on a smaller version of the problem. Every recursive method needs:
 1. A **base case** that returns without recursing.
@@ -873,7 +873,7 @@ iq:[[`Comparable vs Comparator?`,`Comparable defines one natural order inside th
 [`What happens if compareTo is inconsistent with equals?`,`Sorted collections such as TreeSet use compareTo to decide equality, so they may drop elements that equals considers different.`]],
 quiz:[`What should compareTo return when this should come before other?`,[`0`,`A positive number`,`A negative number`,`true`],2,`Negative means this sorts first, positive means after, zero means equal.`]},
 
-{id:`hashmap`,t:`How HashMap works inside`,lvl:`A`,min:9,
+{id:`hashmap`,lab:`hashmap:fruits`,t:`How HashMap works inside`,lvl:`A`,min:9,
 eli5:`Imagine a row of 16 lockers. The key's hash tells you which locker to use. If two keys pick the same locker, they share it in a small chain.`,
 body:`[[HashMap]] stores entries in an array of **buckets**.
 
@@ -1212,7 +1212,7 @@ iq:[[`What is a functional interface?`,`An interface with exactly one abstract m
 [`Why must captured variables be effectively final?`,`Lambdas capture values, not variables. Allowing changes would create confusing behaviour and data races when the lambda runs later or on another thread.`]],
 quiz:[`Which interface fits x -> x > 10?`,[`Function<Integer, Integer>`,`Predicate<Integer>`,`Supplier<Integer>`,`Consumer<Integer>`],1,`It takes a value and returns a boolean.`]},
 
-{id:`streams`,t:`Stream API`,lvl:`I`,min:16,
+{id:`streams`,lab:`stream:lazy`,t:`Stream API`,lvl:`I`,min:16,
 eli5:`A stream is a factory conveyor belt. Items pass through stations (filter, map), and at the end something packs the finished products.`,
 body:`A **stream** processes a sequence of elements through a pipeline:
 
