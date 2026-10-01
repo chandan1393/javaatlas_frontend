@@ -27,7 +27,7 @@ export const PREREQS: Record<string, string[]> = {
   maven: ['packages'], logging: ['exceptions'], junit: ['maven', 'exceptions'], mockito: ['junit', 'interfaces'],
   debugging: ['exceptions'], annotations: ['interfaces'], json: ['records', 'maven'],
   // Concurrency and the JVM
-  threads: ['lambdas'], sync: ['threads'], concurrent: ['executors'], cf: ['executors', 'lambdas'],
+  threads: ['classes', 'exceptions'], sync: ['threads'], concurrent: ['executors'], cf: ['executors', 'lambdas'],
   vthreads: ['threads'], memory: ['jvm', 'classes'], classloading: ['jvm', 'memory'],
   // JDBC, JPA and Hibernate
   jdbc: ['exceptions', 'maven'], orm: ['jdbc', 'annotations'], entities: ['orm'], lifecycle: ['entities'],

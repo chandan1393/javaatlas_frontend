@@ -261,7 +261,7 @@ export class HomeComponent {
       const count = stage.lessons.filter((l) => done[l.id]).length;
       return {
         stage,
-        no: i + 1,
+        no: this.content.stageNo(stage),
         done: count,
         pct: Math.round((count / stage.lessons.length) * 100),
         next: stage.lessons.find((l) => !done[l.id]) ?? stage.lessons[0],

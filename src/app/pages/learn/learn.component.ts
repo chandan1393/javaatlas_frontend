@@ -68,7 +68,8 @@ export class LearnComponent {
       const count = stage.lessons.filter((l) => done[l.id]).length;
       return {
         stage,
-        no: i + 1,
+        no: this.content.stageNo(stage),
+        firstInPart: this.content.startsPart(stage),
         done: count,
         pct: Math.round((count / stage.lessons.length) * 100),
         current: stage === current,

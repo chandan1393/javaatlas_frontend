@@ -58,8 +58,8 @@ type Preset = 'basic' | 'fruits' | 'collision' | 'capacity' | 'resize' | 'treeif
     <section class="hml" aria-labelledby="hml-h">
       <header class="hml-head">
         <div>
-          <h2 id="hml-h">HashMap lab</h2>
-          <p class="muted">A faithful simulation of Java's HashMap. Type a key and watch every step.</p>
+          <h2 id="hml-h">{{ isSet() ? 'HashSet lab' : 'HashMap lab' }}</h2>
+          <p class="muted">{{ isSet() ? 'A HashSet is a HashMap inside: every element is stored as a key, all with the same dummy value. That is why duplicates are impossible.' : 'A faithful simulation of Java\'s HashMap. Type a key and watch every step.' }}</p>
         </div>
         <div class="hml-presets" role="group" aria-label="Examples">
           @for (p of presets; track p.id) {
@@ -70,10 +70,12 @@ type Preset = 'basic' | 'fruits' | 'collision' | 'capacity' | 'resize' | 'treeif
 
       <div class="hml-controls">
         <label>Key <input class="field" [value]="key()" (input)="key.set($any($event.target).value)" (keydown.enter)="put()" maxlength="40" spellcheck="false" /></label>
-        <label>Value <input class="field" [value]="value()" (input)="value.set($any($event.target).value)" (keydown.enter)="put()" maxlength="20" placeholder="optional" /></label>
+        @if (!isSet()) {
+          <label>Value <input class="field" [value]="value()" (input)="value.set($any($event.target).value)" (keydown.enter)="put()" maxlength="20" placeholder="optional" /></label>
+        }
         <div class="hml-ops">
-          <button type="button" class="btn btn-primary btn-sm" (click)="put()">put</button>
-          <button type="button" class="btn btn-ghost btn-sm" (click)="get()">get</button>
+          <button type="button" class="btn btn-primary btn-sm" (click)="put()">{{ isSet() ? 'add' : 'put' }}</button>
+          <button type="button" class="btn btn-ghost btn-sm" (click)="get()">{{ isSet() ? 'contains' : 'get' }}</button>
           <button type="button" class="btn btn-ghost btn-sm" (click)="remove()">remove</button>
         </div>
         @if (current() === 'treeify') {
@@ -133,7 +135,7 @@ type Preset = 'basic' | 'fruits' | 'collision' | 'capacity' | 'resize' | 'treeif
               }
               <span class="hml-chain">
                 @for (e of b.entries; track e.key + $index; let last = $last) {
-                  <span class="hml-node" [class.hit]="e.key === hotKey() && bi === hot()" [class.moved]="moved().has(e.key)" [class.mutated]="e.mutated" [title]="e.key + ' = ' + e.value + ' (stored hash ' + e.hash + ')'">{{ e.key }}<small>={{ e.value }}</small></span>
+                  <span class="hml-node" [class.hit]="e.key === hotKey() && bi === hot()" [class.moved]="moved().has(e.key)" [class.mutated]="e.mutated" [title]="e.key + ' = ' + e.value + ' (stored hash ' + e.hash + ')'">{{ e.key }}@if (!isSet()) {<small>={{ e.value }}</small>}</span>
                   @if (!last) {
                     <span class="hml-arrow" aria-hidden="true">{{ b.tree ? '·' : '→' }}</span>
                   }
@@ -179,6 +181,8 @@ export class HashmapLabComponent implements OnInit {
   protected readonly mutateFrom = signal('asha@old.com');
   protected readonly mutateTo = signal('asha@new.com');
   protected readonly current = signal<Preset>('basic');
+  /** HashSet mode (preset "set"): the same table, elements as keys with a dummy value. */
+  protected readonly isSet = signal(false);
 
   // Simulation state
   private table: Bucket[] | null = null;
@@ -214,7 +218,8 @@ export class HashmapLabComponent implements OnInit {
 
   ngOnInit(): void {
     const all: Preset[] = ['basic', 'fruits', 'collision', 'capacity', 'resize', 'treeify', 'mutable'];
-    const p = (all.includes(this.preset() as Preset) ? this.preset() : 'basic') as Preset;
+    if (this.preset() === 'set') this.isSet.set(true);
+    const p = (this.preset() === 'set' ? 'fruits' : all.includes(this.preset() as Preset) ? this.preset() : 'basic') as Preset;
     this.load(p);
   }
 
@@ -276,7 +281,7 @@ export class HashmapLabComponent implements OnInit {
   protected put(): void {
     const k = this.key().trim();
     if (!k) return;
-    const v = this.value().trim() || String(++this.counter);
+    const v = this.isSet() ? 'PRESENT' : this.value().trim() || String(++this.counter);
     const steps: { kind: string; html: string }[] = [];
     this.putInternal(k, v, steps);
     this.steps.set(steps);
@@ -330,10 +335,10 @@ export class HashmapLabComponent implements OnInit {
       }
       if (found) {
         this.hotKey.set(found.key);
-        steps.push({ kind: 'hit', html: `Found it${b.tree ? '' : ` after ${comparisons} comparison${comparisons === 1 ? '' : 's'}`}: same hash and <code>equals()</code> is true. Returns <strong>${esc(found.value)}</strong>.` });
+        steps.push({ kind: 'hit', html: `Found it${b.tree ? '' : ` after ${comparisons} comparison${comparisons === 1 ? '' : 's'}`}: same hash and <code>equals()</code> is true. ${this.isSet() ? '<code>contains()</code> returns <strong>true</strong>.' : `Returns <strong>${esc(found.value)}</strong>.`}` });
       } else {
         const stranded = b.entries.find((e) => e.mutated);
-        steps.push({ kind: 'miss', html: `No matching key in bucket ${i}: <code>get</code> returns <strong>null</strong>.${stranded ? ` (The changed key <code>${esc(stranded.key)}</code> sits here with its <em>old</em> stored hash, so it no longer matches anything.)` : ''}` });
+        steps.push({ kind: 'miss', html: `No matching key in bucket ${i}: <code>${this.isSet() ? 'contains' : 'get'}</code> returns <strong>${this.isSet() ? 'false' : 'null'}</strong>.${stranded ? ` (The changed key <code>${esc(stranded.key)}</code> sits here with its <em>old</em> stored hash, so it no longer matches anything.)` : ''}` });
         this.hotKey.set('');
       }
     }
@@ -461,6 +466,10 @@ export class HashmapLabComponent implements OnInit {
     this.moved.set(new Set());
 
     const existing = b.entries.find((e) => e.hash === h && e.key === k);
+    if (existing && this.isSet()) {
+      log.push({ kind: 'hit', html: `<code>${esc(k)}</code> is already in bucket ${i} (hash equal, <code>equals()</code> true): <code>add()</code> returns <strong>false</strong> and the set is unchanged. That's how a HashSet rejects duplicates.` });
+      return;
+    }
     if (existing) {
       const old = existing.value;
       existing.value = v;

@@ -2,6 +2,7 @@ import { Component, computed, inject, input, OnDestroy, OnInit, PLATFORM_ID, sig
 import { isPlatformBrowser } from '@angular/common';
 
 type Mode = 'binary-search' | 'two-pointers' | 'sliding-window' | 'arraylist';
+type ListKind = 'arraylist' | 'vector' | 'cow';
 interface Frame {
   marks: Record<string, number>;
   /** Cells outside [lo, hi] are greyed out (binary search). */
@@ -112,7 +113,7 @@ function slidingWindow(a: number[], k: number): Frame[] {
     <section class="hml al" aria-labelledby="al-h">
       <header class="hml-head">
         <div>
-          <h2 id="al-h">{{ mode() === 'arraylist' ? 'ArrayList lab' : 'Array lab' }}</h2>
+          <h2 id="al-h">{{ mode() === 'arraylist' ? kindName() + ' lab' : 'Array lab' }}</h2>
           <p class="muted">{{ intro() }}</p>
         </div>
         <div class="hml-presets" role="group" aria-label="Algorithms">
@@ -155,7 +156,15 @@ function slidingWindow(a: number[], k: number): Frame[] {
           <span class="muted">Step {{ index() + 1 }} of {{ frames().length }}</span>
         </div>
       } @else {
+        <div class="hml-presets al-kinds" role="group" aria-label="List type">
+          <button type="button" class="chip" [attr.aria-pressed]="kind() === 'arraylist'" (click)="setKind('arraylist')">ArrayList</button>
+          <button type="button" class="chip" [attr.aria-pressed]="kind() === 'vector'" (click)="setKind('vector')">Vector</button>
+          <button type="button" class="chip" [attr.aria-pressed]="kind() === 'cow'" (click)="setKind('cow')">CopyOnWriteArrayList</button>
+        </div>
         <div class="hml-controls">
+          @if (kind() === 'cow') {
+            <button type="button" class="btn btn-brand btn-sm" (click)="snapshot()">Start iterating (take a snapshot)</button>
+          }
           <button type="button" class="btn btn-primary btn-sm" (click)="add(false)">list.add({{ nextValue() }})</button>
           <button type="button" class="btn btn-ghost btn-sm" (click)="add(true)">list.add(0, {{ nextValue() }})</button>
           <button type="button" class="btn btn-ghost btn-sm" (click)="removeFirst()" [disabled]="!list().length">list.remove(0)</button>
@@ -168,8 +177,11 @@ function slidingWindow(a: number[], k: number): Frame[] {
           <div><dt>grows</dt><dd>{{ grows() }}</dd></div>
           <div><dt>elements copied</dt><dd>{{ copies() }}</dd></div>
         </dl>
+        @if (snap(); as sn) {
+          <p class="al-snap"><strong>An iterator is walking a snapshot:</strong> [{{ sn.join(', ') }}]. Changes made now don't affect it, and it never throws ConcurrentModificationException.</p>
+        }
         @if (capacity() === 0) {
-          <p class="hml-empty">new ArrayList&lt;&gt;() starts with an empty shared array: no space is reserved until the first add, which creates room for 10.</p>
+          <p class="hml-empty">{{ kind() === 'cow' ? 'new CopyOnWriteArrayList<>() starts with an empty array: it is always exactly as long as the list.' : 'new ArrayList<>() starts with an empty shared array: no space is reserved until the first add, which creates room for 10.' }}</p>
         } @else {
           <div class="al-cells al-list">
             @for (c of slots(); track $index; let i = $index) {
@@ -246,12 +258,21 @@ export class ArrayLabComponent implements OnInit, OnDestroy {
   protected readonly moved = signal<number[]>([]);
   protected readonly lastIndex = signal(-1);
   protected readonly listLog = signal<{ kind: string; text: string }[]>([]);
+  protected readonly kind = signal<ListKind>('arraylist');
+  protected readonly snap = signal<number[] | null>(null);
+  protected readonly kindName = computed(() => ({ arraylist: 'ArrayList', vector: 'Vector', cow: 'CopyOnWriteArrayList' })[this.kind()]);
   /** The value the next add() inserts (5, 10, 15, ...), shown on the buttons. */
   protected readonly nextValue = signal(5);
   protected readonly slots = computed(() => Array.from({ length: this.capacity() }, (_, i) => (i < this.list().length ? this.list()[i] : null)));
 
   ngOnInit(): void {
-    this.load(this.presets.some((p) => p.id === this.preset()) ? (this.preset() as Mode) : 'binary-search');
+    const p = this.preset();
+    if (p === 'vector' || p === 'cow') {
+      this.load('arraylist');
+      this.setKind(p);
+      return;
+    }
+    this.load(this.presets.some((x) => x.id === p) ? (p as Mode) : 'binary-search');
   }
 
   ngOnDestroy(): void {
@@ -317,8 +338,19 @@ export class ArrayLabComponent implements OnInit, OnDestroy {
     this.timer = null;
   }
 
-  // ---- ArrayList: the real growth rule (Java 8+) ----
+  // ---- ArrayList, Vector and CopyOnWriteArrayList: their real growth rules ----
+  protected setKind(k: ListKind): void {
+    this.kind.set(k);
+    this.resetList();
+  }
+
+  protected snapshot(): void {
+    this.snap.set([...this.list()]);
+    this.listLog.update((l) => [...l, { kind: 'info', text: `iterator() captures the current array [${this.list().join(', ')}]. The iterator will only ever see these elements.` }]);
+  }
+
   protected resetList(): void {
+    this.snap.set(null);
     this.list.set([]);
     this.capacity.set(0);
     this.grows.set(0);
@@ -327,11 +359,31 @@ export class ArrayLabComponent implements OnInit, OnDestroy {
     this.lastIndex.set(-1);
     this.listLog.set([]);
     this.nextValue.set(5);
+    if (this.kind() === 'vector') {
+      this.capacity.set(10);
+      this.listLog.set([{ kind: 'info', text: 'new Vector<>() allocates 10 slots straight away. Every method is synchronized, even in single-threaded code.' }]);
+    }
   }
 
   private ensureCapacity(needed: number, log: { kind: string; text: string }[]): void {
     const cap = this.capacity();
+    if (this.kind() === 'cow') {
+      // Every write builds a brand-new array exactly one longer and copies everything.
+      this.copies.update((c) => c + this.list().length);
+      this.grows.update((g) => g + 1);
+      this.capacity.set(needed);
+      log.push({ kind: 'warn', text: `CopyOnWriteArrayList copies all ${this.list().length} elements into a new array of ${needed} for this one write. Reads stay lock-free and safe; writes are expensive.` });
+      return;
+    }
     if (needed <= cap) return;
+    if (this.kind() === 'vector') {
+      const grown = cap * 2;
+      this.copies.update((c) => c + this.list().length);
+      this.grows.update((g) => g + 1);
+      log.push({ kind: 'warn', text: `The Vector is full (capacity ${cap}). It doubles to ${grown} and copies all ${this.list().length} elements (ArrayList would only grow by half).` });
+      this.capacity.set(grown);
+      return;
+    }
     const grown = cap === 0 ? 10 : Math.max(needed, cap + (cap >> 1));
     if (cap > 0) {
       this.copies.update((c) => c + this.list().length);
@@ -352,7 +404,7 @@ export class ArrayLabComponent implements OnInit, OnDestroy {
     if (atStart) {
       const shifted = list.length;
       list.unshift(value);
-      this.copies.update((c) => c + shifted);
+      if (this.kind() !== 'cow') this.copies.update((c) => c + shifted);   // CopyOnWrite already copied everything
       this.moved.set(Array.from({ length: shifted }, (_, i) => i + 1));
       this.lastIndex.set(0);
       log.push({ kind: shifted ? 'warn' : 'step', text: shifted ? `add(0, ${value}): every one of the ${shifted} elements shifts one place right (System.arraycopy) to make room. O(n).` : `add(0, ${value}) into an empty list: nothing to shift.` });
@@ -375,6 +427,7 @@ export class ArrayLabComponent implements OnInit, OnDestroy {
     if (!list.length) return;
     const removed = list.shift();
     this.copies.update((c) => c + list.length);
+    if (this.kind() === 'cow') this.capacity.set(list.length);
     this.moved.set(Array.from({ length: list.length }, (_, i) => i));
     this.lastIndex.set(-1);
     this.list.set(list);

@@ -742,7 +742,7 @@ iq:[[`ArrayList vs LinkedList: which is faster for random access and why?`,`Arra
 [`When would you choose LinkedList?`,`Rarely: when you constantly add and remove at the ends or through an iterator in the middle of a large list. For queue or stack use, ArrayDeque is usually faster.`]],
 quiz:[`What is the time complexity of get(i) on a LinkedList?`,[`O(1)`,`O(log n)`,`O(n)`,`O(n log n)`],2,`It has to walk from the nearer end of the list to position i.`]},
 
-{id:`hashset-vs-treeset`,t:`HashSet vs TreeSet (and LinkedHashSet)`,lvl:`I`,min:8,
+{id:`hashset-vs-treeset`,lab:`tree:set`,t:`HashSet vs TreeSet (and LinkedHashSet)`,lvl:`I`,min:8,
 eli5:`A HashSet is a bag of name tags: very quick to check whether a name is in it, but in no particular order. A TreeSet is an alphabetical register: a little slower, but always sorted, and you can ask "who comes after Meera?".`,
 body:`All three store **unique** elements. They differ in order, speed and how they decide what "the same" means:
 - **HashSet**: backed by a [[HashMap]]. [[add]], [[contains]] and [[remove]] are O(1) on average. **No order.** Uniqueness uses [[hashCode()]] and [[equals()]]. One [[null]] is allowed.
@@ -778,7 +778,7 @@ iq:[[`HashSet vs TreeSet?`,`HashSet is backed by HashMap: unordered, O(1) averag
 [`How do you remove duplicates from a list but keep the original order?`,`new ArrayList<>(new LinkedHashSet<>(list)), or list.stream().distinct().toList().`]],
 quiz:[`Which set keeps elements in insertion order?`,[`HashSet`,`TreeSet`,`LinkedHashSet`,`EnumSet`],2,`LinkedHashSet maintains a linked list of entries in insertion order.`]},
 
-{id:`hashmap-vs-hashtable`,t:`HashMap vs Hashtable`,lvl:`I`,min:8,
+{id:`hashmap-vs-hashtable`,lab:`chm:hashtable`,t:`HashMap vs Hashtable`,lvl:`I`,min:8,
 eli5:`Hashtable is an old shop with one checkout counter that serves one customer at a time, even if they only want to look. HashMap is the modern shop with no queue rules at all, great with one customer, chaos with many. For many customers, you want ConcurrentHashMap.`,
 body:`[[Hashtable]] is from **Java 1.0**; [[HashMap]] arrived with the Collections framework in Java 1.2. Today Hashtable is **legacy**:
 - **Every method is synchronized** on the whole table. One thread at a time, even for reads, so it's slow when several threads use it.
@@ -817,7 +817,7 @@ iq:[[`HashMap vs Hashtable?`,`Hashtable is a Java 1.0 legacy class: synchronized
 [`Why doesn't Hashtable allow null?`,`It calls key.hashCode() and value checks directly, so a null throws NullPointerException; and in a concurrent map, a null result from get() would be ambiguous (missing or mapped to null).`]],
 quiz:[`Which of these accepts a null key?`,[`Hashtable`,`HashMap`,`ConcurrentHashMap`,`None of them`],1,`HashMap allows one null key; Hashtable and ConcurrentHashMap throw NullPointerException.`]},
 
-{id:`hashmap-vs-concurrenthashmap`,t:`HashMap vs ConcurrentHashMap`,lvl:`A`,min:8,
+{id:`hashmap-vs-concurrenthashmap`,lab:`chm:chm`,t:`HashMap vs ConcurrentHashMap`,lvl:`A`,min:8,
 eli5:`A HashMap is a whiteboard anyone can scribble on at the same time, so words get mangled. A ConcurrentHashMap is a whiteboard split into many small squares, each with its own marker: people write in different squares at the same time, and only wait if they want the same square.`,
 body:`[[HashMap]] is **not thread-safe**: concurrent writes can lose updates and corrupt its internals. [[ConcurrentHashMap]] is built for many threads:
 - **Fine-grained locking.** In Java 8+, putting into an empty bucket uses a lock-free CAS operation; updating a non-empty bucket locks only that bucket (by synchronizing on its first node). Threads working on different buckets never wait for each other.
@@ -857,7 +857,7 @@ iq:[[`How does ConcurrentHashMap achieve thread safety in Java 8+?`,`It uses CAS
 [`Why doesn't ConcurrentHashMap allow null keys or values?`,`Because get() returning null would be ambiguous between "absent" and "mapped to null", and in a concurrent map you can't safely follow up with containsKey() to find out.`]],
 quiz:[`Which is an atomic way to increment a counter in a ConcurrentHashMap?`,[`map.put(k, map.get(k) + 1)`,`map.merge(k, 1, Integer::sum)`,`if (map.containsKey(k)) map.put(k, map.get(k) + 1)`,`map.get(k) + 1`],1,`merge() reads and updates the key's value as one atomic step.`]},
 
-{id:`hashmap-vs-linkedhashmap`,t:`HashMap vs LinkedHashMap`,lvl:`I`,min:8,
+{id:`hashmap-vs-linkedhashmap`,lab:`linkedhashmap:insertion`,t:`HashMap vs LinkedHashMap`,lvl:`I`,min:8,
 eli5:`A HashMap is a pile of index cards: easy to find any card, but in no order. A LinkedHashMap is the same pile with a string threaded through the cards in the order you added them (or the order you last used them), so you can walk them in that order.`,
 body:`[[LinkedHashMap]] is a [[HashMap]] plus a **doubly linked list running through all its entries**. That list gives it a predictable iteration order:
 - **Insertion order** (the default): entries come out in the order they were first put. Re-putting an existing key doesn't move it.
@@ -936,7 +936,7 @@ iq:[[`Comparable vs Comparator?`,`Comparable is implemented by the class itself 
 [`How do you sort by salary descending, then by name?`,`list.sort(Comparator.comparingDouble(Employee::salary).reversed().thenComparing(Employee::name)).`]],
 quiz:[`Which interface would you use to sort a class from a library you can't change?`,[`Comparable`,`Comparator`,`Iterable`,`Cloneable`],1,`A Comparator is defined outside the class, so it works for any class.`]},
 
-{id:`iterator-vs-listiterator`,t:`Iterator vs ListIterator`,lvl:`I`,min:8,
+{id:`iterator-vs-listiterator`,lab:`linkedlist`,t:`Iterator vs ListIterator`,lvl:`I`,min:8,
 eli5:`An Iterator is a one-way escalator through a collection: forward only, and you can take things off as you pass. A ListIterator is a lift in a list: up and down, it knows which floor it's on, and you can swap or add things on the way.`,
 body:`Both walk through elements and let you change the collection **safely while iterating**.
 - **Iterator** works with **every** collection. Methods: [[hasNext()]], [[next()]], [[remove()]] and (Java 8) [[forEachRemaining()]]. Forward only.
@@ -977,7 +977,7 @@ iq:[[`Iterator vs ListIterator?`,`Iterator works on any collection and only move
 [`How do you remove elements from a list while iterating?`,`Use iterator.remove() inside an explicit Iterator loop, or list.removeIf(predicate). Calling list.remove() inside a for-each loop throws ConcurrentModificationException.`]],
 quiz:[`Which method is available on ListIterator but not on Iterator?`,[`next()`,`remove()`,`previous()`,`hasNext()`],2,`Only ListIterator can move backwards.`]},
 
-{id:`fail-fast-vs-fail-safe`,t:`Fail-fast vs fail-safe iterators`,lvl:`I`,min:8,
+{id:`fail-fast-vs-fail-safe`,lab:`array:cow`,t:`Fail-fast vs fail-safe iterators`,lvl:`I`,min:8,
 eli5:`A fail-fast iterator is a strict librarian: if anyone rearranges the shelf while you're reading down it, she stops you immediately. A fail-safe iterator is a photocopy of the shelf list: you can read it in peace, but it won't show books added after the copy was made.`,
 body:`What happens when a collection changes while you're iterating over it?
 - **Fail-fast** iterators (ArrayList, HashMap, HashSet, LinkedList…) throw **[[ConcurrentModificationException]]** as soon as they notice the collection was **structurally modified** other than through the iterator itself. Each collection keeps a modification counter ([[modCount]]); the iterator compares it with the value it expected.

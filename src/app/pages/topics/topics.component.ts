@@ -32,14 +32,17 @@ export class TopicsComponent {
     const lvl = this.level();
     const q = this.query().trim().toLowerCase();
     return this.content.stages
-      .map((stage, i) => ({
+      .map((stage) => ({
         stage,
-        no: i + 1,
+        no: this.content.stageNo(stage),
+        firstInPart: false,
         items: stage.lessons.filter(
           (l) => (lvl === 'all' || l.lvl === lvl) && (!q || l.t.toLowerCase().includes(q) || (l.subs ?? []).some((st) => st.t.toLowerCase().includes(q))),
         ),
       }))
-      .filter((g) => g.items.length);
+      .filter((g) => g.items.length)
+      // A part heading goes before the first visible stage of each part (filters can hide stages).
+      .map((g, i, all) => ({ ...g, firstInPart: i === 0 || all[i - 1].stage.part?.id !== g.stage.part?.id }));
   });
   protected readonly shown = computed(() => this.groups().reduce((n, g) => n + g.items.length, 0));
 

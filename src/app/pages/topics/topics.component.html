@@ -18,8 +18,11 @@
   <p class="vcount" aria-live="polite">{{ shown() }} {{ shown() === 1 ? 'topic' : 'topics' }}</p>
 
   @for (g of groups(); track g.stage.id; let i = $index) {
+    @if (g.firstInPart) {
+      <h2 class="part-head"><span>Part {{ g.stage.part?.no }}</span>{{ g.stage.part?.title }}</h2>
+    }
     <section class="topic-group" [attr.aria-labelledby]="'tg-' + g.stage.id">
-      <h2 [id]="'tg-' + g.stage.id"><app-stage-icon [stage]="g.stage.id" /><span><small class="topic-no">Stage {{ g.no }}</small>{{ g.stage.title }}</span></h2>
+      <h2 [id]="'tg-' + g.stage.id"><app-stage-icon [stage]="g.stage.id" /><span><small class="topic-no">{{ g.stage.part?.title }} · {{ g.no }}</small>{{ g.stage.title }}</span></h2>
       <p class="topic-blurb">{{ g.stage.blurb }}</p>
       <ul class="topic-list">
         @for (l of g.items; track l.id) {

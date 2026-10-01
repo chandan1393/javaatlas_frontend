@@ -6,6 +6,9 @@
       <button class="icon-btn side-close" type="button" aria-label="Close lesson list" (click)="closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     @for (g of sidebar(); track g.stage.id) {
+      @if (g.firstInPart) {
+        <h3 class="side-part"><span>Part {{ g.stage.part?.no }}</span>{{ g.stage.part?.title }}</h3>
+      }
       <details class="mod" [open]="g.current">
         <summary>
           <span class="num" [style.--p]="g.pct" aria-hidden="true"><b>{{ g.no }}</b></span>
@@ -47,7 +50,7 @@
     <div class="crumb-row">
       <p class="crumb">
         <app-stage-icon [stage]="stage().id" size="sm" />
-        Stage {{ stageNo() }}: <a [routerLink]="['/learn', stage().lessons[0].id]">{{ stage().title }}</a>, lesson {{ position() }} of
+        {{ stage().part?.title }} · {{ stageNo() }}. <a [routerLink]="['/learn', stage().lessons[0].id]">{{ stage().title }}</a>, lesson {{ position() }} of
         {{ stage().lessons.length }}
       </p>
       <button class="btn btn-ghost btn-sm side-toggle" type="button" aria-controls="side" (click)="openDrawer()">All lessons</button>
@@ -138,6 +141,9 @@
             <div class="prose" [innerHTML]="subHtml()[i]"></div>
             @if (st.code) {
               <app-code-block [src]="st.code" [lang]="st.lang ?? 'java'" [lesson]="l" />
+            }
+            @if (st.lab) {
+              <app-lab [spec]="st.lab" />
             }
           </section>
         }

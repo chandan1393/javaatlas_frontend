@@ -38,7 +38,7 @@
             </ul>
           </div>
           <div class="mb-main">
-            <span class="mb-crumb">Stage 6 · Lesson 2 of 7</span>
+            <span class="mb-crumb">Java 8 · Lesson 2 of 4</span>
             <strong class="mb-title">Stream API</strong>
             <p class="mb-text">A stream processes a sequence of elements through a pipeline: a source, lazy steps, and one terminal step.</p>
             <pre class="mb-code"><span class="tt">List</span>&lt;<span class="tt">String</span>&gt; names = orders.stream()
@@ -162,7 +162,7 @@
       @for (s of stages(); track s.stage.id) {
         <li style="list-style: none; display: flex">
           <a class="stage" appSpot [routerLink]="['/learn', s.next.id]" style="flex: 1">
-            <div class="stage-top"><app-stage-icon [stage]="s.stage.id" /><span class="stage-no">Stage {{ s.no }}</span></div>
+            <div class="stage-top"><app-stage-icon [stage]="s.stage.id" /><span class="stage-no">{{ s.stage.part?.title }} · {{ s.no }}</span></div>
             <h3>{{ s.stage.title }}</h3>
             <p>{{ s.blurb }}</p>
             <div class="stage-bar" aria-hidden="true"><i [style.width.%]="s.pct"></i></div>

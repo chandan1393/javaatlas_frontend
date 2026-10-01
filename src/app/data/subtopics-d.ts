@@ -161,7 +161,7 @@ timer.scheduleWithFixedDelay(() -> {
   ],
 
   concurrent: [
-    { id: 'concurrenthashmap', t: 'ConcurrentHashMap in practice', body: `The thread-safe map for shared data. The key is to use its **atomic** methods instead of separate "check, then act" calls. It doesn't allow [[null]] keys or values, and its iterators never throw [[ConcurrentModificationException]]. The comparison lesson "HashMap vs ConcurrentHashMap" explains how it works inside.`, code: `ConcurrentHashMap<String, LongAdder> views = new ConcurrentHashMap<>();
+    { id: 'concurrenthashmap', lab: 'chm:chm', t: 'ConcurrentHashMap in practice', body: `The thread-safe map for shared data. The key is to use its **atomic** methods instead of separate "check, then act" calls. It doesn't allow [[null]] keys or values, and its iterators never throw [[ConcurrentModificationException]]. The comparison lesson "HashMap vs ConcurrentHashMap" explains how it works inside.`, code: `ConcurrentHashMap<String, LongAdder> views = new ConcurrentHashMap<>();
 views.computeIfAbsent("/learn/streams", k -> new LongAdder()).increment();   // hot counter
 
 ConcurrentHashMap<String, Integer> stock = new ConcurrentHashMap<>();
@@ -217,7 +217,7 @@ String callPartner(String orderId) throws InterruptedException {
 - **Failure**: a barrier breaks for everyone if one participant fails; a latch just stays unreleased (use a timeout).
 
 [[Phaser]] combines both ideas and allows parties to join and leave.` },
-    { id: 'blockingqueue', t: 'BlockingQueue: producers and consumers', body: `A [[BlockingQueue]] hands work from producer threads to consumer threads: [[put()]] waits when the queue is full, [[take()]] waits when it's empty, so neither side needs manual locking. A bounded [[ArrayBlockingQueue]] also gives back-pressure: fast producers are slowed down instead of filling memory. A special "poison pill" item is a simple way to tell consumers to stop.`, code: `BlockingQueue<String> emails = new ArrayBlockingQueue<>(100);
+    { id: 'blockingqueue', lab: 'blockingqueue', t: 'BlockingQueue: producers and consumers', body: `A [[BlockingQueue]] hands work from producer threads to consumer threads: [[put()]] waits when the queue is full, [[take()]] waits when it's empty, so neither side needs manual locking. A bounded [[ArrayBlockingQueue]] also gives back-pressure: fast producers are slowed down instead of filling memory. A special "poison pill" item is a simple way to tell consumers to stop.`, code: `BlockingQueue<String> emails = new ArrayBlockingQueue<>(100);
 
 Thread producer = new Thread(() -> {
     try {
@@ -330,38 +330,38 @@ orders.removeIf(o -> o.amount() > limit);
   ],
 
   'lists-sets-queues': [
-    { id: 'arraylist', t: 'ArrayList', body: `A resizable array: the **default List**. Fast index access (O(1)), fast appends (O(1) on average), slower inserts and removals in the middle (O(n)). Not thread-safe. Use it unless you have a specific reason not to.`, code: `List<String> courses = new ArrayList<>(List.of("Java", "Spring"));
+    { id: 'arraylist', lab: 'array:arraylist', t: 'ArrayList', body: `A resizable array: the **default List**. Fast index access (O(1)), fast appends (O(1) on average), slower inserts and removals in the middle (O(n)). Not thread-safe. Use it unless you have a specific reason not to.`, code: `List<String> courses = new ArrayList<>(List.of("Java", "Spring"));
 courses.add("Docker");
 courses.add(1, "SQL");                 // [Java, SQL, Spring, Docker]
 courses.set(0, "Java 25");
 courses.remove("Spring");
 System.out.println(courses.get(1));    // SQL` },
-    { id: 'linkedlist', t: 'LinkedList', body: `A doubly linked list that implements both [[List]] and [[Deque]]. Adding or removing at either end is O(1), but reaching an index is O(n), and each element carries extra memory. In practice it's rarely the best choice; see "ArrayList vs LinkedList".`, code: `LinkedList<String> history = new LinkedList<>();
+    { id: 'linkedlist', lab: 'linkedlist', t: 'LinkedList', body: `A doubly linked list that implements both [[List]] and [[Deque]]. Adding or removing at either end is O(1), but reaching an index is O(n), and each element carries extra memory. In practice it's rarely the best choice; see "ArrayList vs LinkedList".`, code: `LinkedList<String> history = new LinkedList<>();
 history.addFirst("/learn/streams");
 history.addFirst("/learn/lambdas");
 history.removeLast();                  // O(1) at either end
 System.out.println(history.getFirst());   // /learn/lambdas` },
-    { id: 'vector', t: 'Vector (legacy)', body: `The Java 1.0 ancestor of ArrayList. **Every method is synchronized**, so it's slower even in single-threaded code, and it grows by doubling. Its synchronization doesn't make multi-step operations safe either. Use [[ArrayList]], and for shared lists use [[CopyOnWriteArrayList]] (read-mostly) or [[Collections.synchronizedList]] with care.` },
-    { id: 'stack', t: 'Stack (legacy)', body: `A last-in, first-out stack with [[push]], [[pop]] and [[peek]]. It extends [[Vector]], so it's synchronized and also exposes list methods like [[add(index, e)]], letting code break the stack's rules. The Javadoc itself recommends [[Deque]] instead: [[ArrayDeque]] has the same [[push]]/[[pop]]/[[peek]] and is faster.`, code: `Deque<String> undo = new ArrayDeque<>();   // use this instead of Stack
+    { id: 'vector', lab: 'array:vector', t: 'Vector (legacy)', body: `The Java 1.0 ancestor of ArrayList. **Every method is synchronized**, so it's slower even in single-threaded code, and it grows by doubling. Its synchronization doesn't make multi-step operations safe either. Use [[ArrayList]], and for shared lists use [[CopyOnWriteArrayList]] (read-mostly) or [[Collections.synchronizedList]] with care.` },
+    { id: 'stack', lab: 'deque:stack', t: 'Stack (legacy)', body: `A last-in, first-out stack with [[push]], [[pop]] and [[peek]]. It extends [[Vector]], so it's synchronized and also exposes list methods like [[add(index, e)]], letting code break the stack's rules. The Javadoc itself recommends [[Deque]] instead: [[ArrayDeque]] has the same [[push]]/[[pop]]/[[peek]] and is faster.`, code: `Deque<String> undo = new ArrayDeque<>();   // use this instead of Stack
 undo.push("typed 'Hello'");
 undo.push("made it bold");
 System.out.println(undo.pop());            // made it bold   (last in, first out)
 System.out.println(undo.peek());           // typed 'Hello'` },
-    { id: 'hashset', t: 'HashSet', body: `Unique elements with **no order**, backed by a [[HashMap]]. [[add]], [[contains]] and [[remove]] are O(1) on average, which makes it the go-to for "have I seen this before?". Elements need correct [[equals()]] and [[hashCode()]].`, code: `Set<String> seenEmails = new HashSet<>();
+    { id: 'hashset', lab: 'hashmap:set', t: 'HashSet', body: `Unique elements with **no order**, backed by a [[HashMap]]. [[add]], [[contains]] and [[remove]] are O(1) on average, which makes it the go-to for "have I seen this before?". Elements need correct [[equals()]] and [[hashCode()]].`, code: `Set<String> seenEmails = new HashSet<>();
 for (String email : signups) {
     if (!seenEmails.add(email.toLowerCase())) {     // add() returns false for duplicates
         System.out.println("Duplicate sign-up: " + email);
     }
 }` },
-    { id: 'linkedhashset', t: 'LinkedHashSet', body: `A HashSet that also remembers **insertion order**. Nearly as fast, a little more memory. The easiest way to remove duplicates while keeping the original order.`, code: `List<String> tags = List.of("java", "spring", "java", "sql", "spring");
+    { id: 'linkedhashset', lab: 'linkedhashmap:insertion', t: 'LinkedHashSet', body: `A HashSet that also remembers **insertion order**. Nearly as fast, a little more memory. The easiest way to remove duplicates while keeping the original order.`, code: `List<String> tags = List.of("java", "spring", "java", "sql", "spring");
 Set<String> unique = new LinkedHashSet<>(tags);
 System.out.println(unique);            // [java, spring, sql]   first-seen order kept` },
-    { id: 'treeset', t: 'TreeSet', body: `Unique elements kept **sorted**, backed by a red-black tree ([[TreeMap]]). Operations are O(log n). Adds navigation methods: [[first]], [[last]], [[floor]], [[ceiling]], [[headSet]], [[tailSet]], [[descendingSet]]. Uniqueness comes from [[compareTo()]] or your [[Comparator]].`, code: `TreeSet<Integer> scores = new TreeSet<>(List.of(72, 95, 88, 60));
+    { id: 'treeset', lab: 'tree:set', t: 'TreeSet', body: `Unique elements kept **sorted**, backed by a red-black tree ([[TreeMap]]). Operations are O(log n). Adds navigation methods: [[first]], [[last]], [[floor]], [[ceiling]], [[headSet]], [[tailSet]], [[descendingSet]]. Uniqueness comes from [[compareTo()]] or your [[Comparator]].`, code: `TreeSet<Integer> scores = new TreeSet<>(List.of(72, 95, 88, 60));
 scores.first();            // 60
 scores.ceiling(80);        // 88    smallest score >= 80
 scores.headSet(88);        // [60, 72]
 scores.descendingSet();    // [95, 88, 72, 60]` },
-    { id: 'priorityqueue', t: 'PriorityQueue', body: `A queue that always hands out the **smallest element first** (natural order or a Comparator), implemented as a binary heap. [[offer]] and [[poll]] are O(log n), [[peek]] is O(1). Great for scheduling by priority and "top k" problems. Two catches: **iterating it isn't sorted** (only [[poll]] order is), and it isn't thread-safe ([[PriorityBlockingQueue]] is).`, code: `record Task(String name, int priority) {}
+    { id: 'priorityqueue', lab: 'heap', t: 'PriorityQueue', body: `A queue that always hands out the **smallest element first** (natural order or a Comparator), implemented as a binary heap. [[offer]] and [[poll]] are O(log n), [[peek]] is O(1). Great for scheduling by priority and "top k" problems. Two catches: **iterating it isn't sorted** (only [[poll]] order is), and it isn't thread-safe ([[PriorityBlockingQueue]] is).`, code: `record Task(String name, int priority) {}
 PriorityQueue<Task> tasks = new PriorityQueue<>(Comparator.comparingInt(Task::priority));
 tasks.offer(new Task("send newsletter", 3));
 tasks.offer(new Task("fix payment bug", 1));
@@ -369,7 +369,7 @@ tasks.offer(new Task("update docs", 2));
 
 while (!tasks.isEmpty()) System.out.println(tasks.poll().name());
 // fix payment bug, update docs, send newsletter`, min: 16 },
-    { id: 'arraydeque', t: 'ArrayDeque', body: `A resizable circular array usable as a **stack** ([[push]], [[pop]]) or a **queue** ([[offer]], [[poll]]), with O(1) operations at both ends. Faster than [[Stack]] and usually faster than [[LinkedList]]. It doesn't allow [[null]].`, code: `Deque<String> queue = new ArrayDeque<>();
+    { id: 'arraydeque', lab: 'deque:queue', t: 'ArrayDeque', body: `A resizable circular array usable as a **stack** ([[push]], [[pop]]) or a **queue** ([[offer]], [[poll]]), with O(1) operations at both ends. Faster than [[Stack]] and usually faster than [[LinkedList]]. It doesn't allow [[null]].`, code: `Deque<String> queue = new ArrayDeque<>();
 queue.offer("Asha");                   // join at the back
 queue.offer("Ravi");
 System.out.println(queue.poll());      // Asha   first in, first out
@@ -379,13 +379,13 @@ for (char c : "(a[b]c)".toCharArray()) {
     if (c == '(' || c == '[') brackets.push(c);
     else if (c == ')' || c == ']') brackets.pop();
 }` },
-    { id: 'blockingqueue', t: 'BlockingQueue', body: `A thread-safe queue whose [[put()]] waits when it's full and [[take()]] waits when it's empty: the standard tool for handing work between threads. Implementations: [[ArrayBlockingQueue]] (bounded array), [[LinkedBlockingQueue]] (optionally bounded), [[PriorityBlockingQueue]], [[DelayQueue]] (items become available after a delay) and [[SynchronousQueue]] (a direct hand-off with no storage). The concurrency lesson shows a full producer-consumer example.`, code: `BlockingQueue<String> jobs = new LinkedBlockingQueue<>(1_000);
+    { id: 'blockingqueue', lab: 'blockingqueue', t: 'BlockingQueue', body: `A thread-safe queue whose [[put()]] waits when it's full and [[take()]] waits when it's empty: the standard tool for handing work between threads. Implementations: [[ArrayBlockingQueue]] (bounded array), [[LinkedBlockingQueue]] (optionally bounded), [[PriorityBlockingQueue]], [[DelayQueue]] (items become available after a delay) and [[SynchronousQueue]] (a direct hand-off with no storage). The concurrency lesson shows a full producer-consumer example.`, code: `BlockingQueue<String> jobs = new LinkedBlockingQueue<>(1_000);
 jobs.put("resize-image-42");                          // waits if full
 String job = jobs.poll(2, TimeUnit.SECONDS);          // waits up to 2 s, then returns null` },
   ],
 
   maps: [
-    { id: 'hashmap', t: 'HashMap', body: `The default map: keys to values with O(1) average operations, **no order**, one [[null]] key allowed, not thread-safe. Learn the Java 8 methods: they replace most "check, then put" code. The "HashMap internals" stage explains exactly how it works.`, code: `Map<String, Integer> seats = new HashMap<>();
+    { id: 'hashmap', lab: 'hashmap:fruits', t: 'HashMap', body: `The default map: keys to values with O(1) average operations, **no order**, one [[null]] key allowed, not thread-safe. Learn the Java 8 methods: they replace most "check, then put" code. The "HashMap internals" stage explains exactly how it works.`, code: `Map<String, Integer> seats = new HashMap<>();
 seats.put("java", 30);
 seats.getOrDefault("go", 0);                         // 0
 seats.putIfAbsent("sql", 20);
@@ -394,19 +394,19 @@ seats.computeIfAbsent("docker", k -> loadSeats(k));  // load only if missing
 for (Map.Entry<String, Integer> e : seats.entrySet()) {
     System.out.println(e.getKey() + " -> " + e.getValue());
 }` },
-    { id: 'linkedhashmap', t: 'LinkedHashMap', body: `A HashMap that remembers **insertion order** (or **access order**, for LRU caches). Use it when the order of keys matters, for example building JSON responses or showing "recently viewed" items. "HashMap vs LinkedHashMap" shows the LRU cache.`, code: `Map<String, Object> json = new LinkedHashMap<>();
+    { id: 'linkedhashmap', lab: 'linkedhashmap:lru', t: 'LinkedHashMap', body: `A HashMap that remembers **insertion order** (or **access order**, for LRU caches). Use it when the order of keys matters, for example building JSON responses or showing "recently viewed" items. "HashMap vs LinkedHashMap" shows the LRU cache.`, code: `Map<String, Object> json = new LinkedHashMap<>();
 json.put("id", 101);
 json.put("title", "Streams");
 json.put("minutes", 12);
 System.out.println(json);     // {id=101, title=Streams, minutes=12}   always in this order` },
-    { id: 'treemap', t: 'TreeMap', body: `Keys kept **sorted** (natural order or a Comparator), stored in a red-black tree, so operations are O(log n). Its navigation methods make range questions easy: [[firstKey]], [[lastKey]], [[floorKey]], [[ceilingEntry]], [[headMap]], [[tailMap]] and [[subMap]]. No [[null]] keys with natural ordering.`, code: `TreeMap<Integer, String> grades = new TreeMap<>(Map.of(90, "A", 75, "B", 60, "C", 0, "F"));
+    { id: 'treemap', lab: 'tree:map', t: 'TreeMap', body: `Keys kept **sorted** (natural order or a Comparator), stored in a red-black tree, so operations are O(log n). Its navigation methods make range questions easy: [[firstKey]], [[lastKey]], [[floorKey]], [[ceilingEntry]], [[headMap]], [[tailMap]] and [[subMap]]. No [[null]] keys with natural ordering.`, code: `TreeMap<Integer, String> grades = new TreeMap<>(Map.of(90, "A", 75, "B", 60, "C", 0, "F"));
 
 System.out.println(grades.floorEntry(82).getValue());   // B   the highest threshold <= 82
 System.out.println(grades.floorEntry(95).getValue());   // A
 System.out.println(grades.headMap(75));                 // {0=F, 60=C}   keys below 75
 System.out.println(grades.descendingMap());             // {90=A, 75=B, 60=C, 0=F}` },
-    { id: 'hashtable', t: 'Hashtable (legacy)', body: `The Java 1.0 map: every method synchronized, no [[null]] keys or values, older [[Enumeration]] API. It's kept only for old code. Use [[HashMap]] in single-threaded code and [[ConcurrentHashMap]] when threads share the map; see "HashMap vs Hashtable".` },
-    { id: 'concurrenthashmap', t: 'ConcurrentHashMap', body: `The map to use when several threads read and write. Reads don't lock, writes lock only one bucket, and [[putIfAbsent]], [[computeIfAbsent]], [[compute]] and [[merge]] are **atomic**. No [[null]] keys or values. See "HashMap vs ConcurrentHashMap" for how it works.`, code: `Map<String, Integer> activeUsers = new ConcurrentHashMap<>();
+    { id: 'hashtable', lab: 'chm:hashtable', t: 'Hashtable (legacy)', body: `The Java 1.0 map: every method synchronized, no [[null]] keys or values, older [[Enumeration]] API. It's kept only for old code. Use [[HashMap]] in single-threaded code and [[ConcurrentHashMap]] when threads share the map; see "HashMap vs Hashtable".` },
+    { id: 'concurrenthashmap', lab: 'chm:chm', t: 'ConcurrentHashMap', body: `The map to use when several threads read and write. Reads don't lock, writes lock only one bucket, and [[putIfAbsent]], [[computeIfAbsent]], [[compute]] and [[merge]] are **atomic**. No [[null]] keys or values. See "HashMap vs ConcurrentHashMap" for how it works.`, code: `Map<String, Integer> activeUsers = new ConcurrentHashMap<>();
 activeUsers.merge("/learn/streams", 1, Integer::sum);                      // safe from any thread
 activeUsers.computeIfPresent("/learn/streams", (page, n) -> n > 1 ? n - 1 : null);   // null removes` },
   ],

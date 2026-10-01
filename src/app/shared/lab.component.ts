@@ -1,5 +1,12 @@
 import { Component, computed, input } from '@angular/core';
 import { ArrayLabComponent } from './array-lab.component';
+import { BlockingqueueLabComponent } from './blockingqueue-lab.component';
+import { ChmLabComponent } from './chm-lab.component';
+import { DequeLabComponent } from './deque-lab.component';
+import { HeapLabComponent } from './heap-lab.component';
+import { LinkedhashmapLabComponent } from './linkedhashmap-lab.component';
+import { LinkedlistLabComponent } from './linkedlist-lab.component';
+import { TreeLabComponent } from './tree-lab.component';
 import { HashmapLabComponent } from './hashmap-lab.component';
 import { MemoryLabComponent } from './memory-lab.component';
 import { StreamLabComponent } from './stream-lab.component';
@@ -7,7 +14,10 @@ import { ThreadpoolLabComponent } from './threadpool-lab.component';
 import { ThreadsLabComponent } from './threads-lab.component';
 
 /** Every lab kind, for validation and documentation. Spec format: "kind" or "kind:preset". */
-export const LAB_KINDS = ['hashmap', 'threads', 'memory', 'threadpool', 'stream', 'array'] as const;
+export const LAB_KINDS = [
+  'hashmap', 'threads', 'memory', 'threadpool', 'stream', 'array',
+  'linkedlist', 'deque', 'heap', 'tree', 'linkedhashmap', 'chm', 'blockingqueue',
+] as const;
 
 /**
  * Shows an interactive lab by spec, e.g. "threads:race" or "memory:pass-by-value". Used by free lessons (lesson.lab)
@@ -16,7 +26,11 @@ export const LAB_KINDS = ['hashmap', 'threads', 'memory', 'threadpool', 'stream'
  */
 @Component({
   selector: 'app-lab',
-  imports: [HashmapLabComponent, ThreadsLabComponent, MemoryLabComponent, ThreadpoolLabComponent, StreamLabComponent, ArrayLabComponent],
+  imports: [
+    HashmapLabComponent, ThreadsLabComponent, MemoryLabComponent, ThreadpoolLabComponent, StreamLabComponent, ArrayLabComponent,
+    LinkedlistLabComponent, DequeLabComponent, HeapLabComponent, TreeLabComponent, LinkedhashmapLabComponent, ChmLabComponent,
+    BlockingqueueLabComponent,
+  ],
   template: `
     @switch (kind()) {
       @case ('hashmap') {
@@ -36,6 +50,27 @@ export const LAB_KINDS = ['hashmap', 'threads', 'memory', 'threadpool', 'stream'
       }
       @case ('array') {
         @defer (on viewport) { <app-array-lab [preset]="preset() || 'binary-search'" /> } @placeholder { <div class="lab-ph">Array lab</div> }
+      }
+      @case ('linkedlist') {
+        @defer (on viewport) { <app-linkedlist-lab /> } @placeholder { <div class="lab-ph">LinkedList lab</div> }
+      }
+      @case ('deque') {
+        @defer (on viewport) { <app-deque-lab [preset]="preset() || 'queue'" /> } @placeholder { <div class="lab-ph">ArrayDeque lab</div> }
+      }
+      @case ('heap') {
+        @defer (on viewport) { <app-heap-lab /> } @placeholder { <div class="lab-ph">PriorityQueue lab</div> }
+      }
+      @case ('tree') {
+        @defer (on viewport) { <app-tree-lab [preset]="preset() || 'map'" /> } @placeholder { <div class="lab-ph">TreeMap lab</div> }
+      }
+      @case ('linkedhashmap') {
+        @defer (on viewport) { <app-linkedhashmap-lab [preset]="preset() || 'insertion'" /> } @placeholder { <div class="lab-ph">LinkedHashMap lab</div> }
+      }
+      @case ('chm') {
+        @defer (on viewport) { <app-chm-lab [preset]="preset() || 'chm'" /> } @placeholder { <div class="lab-ph">ConcurrentHashMap lab</div> }
+      }
+      @case ('blockingqueue') {
+        @defer (on viewport) { <app-blockingqueue-lab /> } @placeholder { <div class="lab-ph">BlockingQueue lab</div> }
       }
     }
   `,

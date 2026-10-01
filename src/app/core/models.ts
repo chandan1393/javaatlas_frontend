@@ -48,6 +48,8 @@ export interface SubTopic {
   lang?: Lang;
   /** Lowest Java version this subtopic's code needs. */
   min?: number;
+  /** An interactive lab shown at the end of the subtopic, e.g. 'linkedlist' or 'tree:set'. */
+  lab?: string;
 }
 
 export interface Stage {
@@ -56,6 +58,8 @@ export interface Stage {
   level: Level;
   blurb: string;
   lessons: Lesson[];
+  /** The part of the curriculum the stage belongs to (set by data/curriculum.ts). */
+  part?: { id: string; no: number; title: string };
 }
 
 export interface VersionEntry {

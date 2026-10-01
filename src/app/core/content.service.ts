@@ -123,8 +123,21 @@ export class ContentService {
     return this.stageOfLesson.get(l) ?? this.stages[0];
   }
 
+  /** The stage's number within its part, e.g. Strings is topic 3 of Core Java. */
   stageNo(s: Stage): number {
-    return this.stages.indexOf(s) + 1;
+    const inPart = this.stages.filter((x) => x.part?.id === s.part?.id);
+    return inPart.indexOf(s) + 1;
+  }
+
+  /** "Core Java · 3" style label for a stage. */
+  stageLabel(s: Stage): string {
+    return s.part ? `${s.part.title} · ${this.stageNo(s)}` : `Stage ${this.stageNo(s)}`;
+  }
+
+  /** True for the first stage of each part (where a part heading goes). */
+  startsPart(s: Stage): boolean {
+    const i = this.stages.indexOf(s);
+    return i === 0 || this.stages[i - 1].part?.id !== s.part?.id;
   }
 
   indexOf(l: Lesson): number {
@@ -178,7 +191,7 @@ export class ContentService {
       idx.push({
         kind: 'Lesson',
         title: l.t,
-        sub: `Stage ${this.stageNo(s)}: ${s.title}`,
+        sub: `${this.stageLabel(s)}: ${s.title}`,
         link: ['/learn', l.id],
         titleLc: l.t.toLowerCase(),
         hay: ('lesson ' + l.t + ' ' + plain(l.body) + ' ' + (l.iq ?? []).map((x) => x[0]).join(' ')).toLowerCase(),

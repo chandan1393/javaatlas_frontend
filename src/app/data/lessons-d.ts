@@ -84,7 +84,7 @@ iq:[[`Merge sort vs quick sort?`,`Merge sort is always O(n log n) and stable but
 [`Which algorithm does Java use to sort objects?`,`TimSort, a stable hybrid of merge sort and insertion sort that is very fast on partly sorted data.`]],
 quiz:[`Binary search requires the data to be…`,[`Unique`,`Sorted`,`In a linked list`,`Numbers only`],1,`It relies on order to discard half of the range at each step.`]},
 
-{id:`linkedlists`,t:`Linked lists, stacks and queues`,lvl:`I`,
+{id:`linkedlists`,lab:`linkedlist`,t:`Linked lists, stacks and queues`,lvl:`I`,
 eli5:`A linked list is a treasure hunt: each clue tells you where the next one is. Adding a clue in the middle is easy, but to reach the tenth clue you must follow the first nine.`,
 body:`A **linked list** stores nodes that point to the next node. Inserting or removing at a known node is O(1), but reaching position i is O(n).
 
@@ -141,7 +141,7 @@ iq:[[`How do you detect a cycle in a linked list?`,`Move one pointer one step an
 [`When would you choose a linked list over an array list?`,`Rarely in Java: only when you insert and remove often in the middle through an iterator and never need access by position. Otherwise ArrayList or ArrayDeque is faster.`]],
 quiz:[`Which data structure checks balanced brackets?`,[`Queue`,`Stack`,`HashSet`,`TreeMap`],1,`Push each opening bracket and pop to match each closing one.`]},
 
-{id:`trees`,t:`Trees and graphs`,lvl:`I`,min:9,
+{id:`trees`,lab:`tree:map`,t:`Trees and graphs`,lvl:`I`,min:9,
 eli5:`A tree is a family tree: one ancestor at the top and children below. A graph is a road map: any city can connect to any other, and roads can form loops.`,
 body:`**Trees** have a root and child nodes, with no cycles. A **binary search tree** (BST) keeps smaller values on the left and larger on the right, so searching is O(log n) when the tree is balanced. [[TreeMap]] and [[TreeSet]] are self-balancing red-black trees.
 
