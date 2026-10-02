@@ -56,4 +56,8 @@ export const PREREQS: Record<string, string[]> = {
   'hashmap-vs-hashtable': ['maps', 'hashmap'], 'hashmap-vs-concurrenthashmap': ['maps', 'sync'],
   'hashmap-vs-linkedhashmap': ['maps'], 'comparable-vs-comparator': ['comparing'],
   'iterator-vs-listiterator': ['lists-sets-queues'], 'fail-fast-vs-fail-safe': ['lists-sets-queues', 'concurrent'],
+  // Completing the curriculum
+  'access-modifiers': ['packages', 'classes'], forkjoin: ['executors', 'streams'], serialization: ['io', 'classes'],
+  reflection: ['annotations', 'classes'], 'modern-features': ['records', 'patterns'], structural: ['creational', 'composition-vs-inheritance'],
+  reactive: ['rest', 'cf'],
 };

@@ -6,10 +6,11 @@ import { SUBTOPICS_A } from '../data/subtopics-a';
 import { SUBTOPICS_B } from '../data/subtopics-b';
 import { SUBTOPICS_C } from '../data/subtopics-c';
 import { SUBTOPICS_D } from '../data/subtopics-d';
+import { SUBTOPICS_EXTRA } from '../data/subtopics-e';
 import { CURRICULUM } from '../data/curriculum';
 import { ECO, VERSIONS } from '../data/versions';
 import { fmtDate, ordinal, plain, words } from './markup';
-import { Feature, FeatType, Lesson, Question, SearchHit, Stage, TYPE_NAMES, VersionEntry } from './models';
+import { Feature, FeatType, Lesson, Question, SearchHit, Stage, SubTopic, TYPE_NAMES, VersionEntry } from './models';
 
 interface IndexEntry extends SearchHit {
   titleLc: string;
@@ -62,7 +63,8 @@ export class ContentService {
   private index: IndexEntry[] | null = null;
 
   constructor() {
-    const subtopics = { ...SUBTOPICS_A, ...SUBTOPICS_B, ...SUBTOPICS_C, ...SUBTOPICS_D };
+    const subtopics: Record<string, SubTopic[]> = { ...SUBTOPICS_A, ...SUBTOPICS_B, ...SUBTOPICS_C, ...SUBTOPICS_D };
+    for (const [id, extra] of Object.entries(SUBTOPICS_EXTRA)) subtopics[id] = [...(subtopics[id] ?? []), ...extra];
     for (const s of this.stages) {
       for (const l of s.lessons) {
         this.byId.set(l.id, l);

@@ -3,6 +3,7 @@ import { ArrayLabComponent } from './array-lab.component';
 import { BlockingqueueLabComponent } from './blockingqueue-lab.component';
 import { ChmLabComponent } from './chm-lab.component';
 import { DequeLabComponent } from './deque-lab.component';
+import { DiagramComponent } from './diagram.component';
 import { HeapLabComponent } from './heap-lab.component';
 import { LinkedhashmapLabComponent } from './linkedhashmap-lab.component';
 import { LinkedlistLabComponent } from './linkedlist-lab.component';
@@ -16,7 +17,7 @@ import { ThreadsLabComponent } from './threads-lab.component';
 /** Every lab kind, for validation and documentation. Spec format: "kind" or "kind:preset". */
 export const LAB_KINDS = [
   'hashmap', 'threads', 'memory', 'threadpool', 'stream', 'array',
-  'linkedlist', 'deque', 'heap', 'tree', 'linkedhashmap', 'chm', 'blockingqueue',
+  'linkedlist', 'deque', 'heap', 'tree', 'linkedhashmap', 'chm', 'blockingqueue', 'diagram',
 ] as const;
 
 /**
@@ -29,7 +30,7 @@ export const LAB_KINDS = [
   imports: [
     HashmapLabComponent, ThreadsLabComponent, MemoryLabComponent, ThreadpoolLabComponent, StreamLabComponent, ArrayLabComponent,
     LinkedlistLabComponent, DequeLabComponent, HeapLabComponent, TreeLabComponent, LinkedhashmapLabComponent, ChmLabComponent,
-    BlockingqueueLabComponent,
+    BlockingqueueLabComponent, DiagramComponent,
   ],
   template: `
     @switch (kind()) {
@@ -68,6 +69,9 @@ export const LAB_KINDS = [
       }
       @case ('chm') {
         @defer (on viewport) { <app-chm-lab [preset]="preset() || 'chm'" /> } @placeholder { <div class="lab-ph">ConcurrentHashMap lab</div> }
+      }
+      @case ('diagram') {
+        @defer (on viewport) { <app-diagram [id]="preset()" /> } @placeholder { <div class="lab-ph">Diagram</div> }
       }
       @case ('blockingqueue') {
         @defer (on viewport) { <app-blockingqueue-lab /> } @placeholder { <div class="lab-ph">BlockingQueue lab</div> }

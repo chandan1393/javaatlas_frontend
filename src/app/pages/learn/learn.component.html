@@ -102,6 +102,12 @@
 
     <div class="prose" [innerHTML]="bodyHtml()"></div>
 
+    @if (l.diagram; as dg) {
+      @for (key of [l.id]; track key) {
+        <app-lab [spec]="'diagram:' + dg" />
+      }
+    }
+
     @if (l.vs; as vs) {
       <section class="vs" aria-labelledby="vs-h">
         <h2 id="vs-h">Side by side</h2>

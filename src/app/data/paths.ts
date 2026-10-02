@@ -81,7 +81,7 @@ export const PATHS: LearningPath[] = [
     who: 'You know basic Java and want to understand threads properly, step by step.',
     blurb: 'Start with what a thread is, then learn why shared data breaks and how to protect it, then the tools real systems use: thread pools, CompletableFuture, concurrent collections and virtual threads.',
     outcome: 'You can write correct concurrent code, explain race conditions and deadlocks, and answer multithreading interview questions confidently.',
-    lessons: ['threads', 'sync', 'executors', 'concurrent', 'cf', 'vthreads', 'hashmap-vs-concurrenthashmap', 'fail-fast-vs-fail-safe'],
+    lessons: ['threads', 'sync', 'executors', 'concurrent', 'forkjoin', 'cf', 'vthreads', 'hashmap-vs-concurrenthashmap', 'fail-fast-vs-fail-safe'],
   },
   {
     id: 'java8-collections',
@@ -116,7 +116,7 @@ export const PATHS: LearningPath[] = [
     blurb: 'Classes and constructors, overloading vs overriding, what really happens with a parent reference, interfaces vs abstract classes, composition over inheritance and object relationships.',
     outcome: 'You can design small class hierarchies sensibly and explain your choices in an interview.',
     lessons: [
-      'classes', 'pillars', 'overloading-vs-overriding', 'parent-reference', 'interfaces', 'interface-vs-abstract',
+      'classes', 'access-modifiers', 'pillars', 'overloading-vs-overriding', 'parent-reference', 'interfaces', 'interface-vs-abstract',
       'composition-vs-inheritance', 'relationships', 'object', 'immutability',
     ],
   },

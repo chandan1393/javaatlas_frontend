@@ -3,7 +3,7 @@ import { Stage } from '../core/models';
 /** Stages for data structures and algorithms, design and clean code, and tools and testing. */
 export const STAGES_D: Stage[] = [
 {id:`dsa`,title:`Data structures and algorithms`,level:`I`,blurb:`Big-O, sorting and searching, linked lists, stacks and queues, trees and graphs, and dynamic programming.`,lessons:[
-{id:`bigo`,t:`Big-O: how fast is your code?`,lvl:`B`,
+{id:`bigo`,diagram:`big-o-growth`,t:`Big-O: how fast is your code?`,lvl:`B`,
 eli5:`Big-O answers "what happens when the input gets 1,000 times bigger?" Looking for a name page by page grows with the phone book; opening it in the middle each time barely grows at all.`,
 body:`**Big-O** describes how running time (or memory) grows with the input size **n**, ignoring constants.
 
@@ -446,7 +446,7 @@ quiz:[`Which pattern does java.util.Comparator represent?`,[`Singleton`,`Strateg
 ]},
 
 {id:`tools`,title:`Tools and testing`,level:`I`,blurb:`Maven and Gradle, logging, JUnit and Mockito, debugging, annotations and reflection, and JSON with Jackson.`,lessons:[
-{id:`maven`,t:`Build tools: Maven and Gradle`,lvl:`B`,
+{id:`maven`,diagram:`maven-lifecycle`,t:`Build tools: Maven and Gradle`,lvl:`B`,
 eli5:`A build tool is a kitchen assistant: it fetches the ingredients (libraries), follows the recipe (compile, test, package) and hands you the finished dish (a JAR file).`,
 body:`Real projects use a build tool to manage libraries and build steps.
 

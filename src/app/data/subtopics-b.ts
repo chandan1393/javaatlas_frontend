@@ -163,7 +163,7 @@ new Point(1, 2).toString();                 // "Point[x=1, y=2]"`, min: 16 },
 - [[Exception]]: problems a program can handle.
 - [[RuntimeException]] (a subclass of [[Exception]]): programming errors such as [[NullPointerException]], [[IllegalArgumentException]] and [[IndexOutOfBoundsException]].` },
     { id: 'checked-unchecked', t: 'Checked vs unchecked exceptions', body: `**Checked** exceptions ([[IOException]], [[SQLException]]) must be caught or declared with [[throws]]; the compiler enforces it. **Unchecked** exceptions ([[RuntimeException]] and its subclasses) don't have to be. Use checked exceptions for recoverable situations the caller must think about; use unchecked for bugs and invalid arguments. Modern frameworks such as Spring mostly use unchecked exceptions.` },
-    { id: 'try-catch-finally', t: 'try, catch and finally', body: `Code that may fail goes in [[try]]. Each [[catch]] handles one kind of exception; put the most specific first. [[finally]] runs whether or not an exception happened (unless the JVM exits), which makes it the classic place for clean-up.`, code: `try {
+    { id: 'try-catch-finally', lab: 'diagram:try-catch-finally', t: 'try, catch and finally', body: `Code that may fail goes in [[try]]. Each [[catch]] handles one kind of exception; put the most specific first. [[finally]] runs whether or not an exception happened (unless the JVM exits), which makes it the classic place for clean-up.`, code: `try {
     int n = Integer.parseInt(input);
     System.out.println(100 / n);
 } catch (NumberFormatException e) {

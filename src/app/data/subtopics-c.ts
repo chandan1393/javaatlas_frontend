@@ -100,7 +100,7 @@ ScopedValue.where(USER, "asha").run(() -> service.load());   // Java 25`, min: 2
   ],
   memory: [
     { id: 'stack-heap', t: 'Stack, heap and metaspace', body: `Each thread has a **stack** of frames holding local variables, primitives and references. Objects live on the shared **heap**. Class metadata lives in **metaspace**. Too-deep recursion overflows the stack ([[StackOverflowError]]); too many live objects fill the heap ([[OutOfMemoryError]]).` },
-    { id: 'gc-basics', t: 'How garbage collection works', body: `An object is garbage when nothing reachable from the **GC roots** (thread stacks, static fields and a few others) points to it. Most objects die young, so the heap is split into a young generation (collected often and cheaply) and an old generation (collected less often).` },
+    { id: 'gc-basics', lab: 'diagram:gc-generations', t: 'How garbage collection works', body: `An object is garbage when nothing reachable from the **GC roots** (thread stacks, static fields and a few others) points to it. Most objects die young, so the heap is split into a young generation (collected often and cheaply) and an old generation (collected less often).` },
     { id: 'collectors', t: 'Choosing a garbage collector', body: `- **G1** (the default): balanced throughput and pause times for most apps.
 - **ZGC**: very short pauses even with huge heaps; generational since Java 21 and the only mode since Java 23.
 - **Parallel**: maximum throughput for batch jobs, with longer pauses.

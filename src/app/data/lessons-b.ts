@@ -3,7 +3,7 @@ import { Stage } from '../core/models';
 /** Stages 5-6: concurrency and the JVM, JDBC/JPA/Hibernate. */
 export const STAGES_B: Stage[] = [
 {id:`concurrency`,title:`Concurrency and the JVM`,level:`A`,blurb:`Threads, locks, CompletableFuture, virtual threads, memory and garbage collection.`,lessons:[
-{id:`threads`,t:`Multithreading basics: threads, Runnable and Callable`,lvl:`B`,min:8,
+{id:`threads`,diagram:`thread-lifecycle`,t:`Multithreading basics: threads, Runnable and Callable`,lvl:`B`,min:8,
 eli5:`A process is a restaurant; threads are the cooks inside it. The cooks share one kitchen (memory), so several dishes get made at once, but two cooks grabbing the same pan at the same moment causes trouble.`,
 body:`**Multithreading** lets one program do several things at the same time: serve many web requests at once, download files while the screen stays responsive, or use every CPU core for a big calculation.
 - A **process** is a running program with its own memory. A **thread** is a path of execution inside a process, and all threads of a process **share its memory** (the heap).
@@ -187,7 +187,7 @@ iq:[[`Virtual vs platform threads?`,`Platform threads wrap OS threads: expensive
 [`Do virtual threads make code faster?`,`They raise throughput (more concurrent tasks) for I/O-bound workloads. Each individual task is no faster, and CPU-bound work gains nothing.`]],
 quiz:[`Should you pool virtual threads?`,[`Yes, always`,`No, create one per task`,`Only in Spring`,`Only with synchronized`],1,`They're cheap to create; pooling defeats the purpose.`]},
 
-{id:`memory`,lab:`memory:gc`,t:`JVM memory and garbage collection`,lvl:`A`,
+{id:`memory`,diagram:`jvm-memory`,lab:`memory:gc`,t:`JVM memory and garbage collection`,lvl:`A`,
 eli5:`The heap is a big shared warehouse, each thread has its own small desk (the stack), and the garbage collector is a cleaner who removes boxes that nobody points to any more.`,
 body:`The main JVM memory areas:
 - **Heap**: every object. Split into a **young** generation (Eden and survivor spaces) and an **old** generation.
@@ -219,7 +219,7 @@ iq:[[`Stack vs heap?`,`The stack is per thread and stores frames, local primitiv
 [`What are GC roots?`,`The starting points for reachability: local variables on thread stacks, static fields, active threads and JNI references. Anything not reachable from a root can be collected.`]],
 quiz:[`What replaced PermGen in Java 8?`,[`Code cache`,`Metaspace`,`Old generation`,`Eden`],1,`Class metadata moved to Metaspace, in native memory.`]},
 
-{id:`classloading`,t:`Class loading and the JIT compiler`,lvl:`A`,
+{id:`classloading`,diagram:`class-loaders`,t:`Class loading and the JIT compiler`,lvl:`A`,
 eli5:`Class loading is the JVM fetching a recipe card the first time a dish is ordered. The JIT is a chef who, after cooking the same dish many times, works out a faster way to make it.`,
 body:`**Class loading** happens lazily, the first time a class is used:
 1. **Loading**: a class loader finds the bytes, from a JAR or the module path.
@@ -258,7 +258,7 @@ quiz:[`Which JIT compiler produces the most optimised code?`,[`C1`,`C2`,`The int
 ]},
 
 {id:`data`,title:`JDBC, JPA and Hibernate`,level:`I`,blurb:`From raw JDBC to entity mapping, the persistence context, N+1 queries and transactions. Examples use Jakarta Persistence with Hibernate 6/7 and Spring Boot 3+, which need Java 17.`,lessons:[
-{id:`jdbc`,t:`JDBC: talking to databases`,lvl:`I`,min:7,
+{id:`jdbc`,diagram:`jdbc-flow`,t:`JDBC: talking to databases`,lvl:`I`,min:7,
 eli5:`JDBC is a phone line between Java and the database. You dial (connect), speak SQL, listen to the answer (a ResultSet), and hang up.`,
 body:`**JDBC** (since JDK 1.1) is the low-level API that every Java database tool builds on, including Hibernate and Spring Data.
 
@@ -374,7 +374,7 @@ iq:[[`What is the owning side of a relationship?`,`The side that holds the forei
 [`What are JPA's default fetch types?`,`@ManyToOne and @OneToOne: EAGER. @OneToMany and @ManyToMany: LAZY. Best practice is LAZY everywhere, with explicit fetching per use case.`]],
 quiz:[`In Course and Lesson, which side owns the foreign key?`,[`Course.lessons with mappedBy`,`Lesson.course with @ManyToOne`,`Both`,`Neither`],1,`The @ManyToOne side holds the join column.`]},
 
-{id:`lifecycle`,t:`Persistence context and entity states`,lvl:`A`,min:17,
+{id:`lifecycle`,diagram:`entity-states`,t:`Persistence context and entity states`,lvl:`A`,min:17,
 eli5:`The persistence context is Hibernate's short-term memory for one transaction. Anything it's watching gets saved automatically when you change it, like a document with autosave.`,
 body:`The **persistence context** (the first-level cache) is a map of entities managed by an [[EntityManager]], usually one per transaction.
 

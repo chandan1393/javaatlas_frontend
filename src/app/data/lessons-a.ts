@@ -5,7 +5,7 @@ import { Stage } from '../core/models';
 /** Stages 1-4: fundamentals, OOP, core APIs, modern Java. */
 export const STAGES_A: Stage[] = [
 {id:`fundamentals`,title:`Java fundamentals`,level:`B`,blurb:`How Java runs, types, control flow, arrays, methods and strings.`,lessons:[
-{id:`jvm`,t:`How Java runs: JDK, JRE and JVM`,lvl:`B`,
+{id:`jvm`,diagram:`how-java-runs`,t:`How Java runs: JDK, JRE and JVM`,lvl:`B`,
 eli5:`Think of the JVM as a universal translator. You write your story once as bytecode, and every country (Windows, macOS, Linux) has its own translator that reads it aloud.`,
 body:`Java code goes through two steps. First **javac** compiles your [[.java]] file into **bytecode** ([[.class]] files). Then the **JVM** (Java Virtual Machine) runs that bytecode on any operating system. This is the famous "write once, run anywhere" idea.
 
@@ -464,7 +464,7 @@ iq:[[`Why use packages?`,`To group related classes, avoid name clashes, and cont
 [`What is package-private access?`,`The default when no modifier is written: the class or member is visible only inside the same package.`]],
 quiz:[`Which package is imported automatically?`,[`java.util`,`java.io`,`java.lang`,`java.time`],2,`java.lang (String, Math, Integer, System) never needs an import.`]},
 
-{id:`pillars`,t:`Encapsulation, inheritance and polymorphism`,lvl:`B`,min:9,
+{id:`pillars`,diagram:`oop-pillars`,t:`Encapsulation, inheritance and polymorphism`,lvl:`B`,min:9,
 eli5:`Encapsulation is a TV remote: you press buttons without touching the circuits. Inheritance is a child getting a parent's traits. Polymorphism is one Play button that plays music, video or a game depending on the device.`,
 body:`**Encapsulation**: keep fields [[private]] and expose behaviour through methods, so each object protects its own rules.
 
@@ -723,7 +723,7 @@ quiz:[`Which of these is not immutable?`,[`String`,`LocalDate`,`ArrayList`,`BigD
 ]},
 
 {id:`core`,title:`Core APIs`,level:`I`,blurb:`Exceptions, collections, HashMap internals, generics and java.time.`,lessons:[
-{id:`exceptions`,t:`Exception handling`,lvl:`I`,min:7,
+{id:`exceptions`,diagram:`exception-hierarchy`,t:`Exception handling`,lvl:`I`,min:7,
 eli5:`An exception is a fire alarm. try is the building, catch is the fire team, and finally is locking the doors on the way out, whether there was a fire or not.`,
 body:`All errors extend [[Throwable]]:
 - [[Error]]: serious JVM problems such as [[OutOfMemoryError]]. Don't catch these.
@@ -761,7 +761,7 @@ iq:[[`Checked vs unchecked exceptions?`,`Checked exceptions extend Exception (bu
 [`Does finally always run?`,`Almost always: after a return, a break or an exception. It doesn't run if the JVM exits (System.exit), crashes, or the thread is killed.`]],
 quiz:[`Which interface must a resource implement to be used in try-with-resources?`,[`Closeable only`,`AutoCloseable`,`Serializable`,`Runnable`],1,`AutoCloseable. Closeable extends it, so Closeable types work too.`]},
 
-{id:`collections`,t:`Collections framework: choosing the right one`,lvl:`I`,min:21,
+{id:`collections`,diagram:`collection-hierarchy`,t:`Collections framework: choosing the right one`,lvl:`I`,min:21,
 eli5:`A List is a queue at a ticket counter: order matters and duplicates are allowed. A Set is a guest list with no duplicates. A Map is a phone book from name to number.`,
 body:`The core interfaces:
 - [[List]]: ordered, allows duplicates. Default choice: [[ArrayList]]. [[LinkedList]] is rarely better.
@@ -904,7 +904,7 @@ iq:[[`What happens when two keys have the same hashCode?`,`They go into the same
 [`Why is the default load factor 0.75?`,`It balances memory against collisions. A higher value saves space but makes chains longer; a lower one wastes space. 0.75 keeps average chains very short.`]],
 quiz:[`In Java 8+, what does a crowded bucket turn into?`,[`An array`,`A red-black tree`,`A skip list`,`A new HashMap`],1,`A bucket that already holds 8 nodes is treeified on the next insert (when the table has at least 64 buckets) for O(log n) worst-case lookups.`]},
 
-{id:`maps`,t:`Every Map: HashMap, LinkedHashMap, TreeMap, Hashtable and ConcurrentHashMap`,lvl:`I`,min:9,
+{id:`maps`,diagram:`map-hierarchy`,t:`Every Map: HashMap, LinkedHashMap, TreeMap, Hashtable and ConcurrentHashMap`,lvl:`I`,min:9,
 eli5:`A map is a dictionary: look up a word (the key) to get its meaning (the value). Different maps are different kinds of dictionary: unordered, in the order words were added, or alphabetical.`,
 body:`Choosing a map:
 - [[HashMap]]: fastest, no order. The default.

@@ -3,7 +3,7 @@ import { SubTopic } from '../core/models';
 /** Subtopics for the fundamentals stage. Keyed by lesson id. */
 export const SUBTOPICS_A: Record<string, SubTopic[]> = {
   jvm: [
-    { id: 'jdk-jre-jvm', t: 'JDK, JRE and JVM', body: `- The **JVM** (Java Virtual Machine) runs bytecode on your operating system.
+    { id: 'jdk-jre-jvm', lab: 'diagram:jdk-jre-jvm', t: 'JDK, JRE and JVM', body: `- The **JVM** (Java Virtual Machine) runs bytecode on your operating system.
 - The **JRE** is the JVM plus the standard library. Since Java 11 there's no separate JRE download; you build a small runtime with [[jlink]] if you need one.
 - The **JDK** is everything you need to develop: the runtime plus tools such as [[javac]], [[java]], [[jshell]], [[jar]], [[javadoc]], [[jdeps]] and [[jlink]].
 
@@ -45,7 +45,7 @@ java -jar app.jar
 java -cp "app.jar:libs/*" com.shop.App      # use ; instead of : on Windows`, lang: 'bash' },
   ],
   types: [
-    { id: 'primitives', t: 'The eight primitive types', body: `- [[byte]] (8-bit, -128 to 127), [[short]] (16-bit), [[int]] (32-bit, about ±2.1 billion), [[long]] (64-bit)
+    { id: 'primitives', lab: 'diagram:primitive-sizes', t: 'The eight primitive types', body: `- [[byte]] (8-bit, -128 to 127), [[short]] (16-bit), [[int]] (32-bit, about ±2.1 billion), [[long]] (64-bit)
 - [[float]] (32-bit) and [[double]] (64-bit) for decimals
 - [[char]] (a 16-bit UTF-16 unit, such as 'A')
 - [[boolean]] ([[true]] or [[false]])

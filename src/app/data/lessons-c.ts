@@ -3,7 +3,7 @@ import { Stage } from '../core/models';
 /** Stages 7-9: Spring Core and MVC, Spring Boot, microservices. */
 export const STAGES_C: Stage[] = [
 {id:`spring`,title:`Spring Core and Spring MVC`,level:`I`,blurb:`Dependency injection, bean scopes and lifecycle, AOP, and how a request flows through Spring MVC.`,lessons:[
-{id:`ioc`,t:`IoC and dependency injection`,lvl:`I`,min:17,
+{id:`ioc`,diagram:`spring-ioc`,t:`IoC and dependency injection`,lvl:`I`,min:17,
 eli5:`Instead of a chef growing their own vegetables, a supplier delivers them. The chef just says "I need tomatoes". That's dependency injection, and the Spring container is the supplier.`,
 body:`**Inversion of Control** means objects don't create their own dependencies; a container creates them and wires them together. **Dependency Injection** is how Spring does it.
 
@@ -48,7 +48,7 @@ iq:[[`Why is constructor injection preferred?`,`Dependencies are explicit and ca
 [`@Component vs @Bean?`,`@Component marks your own class for component scanning. @Bean is a method in a @Configuration class that returns an object; use it for third-party classes or when creating the object needs logic.`]],
 quiz:[`Which injection style does the Spring team recommend for required dependencies?`,[`Field`,`Setter`,`Constructor`,`Static`],2,`Constructor injection makes required dependencies explicit and final.`]},
 
-{id:`beans`,t:`Bean scopes and lifecycle`,lvl:`I`,min:17,
+{id:`beans`,diagram:`bean-lifecycle`,t:`Bean scopes and lifecycle`,lvl:`I`,min:17,
 eli5:`A singleton bean is the office printer everyone shares. A prototype bean is a paper cup: you get a fresh one every time you ask.`,
 body:`**Scopes**:
 - [[singleton]] (the default): one instance per container. It must be stateless or thread-safe.
@@ -133,7 +133,7 @@ iq:[[`How does Spring implement AOP?`,`With runtime proxies: JDK dynamic proxies
 [`Which advice type can change the return value or skip the method?`,`@Around, because it decides whether and when to call proceed() and returns the result.`]],
 quiz:[`Which of these is a cross-cutting concern?`,[`Calculating GST on an invoice`,`Logging how long methods take`,`Rendering a product page`,`Mapping one entity`],1,`It applies across many unrelated classes.`]},
 
-{id:`mvc`,t:`Spring MVC request flow`,lvl:`I`,min:17,
+{id:`mvc`,diagram:`spring-mvc-request`,t:`Spring MVC request flow`,lvl:`I`,min:17,
 eli5:`DispatcherServlet is a hotel receptionist. Every guest (request) comes to the front desk first and is sent to the right room (controller).`,
 body:`Every HTTP request goes through one **front controller**, the [[DispatcherServlet]]:
 
@@ -304,7 +304,7 @@ iq:[[`How does Spring Data create repository implementations?`,`At startup it cr
 [`Page vs Slice?`,`A Page includes the total count (an extra COUNT query) and total pages. A Slice only knows whether there is a next slice, which is cheaper for infinite scrolling.`]],
 quiz:[`Which method name is a valid derived query?`,[`getAllCoursesPlease`,`findByLevelAndPriceLessThan`,`selectCourseWhereLevel`,`queryLevel`],1,`find…By, then property names joined with keywords such as And and LessThan.`]},
 
-{id:`rest`,t:`REST APIs, validation and error handling`,lvl:`I`,min:17,
+{id:`rest`,diagram:`layered-architecture`,t:`REST APIs, validation and error handling`,lvl:`I`,min:17,
 eli5:`Validation is the bouncer checking IDs at the door. The global error handler is one polite receptionist who explains every problem in the same clear format.`,
 body:`Good REST APIs use nouns and HTTP verbs: [[GET /courses]], [[POST /courses]], [[PUT /courses/{id}]], [[PATCH]] and [[DELETE]], with the right status codes (201 Created, 400, 404, 409 Conflict, 422).
 
@@ -344,7 +344,7 @@ iq:[[`PUT vs PATCH?`,`PUT replaces the whole resource and is idempotent. PATCH a
 [`How do you handle exceptions globally in Spring Boot?`,`With a @RestControllerAdvice class whose @ExceptionHandler methods map exception types to responses, ideally returning ProblemDetail for a consistent format.`]],
 quiz:[`Which status code means a resource was created?`,[`200`,`201`,`204`,`202`],1,`201 Created, usually with a Location header pointing to the new resource.`]},
 
-{id:`security`,t:`Spring Security and JWT`,lvl:`A`,min:17,
+{id:`security`,diagram:`security-filter-chain`,t:`Spring Security and JWT`,lvl:`A`,min:17,
 eli5:`Authentication asks "who are you?" and checks your ID card. Authorization asks "what may you do?": your ticket says balcony, not backstage. A JWT is a signed wristband, so you don't show your ID at every door.`,
 body:`Spring Security is a chain of **servlet filters** in front of your application.
 
@@ -528,7 +528,7 @@ quiz:[`How many fields does a Spring cron expression have?`,[`5`,`6`,`7`,`4`],1,
 ]},
 
 {id:`micro`,title:`Microservices`,level:`A`,blurb:`Service boundaries, gateways and discovery, messaging, resilience, sagas and deployment.`,lessons:[
-{id:`ms`,t:`Monolith vs microservices`,lvl:`I`,
+{id:`ms`,diagram:`microservices-architecture`,t:`Monolith vs microservices`,lvl:`I`,
 eli5:`A monolith is one big restaurant kitchen. Microservices are a food court: each stall cooks one thing, has its own staff and fridge, and can open or close on its own.`,
 body:`A **monolith** is one deployable application. A **microservice architecture** splits a system into small services, each owning one **business capability** and **its own database**, and each deployed independently.
 

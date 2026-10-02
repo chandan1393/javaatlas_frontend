@@ -37,6 +37,8 @@ export interface Lesson {
   vs?: { a: string; b: string; rows: [string, string, string][] };
   /** An interactive lab shown after the explanation, e.g. 'hashmap:collision'. */
   lab?: string;
+  /** An interactive concept diagram (data/diagrams.ts) shown right after the explanation. */
+  diagram?: string;
 }
 
 export interface SubTopic {
