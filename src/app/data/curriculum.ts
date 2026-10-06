@@ -5,6 +5,7 @@ import { STAGES_C } from './lessons-c';
 import { STAGES_D } from './lessons-d';
 import { EXTRA_LESSONS, EXTRA_STAGES } from './lessons-e';
 import { MORE_LESSONS } from './lessons-f';
+import { SPRING_LESSONS } from './lessons-g';
 
 interface StagePlan {
   id: string;
@@ -62,8 +63,9 @@ const LAYOUT: { id: string; title: string; stages: StagePlan[] }[] = [
     title: 'Databases, Spring and microservices',
     stages: [
       { id: 'data', title: 'JDBC, JPA and Hibernate', level: 'I', lessons: ['jdbc', 'orm', 'entities', 'lifecycle', 'nplus1', 'tx'] },
-      { id: 'spring', title: 'Spring Core and Spring MVC', level: 'I', lessons: ['ioc', 'beans', 'aop', 'mvc'] },
-      { id: 'boot', title: 'Spring Boot', level: 'I', lessons: ['boot', 'config', 'datajpa', 'rest', 'security', 'testing', 'caching', 'scheduling', 'reactive'] },
+      { id: 'spring', title: 'Spring Core and Spring MVC', level: 'I', blurb: 'How Spring really works: the IoC container, dependency injection, scopes and lifecycle, Java configuration, AOP and proxies, events, and the MVC request flow, with interactive labs.', lessons: ['ioc', 'di', 'beans', 'configuration', 'aop', 'proxies', 'spring-events', 'mvc'] },
+      { id: 'boot', title: 'Spring Boot', level: 'I', lessons: ['boot', 'config', 'datajpa', 'rest', 'testing', 'caching', 'scheduling', 'reactive'] },
+      { id: 'sec', title: 'Spring Security', level: 'I', blurb: 'From the filter chain to OAuth 2.0: authentication, password storage, authorization, JWT, OpenID Connect, CSRF and CORS, with labs that sign real tokens and hash real passwords.', lessons: ['security', 'sec-architecture', 'sec-authentication', 'sec-passwords', 'sec-authorization', 'sec-jwt', 'sec-oauth2', 'sec-csrf-cors'] },
       { id: 'micro', title: 'Microservices', level: 'A', lessons: ['ms', 'gateway', 'comm', 'resilience', 'saga', 'deploy', 'cicd'] },
     ],
   },
@@ -81,6 +83,7 @@ function build(): Stage[] {
   base.forEach((st) => st.lessons.forEach(add));
   EXTRA_LESSONS.forEach((e) => e.lessons.forEach(add));
   MORE_LESSONS.forEach(add);
+  SPRING_LESSONS.forEach(add);
   const blurbs = new Map(base.map((st) => [st.id, st.blurb]));
 
   const used = new Set<string>();

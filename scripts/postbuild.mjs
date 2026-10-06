@@ -15,7 +15,7 @@ const adsClient = setting('adsenseClient');
 const today = new Date().toISOString().slice(0, 10);
 
 // Pages that must never be indexed, even if a static file exists for them.
-const PRIVATE = [/^\/admin/, /^\/my\//, /^\/reset-password/, /^\/courses\/[^/]+\/learn/];
+const PRIVATE = [/^\/admin/, /^\/my\//, /^\/reset-password/, /^\/verify-email/, /^\/courses\/[^/]+\/learn/];
 
 function pages(dir, route = '') {
   const out = [];
@@ -40,6 +40,7 @@ Allow: /
 Disallow: /admin
 Disallow: /my/
 Disallow: /reset-password
+Disallow: /verify-email
 Disallow: /api/
 Disallow: /courses/*/learn
 `;
@@ -67,12 +68,9 @@ if (adsClient) {
 }
 
 // Launch check: the legal pages are public, and Razorpay and AdSense review them.
-const placeholders = [
-  ['business.legalName', /legalName:\s*'Your Company Name'/],
-  ['business.address', /address:\s*'Your City, State, India'/],
-  ['business.jurisdiction', /jurisdiction:\s*'Your City, India'/],
-].filter(([, re]) => re.test(settings)).map(([name]) => name);
-if (placeholders.length) {
-  console.warn(`\n⚠  Still placeholders in src/app/app.settings.ts: ${placeholders.join(', ')}.`);
-  console.warn('   They appear on the About, Contact, Privacy, Terms and Refund pages. Fill them in before going live.\n');
+const addressMatch = /address:\s*'([^']*)'/.exec(settings);
+if (addressMatch && !/\b\d{6}\b/.test(addressMatch[1])) {
+  console.warn(`\n⚠  business.address in src/app/app.settings.ts is "${addressMatch[1]}".`);
+  console.warn('   Add the full principal place of business from your GST certificate (street, city, 6-digit PIN, state).');
+  console.warn('   Razorpay and the Consumer Protection (E-Commerce) Rules expect a complete address on the Contact page.\n');
 }

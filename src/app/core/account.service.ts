@@ -54,9 +54,21 @@ export class AccountService {
     this.catalog.set(c.courses);
   }
 
-  async signup(name: string, email: string, password: string): Promise<void> {
-    this.me.set(await this.api.post<Me>('/api/auth/signup', { name, email, password }));
+  /** Creates an unverified account. Returns the address the confirmation link was sent to (no session yet). */
+  async signup(name: string, email: string, password: string): Promise<string> {
+    const res = await this.api.post<{ status: string; email: string }>('/api/auth/signup', { name, email, password });
+    return res.email;
+  }
+
+  /** Opening the emailed link: confirms the address and signs the learner in. */
+  async verifyEmail(token: string): Promise<void> {
+    this.me.set(await this.api.post<Me>('/api/auth/verify-email', { token }));
     await this.loadEnrollments();
+  }
+
+  /** Sends a new confirmation link (the server never says whether the account exists). */
+  async resendVerification(email: string): Promise<void> {
+    await this.api.post<void>('/api/auth/verify-email/resend', { email });
   }
 
   async login(email: string, password: string): Promise<void> {

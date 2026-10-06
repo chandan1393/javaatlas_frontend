@@ -21,12 +21,15 @@ export interface Diagram {
   id: string;
   title: string;
   intro: string;
-  type: 'flow' | 'tree' | 'nest' | 'states' | 'bars';
+  type: 'flow' | 'tree' | 'nest' | 'states' | 'bars' | 'sequence';
   nodes?: DNode[];
   root?: DNode;
   edges?: { from: string; to: string; label?: string }[];
   bars?: { label: string; value: number; display?: string; info?: string; tone?: Tone }[];
   log?: boolean;
+  /** Sequence diagrams: participants (columns) and the messages between them, in order. */
+  actors?: { id: string; label: string; tone?: Tone }[];
+  messages?: { id: string; from: string; to: string; label: string; info: string; reply?: boolean }[];
   tour?: string[];
   w?: number;
   h?: number;
@@ -602,6 +605,146 @@ const LIST: Diagram[] = [
         n('hier', 'Type information', 'getSuperclass(), getInterfaces(), getModifiers(), isRecord() and getRecordComponents().', { sub: 'structure', tone: 'muted' }),
       ],
     }),
+  },
+
+  // ------------------------------------------------------------------ Spring Core
+  {
+    id: 'aop-terms',
+    title: 'The vocabulary of AOP',
+    intro: 'An aspect bundles advice (what to do) with a pointcut (where); a proxy applies it around your methods.',
+    type: 'nest',
+    root: n('aop', 'Spring AOP', 'Adds cross-cutting behaviour (transactions, logging, security, metrics) without touching your business code.', {
+      tone: 'violet',
+      children: [
+        n('aspect', 'Aspect', 'A class annotated @Aspect that holds the cross-cutting logic.', {
+          sub: '@Aspect class',
+          tone: 'ember',
+          children: [
+            n('advice', 'Advice', 'What runs and when: @Before, @AfterReturning, @AfterThrowing, @After or @Around (which wraps the call and decides whether to proceed).', { sub: 'what + when', tone: 'ember' }),
+            n('pointcut', 'Pointcut', 'Where it applies: an expression such as execution(* com.shop.service.*.*(..)) or @annotation(Audited).', { sub: 'where', tone: 'ember' }),
+          ],
+        }),
+        n('joinpoint', 'Join point', 'A point where advice can run. In Spring AOP that is always a method call on a bean.', { sub: 'a method call' }),
+        n('target', 'Target', 'Your original bean, unaware of the aspect.', { sub: 'your object' }),
+        n('proxy', 'Proxy', 'The object Spring actually injects. It runs the matching advice around calls to the target (weaving at run time).', { sub: 'JDK or CGLIB', tone: 'moss' }),
+      ],
+    }),
+  },
+  {
+    id: 'event-flow',
+    title: 'How Spring application events are delivered',
+    intro: 'The publisher doesn’t know who listens; Spring routes each event to every matching listener.',
+    type: 'flow',
+    nodes: [
+      n('publish', 'publishEvent(…)', 'OrderService calls applicationEventPublisher.publishEvent(new OrderPlaced(id)). It has no idea who listens.', { sub: 'publisher', tone: 'violet' }),
+      n('multicaster', 'Event multicaster', 'Spring finds every listener whose parameter type matches the event (and whose condition, if any, is true).', { sub: 'routing' }),
+      n('sync', '@EventListener', 'By default listeners run synchronously, in the publisher’s thread and transaction. An exception propagates back to the publisher.', { sub: 'same thread', tone: 'ember' }),
+      n('aftercommit', '@TransactionalEventListener', 'Runs only after the publisher’s transaction commits (phase AFTER_COMMIT by default), so you never email a customer about an order that was rolled back.', { sub: 'after commit', tone: 'moss' }),
+      n('async', '@Async listener', 'Runs on another thread, so slow work (emails, webhooks) doesn’t delay the request. Needs @EnableAsync.', { sub: 'background' }),
+    ],
+    tour: ['publish', 'multicaster', 'sync', 'aftercommit', 'async'],
+  },
+  // ------------------------------------------------------------------ Spring Security
+  {
+    id: 'auth-architecture',
+    title: 'How Spring Security authenticates a login',
+    intro: 'Follow a username and password from the request to the SecurityContext.',
+    type: 'flow',
+    nodes: [
+      n('filter', 'Authentication filter', 'UsernamePasswordAuthenticationFilter (form login) or BasicAuthenticationFilter reads the credentials and builds an unauthenticated token.', { sub: 'reads credentials', tone: 'violet' }),
+      n('manager', 'AuthenticationManager', 'Usually ProviderManager: asks each AuthenticationProvider in turn whether it can authenticate this kind of token.', { sub: 'ProviderManager' }),
+      n('provider', 'AuthenticationProvider', 'DaoAuthenticationProvider for username and password (JwtAuthenticationProvider for bearer tokens).', { sub: 'DaoAuthenticationProvider' }),
+      n('uds', 'UserDetailsService', 'Your code: loadUserByUsername(email) fetches the user, their password hash and roles from the database.', { sub: 'loads the user', tone: 'ember' }),
+      n('encoder', 'PasswordEncoder', 'matches(raw, hash) checks the submitted password against the stored BCrypt hash. Wrong password: BadCredentialsException.', { sub: 'BCrypt matches()', tone: 'ember' }),
+      n('auth', 'Authentication', 'A fully authenticated object: the principal (user), their authorities (roles) and isAuthenticated() = true.', { sub: 'principal + authorities', tone: 'moss' }),
+      n('context', 'SecurityContextHolder', 'The Authentication is stored for this request (and in the session for form login). Your code and the authorization rules read it from here.', { sub: 'current user', tone: 'moss' }),
+    ],
+    tour: ['filter', 'manager', 'provider', 'uds', 'encoder', 'auth', 'context'],
+  },
+  {
+    id: 'jwt-refresh',
+    title: 'Login with access and refresh tokens',
+    intro: 'Short-lived access tokens for every request, a long-lived refresh token to get new ones.',
+    type: 'sequence',
+    actors: [
+      { id: 'client', label: 'Browser / app', tone: 'violet' },
+      { id: 'api', label: 'Spring Boot API', tone: 'blue' },
+      { id: 'db', label: 'Database', tone: 'ember' },
+    ],
+    messages: [
+      { id: 'm1', from: 'client', to: 'api', label: 'POST /auth/login (email, password)', info: 'Credentials are sent once, over HTTPS.' },
+      { id: 'm2', from: 'api', to: 'db', label: 'load user + BCrypt hash', info: 'UserDetailsService loads the user; PasswordEncoder.matches() checks the password.' },
+      { id: 'm3', from: 'api', to: 'client', label: 'access token (15 min) + refresh token', info: 'The access token is a signed JWT. The refresh token is long-lived and best kept in an HttpOnly, Secure cookie that JavaScript can’t read.', reply: true },
+      { id: 'm4', from: 'client', to: 'api', label: 'GET /api/orders, Bearer access token', info: 'Every request carries the access token. The API verifies the signature and expiry: no database lookup, no session.' },
+      { id: 'm5', from: 'api', to: 'client', label: '200 OK', info: 'Stateless: any API instance can serve the request.', reply: true },
+      { id: 'm6', from: 'client', to: 'api', label: 'GET /api/orders (token expired)', info: '15 minutes later the access token has expired.' },
+      { id: 'm7', from: 'api', to: 'client', label: '401 invalid_token', info: 'The client knows it should refresh, not log the user out.', reply: true },
+      { id: 'm8', from: 'client', to: 'api', label: 'POST /auth/refresh (refresh cookie)', info: 'The refresh token goes only to the refresh endpoint.' },
+      { id: 'm9', from: 'api', to: 'db', label: 'check refresh token, rotate it', info: 'The server checks the refresh token hasn’t been revoked, then replaces it with a new one (rotation). Reusing an old refresh token signals theft: revoke them all.' },
+      { id: 'm10', from: 'api', to: 'client', label: 'new access token + new refresh token', info: 'The client retries the original request with the new access token. Logout revokes the refresh token.', reply: true },
+    ],
+  },
+  {
+    id: 'oauth-code-flow',
+    title: 'OAuth 2.0 authorization code flow with PKCE (OpenID Connect login)',
+    intro: '“Log in with Google” step by step. Your app never sees the user’s Google password.',
+    type: 'sequence',
+    actors: [
+      { id: 'user', label: 'User', tone: 'muted' },
+      { id: 'app', label: 'Your app (client)', tone: 'violet' },
+      { id: 'as', label: 'Authorization server', tone: 'ember' },
+      { id: 'api', label: 'API (resource server)', tone: 'blue' },
+    ],
+    messages: [
+      { id: 'm1', from: 'user', to: 'app', label: 'clicks “Log in with Google”', info: 'The authorization server could be Google, Microsoft, Okta or your own Keycloak.' },
+      { id: 'm2', from: 'app', to: 'as', label: 'redirect to /authorize + code_challenge', info: 'Parameters: client_id, redirect_uri, scope=openid email, state (anti-forgery) and PKCE code_challenge = SHA-256 of a random code_verifier the app keeps secret.' },
+      { id: 'm3', from: 'user', to: 'as', label: 'signs in and gives consent', info: 'The user types their password into the authorization server’s page, never into your app.' },
+      { id: 'm4', from: 'as', to: 'app', label: 'redirect back with ?code=…', info: 'A short-lived, single-use authorization code arrives at your redirect_uri. On its own it is useless to an attacker.', reply: true },
+      { id: 'm5', from: 'app', to: 'as', label: 'POST /token: code + code_verifier', info: 'Back-channel request. The server checks SHA-256(code_verifier) equals the earlier code_challenge, proving this is the same app that started the flow (PKCE).' },
+      { id: 'm6', from: 'as', to: 'app', label: 'access token + ID token + refresh token', info: 'The ID token (a JWT) says who the user is (OpenID Connect). The access token lets the app call APIs on the user’s behalf.', reply: true },
+      { id: 'm7', from: 'app', to: 'api', label: 'GET /api/me, Bearer access token', info: 'Your API is configured as an OAuth2 resource server.' },
+      { id: 'm8', from: 'api', to: 'api', label: 'verify signature (JWKS), iss, aud, exp', info: 'Spring Security downloads the authorization server’s public keys (JWKS) and validates each token locally.' },
+      { id: 'm9', from: 'api', to: 'app', label: '200 OK + data', info: 'In Spring Boot: spring-boot-starter-oauth2-client for the login side, spring-boot-starter-oauth2-resource-server for the API side.', reply: true },
+    ],
+  },
+  {
+    id: 'csrf-attack',
+    title: 'How a CSRF attack works, and how the token stops it',
+    intro: 'The browser sends cookies automatically, even when another site triggers the request.',
+    type: 'sequence',
+    actors: [
+      { id: 'you', label: 'Your browser', tone: 'violet' },
+      { id: 'bank', label: 'bank.example (yours)', tone: 'blue' },
+      { id: 'evil', label: 'evil.example', tone: 'brick' },
+    ],
+    messages: [
+      { id: 'm1', from: 'you', to: 'bank', label: 'log in', info: 'You log in normally.' },
+      { id: 'm2', from: 'bank', to: 'you', label: 'Set-Cookie: SESSION=abc', info: 'From now on the browser attaches this cookie to every request to bank.example, automatically.', reply: true },
+      { id: 'm3', from: 'you', to: 'evil', label: 'you visit another site', info: 'In another tab you open a page you shouldn’t trust.' },
+      { id: 'm4', from: 'evil', to: 'you', label: 'page with a hidden auto-submitting form', info: '<form action="https://bank.example/transfer" method="POST"> with to=attacker&amount=50000, submitted by JavaScript.', reply: true },
+      { id: 'm5', from: 'you', to: 'bank', label: 'POST /transfer + SESSION cookie', info: 'The browser attaches your session cookie because the request goes to bank.example. Without protection, the bank sees a perfectly authenticated request.' },
+      { id: 'm6', from: 'bank', to: 'bank', label: 'CsrfFilter: where is the CSRF token?', info: 'Spring Security expects a secret token that only bank.example’s own pages contain (a hidden form field or X-XSRF-TOKEN header). evil.example can’t read it, because the browser’s same-origin policy hides bank pages from other sites.' },
+      { id: 'm7', from: 'bank', to: 'you', label: '403 Forbidden', info: 'The forged request is rejected. SameSite cookies (Lax or Strict) add a second layer by not sending the cookie on cross-site POSTs at all. APIs that use Authorization headers instead of cookies aren’t vulnerable to CSRF.', reply: true },
+    ],
+  },
+  {
+    id: 'cors-preflight',
+    title: 'A CORS preflight',
+    intro: 'Before a cross-origin request with JSON or custom headers, the browser asks the API for permission.',
+    type: 'sequence',
+    actors: [
+      { id: 'page', label: 'javaatlas.com page', tone: 'violet' },
+      { id: 'browser', label: 'Browser', tone: 'muted' },
+      { id: 'api', label: 'api.javaatlas.com', tone: 'blue' },
+    ],
+    messages: [
+      { id: 'm1', from: 'page', to: 'browser', label: 'fetch(PUT /api/profile, JSON, Authorization)', info: 'The page calls a different origin (another host, port or scheme), and the request isn’t a “simple” one.' },
+      { id: 'm2', from: 'browser', to: 'api', label: 'OPTIONS preflight: Origin, Request-Method, Request-Headers', info: 'The browser asks first: may https://javaatlas.com send a PUT with Content-Type and Authorization headers?' },
+      { id: 'm3', from: 'api', to: 'browser', label: 'Access-Control-Allow-Origin / Methods / Headers', info: 'Spring’s CorsFilter answers from your CorsConfiguration. If the origin isn’t allowed, these headers are missing.', reply: true },
+      { id: 'm4', from: 'browser', to: 'api', label: 'the real PUT /api/profile', info: 'Only sent if the preflight allowed it.' },
+      { id: 'm5', from: 'api', to: 'browser', label: '200 OK + Access-Control-Allow-Origin', info: 'The response must also carry the header, or the browser hides it from the page.', reply: true },
+      { id: 'm6', from: 'browser', to: 'page', label: 'response delivered to JavaScript', info: 'CORS is enforced by browsers to protect users; tools like curl ignore it. It is not a server-side security control: always authenticate requests anyway.', reply: true },
+    ],
   },
 ];
 

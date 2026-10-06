@@ -3,7 +3,7 @@ import { Stage } from '../core/models';
 /** Stages 7-9: Spring Core and MVC, Spring Boot, microservices. */
 export const STAGES_C: Stage[] = [
 {id:`spring`,title:`Spring Core and Spring MVC`,level:`I`,blurb:`Dependency injection, bean scopes and lifecycle, AOP, and how a request flows through Spring MVC.`,lessons:[
-{id:`ioc`,diagram:`spring-ioc`,t:`IoC and dependency injection`,lvl:`I`,min:17,
+{id:`ioc`,lab:`spring:startup`,diagram:`spring-ioc`,t:`IoC and dependency injection`,lvl:`I`,min:17,
 eli5:`Instead of a chef growing their own vegetables, a supplier delivers them. The chef just says "I need tomatoes". That's dependency injection, and the Spring container is the supplier.`,
 body:`**Inversion of Control** means objects don't create their own dependencies; a container creates them and wires them together. **Dependency Injection** is how Spring does it.
 
@@ -48,7 +48,7 @@ iq:[[`Why is constructor injection preferred?`,`Dependencies are explicit and ca
 [`@Component vs @Bean?`,`@Component marks your own class for component scanning. @Bean is a method in a @Configuration class that returns an object; use it for third-party classes or when creating the object needs logic.`]],
 quiz:[`Which injection style does the Spring team recommend for required dependencies?`,[`Field`,`Setter`,`Constructor`,`Static`],2,`Constructor injection makes required dependencies explicit and final.`]},
 
-{id:`beans`,diagram:`bean-lifecycle`,t:`Bean scopes and lifecycle`,lvl:`I`,min:17,
+{id:`beans`,lab:`spring:scopes`,diagram:`bean-lifecycle`,t:`Bean scopes and lifecycle`,lvl:`I`,min:17,
 eli5:`A singleton bean is the office printer everyone shares. A prototype bean is a paper cup: you get a fresh one every time you ask.`,
 body:`**Scopes**:
 - [[singleton]] (the default): one instance per container. It must be stateless or thread-safe.
@@ -90,7 +90,7 @@ iq:[[`Is a singleton bean thread-safe?`,`Not automatically. Spring creates one i
 [`What happens when you inject a prototype bean into a singleton?`,`The prototype is created once at injection time and reused. For a new instance per use, inject an ObjectProvider or use @Lookup method injection.`]],
 quiz:[`What is the default Spring bean scope?`,[`prototype`,`request`,`singleton`,`session`],2,`One shared instance per ApplicationContext.`]},
 
-{id:`aop`,t:`Aspect-oriented programming`,lvl:`A`,min:17,
+{id:`aop`,lab:`proxy:transactional`,diagram:`aop-terms`,t:`Aspect-oriented programming`,lvl:`A`,min:17,
 eli5:`AOP is a security guard for every door. You don't add a guard to each room's code; you declare "check badges at all doors" once.`,
 body:`**AOP** handles **cross-cutting concerns** such as logging, security, transactions, metrics and caching in one place, instead of scattering them across every method.
 
@@ -344,7 +344,7 @@ iq:[[`PUT vs PATCH?`,`PUT replaces the whole resource and is idempotent. PATCH a
 [`How do you handle exceptions globally in Spring Boot?`,`With a @RestControllerAdvice class whose @ExceptionHandler methods map exception types to responses, ideally returning ProblemDetail for a consistent format.`]],
 quiz:[`Which status code means a resource was created?`,[`200`,`201`,`204`,`202`],1,`201 Created, usually with a Location header pointing to the new resource.`]},
 
-{id:`security`,diagram:`security-filter-chain`,t:`Spring Security and JWT`,lvl:`A`,min:17,
+{id:`security`,diagram:`security-filter-chain`,t:`Spring Security: the big picture`,lvl:`A`,min:17,
 eli5:`Authentication asks "who are you?" and checks your ID card. Authorization asks "what may you do?": your ticket says balcony, not backstage. A JWT is a signed wristband, so you don't show your ID at every door.`,
 body:`Spring Security is a chain of **servlet filters** in front of your application.
 

@@ -108,8 +108,8 @@ export class CheckoutService {
       amount: order.amount,
       currency: order.currency,
       order_id: order.orderId,
-      name: SETTINGS.brand,
-      description: order.courseTitle,
+      name: SETTINGS.business.tradeName,                    // matches the Razorpay KYC and the bank statement
+      description: `${SETTINGS.brand}: ${order.courseTitle}`,
       prefill: { name: order.name ?? '', email: order.email ?? '' },
       theme: { color: SETTINGS.accent },
       handler: (resp: RazorpaySuccess) => void this.confirm(course, resp),

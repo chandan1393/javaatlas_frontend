@@ -8,6 +8,7 @@ export const STAGE_STYLE: Record<string, { c1: string; c2: string; icon: string 
   collections: { c1: '#8B5CF6', c2: '#06B6D4', icon: 'M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z' },
   jvm: { c1: '#475569', c2: '#8B5CF6', icon: 'M4 4h16v16H4zM9 9h6v6H9zM9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3' },
   java8: { c1: '#F97316', c2: '#EAB308', icon: 'M4 20 10 4h1l-3 9h4l-6 7M14 9h6M14 14h6' },
+  sec: { c1: '#16A34A', c2: '#0EA5E9', icon: 'M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5zM9 12l2 2 4-4' },
   'hashmap-internals': { c1: '#14B8A6', c2: '#0EA5E9', icon: 'M3 4h18v4H3zM3 10h18v4H3zM3 16h18v4H3zM7 6h.01M7 12h.01M7 18h.01' },
   'collections-compared': { c1: '#F43F5E', c2: '#A855F7', icon: 'M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h4zM15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4zM12 2v20' },
   modern: { c1: '#F59E0B', c2: '#FF6B1A', icon: 'M12 3l1.8 4.9L19 9.7l-4.9 1.8L12 17l-1.8-5.5L5 9.7l5.2-1.8zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z' },

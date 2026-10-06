@@ -44,6 +44,7 @@ export class App {
   private readonly analytics = inject(AnalyticsService);
   protected readonly year = new Date().getFullYear();
   protected readonly brand = SETTINGS.brand;
+  protected readonly business = SETTINGS.business;
   /** Reading progress (0-1) on lesson and lecture pages, otherwise null. */
   protected readonly readPct = signal<number | null>(null);
   private readingPage = false;

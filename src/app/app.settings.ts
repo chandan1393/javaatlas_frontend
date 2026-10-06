@@ -25,15 +25,33 @@ export const SETTINGS = {
   /** Google Search Console "HTML tag" verification code (just the content="…" value). Optional. */
   googleSiteVerification: '',
 
-  /** Shown on the About, Contact, Privacy, Terms and Refund pages. Razorpay and AdSense both check these pages. */
+  /**
+   * Business details from the GST registration. Shown on the About, Contact, Privacy, Terms, Refund and Delivery
+   * pages and in the footer. Razorpay and AdSense both check these pages.
+   */
   business: {
-    legalName: 'Your Company Name',
+    /** The name customers see everywhere: the trade name on the GST certificate. */
+    tradeName: 'Xelvo Technologies',
+    /** Legal name on the GST certificate. For a sole proprietorship this is the proprietor's own name. */
+    legalName: 'Chandan Sharma',
+    /**
+     * India's Consumer Protection (E-Commerce) Rules, 2020 ask online sellers to show their legal name and the name
+     * of a grievance officer. When true, the proprietor's name appears ONLY where those rules need it: the grievance
+     * officer section of the Contact page and the legal line in the Terms. Everywhere else the trade name is used.
+     * Check with your CA before switching this off.
+     */
+    showLegalName: true,
+    /** GST identification number (state code 09: Uttar Pradesh). */
+    gstin: '09ECPPK7862F1ZY',
     email: 'admin@javaatlas.com',
-    address: 'Your City, State, India',
-    /** Courts named in the Terms. */
-    jurisdiction: 'Your City, India',
+    /** Principal place of business as on the GST certificate: street, city, PIN code, state. */
+    address: 'Uttar Pradesh, India',
+    /** Courts named in the Terms: your city. */
+    jurisdiction: 'Uttar Pradesh, India',
     /** Days after purchase within which a refund can be requested. */
     refundDays: 7,
+    /** GST rate included in course prices (online courses: 18%). */
+    gstRate: 18,
   },
 
   /**

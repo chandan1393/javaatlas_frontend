@@ -29,6 +29,9 @@ export class DialogComponent {
   protected readonly showPassword = signal(false);
   /** Email address a reset link was just sent to (forgot-password mode). */
   protected readonly sentTo = signal('');
+  /** Email address waiting for confirmation (after sign-up, or a login before confirming). */
+  protected readonly verifyFor = signal('');
+  protected readonly verifyNote = signal('');
   protected readonly priceText = priceText;
   private readonly sheet = viewChild<ElementRef<HTMLElement>>('sheet');
   private returnFocus: HTMLElement | null = null;
@@ -48,6 +51,8 @@ export class DialogComponent {
           this.submitting.set(false);
           this.showPassword.set(false);
           this.sentTo.set('');
+          this.verifyFor.set('');
+          this.verifyNote.set('');
         }
       });
       if (state) setTimeout(() => this.focusFirst());
@@ -101,8 +106,13 @@ export class DialogComponent {
     this.error.set('');
     this.submitting.set(true);
     try {
-      if (signup) await this.account.signup(name, email, password);
-      else await this.account.login(email, password);
+      if (signup) {
+        this.verifyFor.set(await this.account.signup(name, email, password));
+        this.verifyNote.set('');
+        this.rememberWhereToContinue(state.redirect, state.course?.slug, state.course?.title);
+        return;                              // no session until the email is confirmed
+      }
+      await this.account.login(email, password);
       const course = state.course;
       if (course) {
         if (this.account.enrolled().has(course.slug)) {
@@ -124,10 +134,47 @@ export class DialogComponent {
         void this.adminRouter.navigateByUrl('/admin/login');
         return;
       }
+      if (isApiError(e) && e.code === 'email_not_verified') {
+        this.verifyFor.set(email);
+        this.verifyNote.set('You need to confirm your email before you can log in.');
+        return;
+      }
       this.error.set(errorText(e));
     } finally {
       this.submitting.set(false);
     }
+  }
+
+  protected async resendVerification(): Promise<void> {
+    if (this.submitting() || !this.verifyFor()) return;
+    this.submitting.set(true);
+    try {
+      await this.account.resendVerification(this.verifyFor());
+      this.verifyNote.set('A new link is on its way. Use the newest email: older links stop working once you confirm.');
+    } catch (e) {
+      this.verifyNote.set(errorText(e));
+    } finally {
+      this.submitting.set(false);
+    }
+  }
+
+  /** After confirming (often in a new tab), the verify page offers to continue where the learner was. */
+  private rememberWhereToContinue(redirect?: string, courseSlug?: string, courseTitle?: string): void {
+    try {
+      const here = this.router.url.split('#')[0];
+      const target = courseSlug ? `/courses/${courseSlug}` : redirect ?? (here.startsWith('/verify-email') ? '' : here);
+      if (!target || target === '/') return;
+      const label = courseTitle ? `Continue to “${courseTitle}”` : 'Continue where you left off';
+      localStorage.setItem('javaatlas:after-verify', JSON.stringify({ target, label, at: Date.now() }));
+    } catch {
+      // storage unavailable (private mode): the verify page shows its default buttons
+    }
+  }
+
+  protected backToLogin(): void {
+    this.verifyFor.set('');
+    this.verifyNote.set('');
+    this.setMode('login');
   }
 
   /** Keeps keyboard focus inside the dialog. */

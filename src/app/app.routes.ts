@@ -28,11 +28,13 @@ export const routes: Routes = [
   { path: 'my/courses', loadComponent: () => import('./pages/my-courses/my-courses.component').then((m) => m.MyCoursesComponent) },
   { path: 'my/orders', loadComponent: () => import('./pages/orders/orders.component').then((m) => m.OrdersComponent) },
   { path: 'reset-password', loadComponent: () => import('./pages/reset-password/reset-password.component').then((m) => m.ResetPasswordComponent) },
+  { path: 'verify-email', loadComponent: () => import('./pages/verify-email/verify-email.component').then((m) => m.VerifyEmailComponent) },
   { path: 'about', loadComponent: () => import('./pages/legal/legal.component').then((m) => m.LegalComponent), data: { page: 'about' } },
   { path: 'contact', loadComponent: () => import('./pages/legal/legal.component').then((m) => m.LegalComponent), data: { page: 'contact' } },
   { path: 'privacy', loadComponent: () => import('./pages/legal/legal.component').then((m) => m.LegalComponent), data: { page: 'privacy' } },
   { path: 'terms', loadComponent: () => import('./pages/legal/legal.component').then((m) => m.LegalComponent), data: { page: 'terms' } },
   { path: 'refunds', loadComponent: () => import('./pages/legal/legal.component').then((m) => m.LegalComponent), data: { page: 'refunds' } },
+  { path: 'delivery', loadComponent: () => import('./pages/legal/legal.component').then((m) => m.LegalComponent), data: { page: 'delivery' } },
   { path: 'admin/login', loadComponent: () => import('./pages/admin/admin-login.component').then((m) => m.AdminLoginComponent) },
   {
     path: 'admin',

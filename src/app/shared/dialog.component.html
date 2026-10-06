@@ -35,6 +35,20 @@
             <button type="button" class="btn btn-primary w100" [disabled]="submitting()" (click)="sendReset()">{{ submitting() ? 'Sending…' : 'Send reset link' }}</button>
             <button type="button" class="btn btn-ghost w100 gap-top" (click)="setMode('login')">Back to log in</button>
           }
+        } @else if (verifyFor()) {
+          <h2 id="dialogTitle">Check your inbox</h2>
+          <div class="sent-box" role="status">
+            We sent a confirmation link to <strong>{{ verifyFor() }}</strong>. Open it to activate your account; it works for 24 hours.
+            Check your spam folder if it doesn’t arrive in a few minutes.
+          </div>
+          @if (verifyNote()) {
+            <p class="for verify-note">{{ verifyNote() }}</p>
+          }
+          @if (d.course) {
+            <p class="for verify-note">After confirming, come back to “{{ d.course.title }}” to finish enrolling.</p>
+          }
+          <button type="button" class="btn btn-primary w100" (click)="resendVerification()" [disabled]="submitting()">{{ submitting() ? 'Sending…' : 'Send the link again' }}</button>
+          <button type="button" class="btn btn-ghost w100 gap-top" (click)="backToLogin()">Back to log in</button>
         } @else {
           @if (d.course) {
             <h2 id="dialogTitle">{{ d.mode === 'signup' ? 'Create an account to enroll' : 'Log in to enroll' }}</h2>

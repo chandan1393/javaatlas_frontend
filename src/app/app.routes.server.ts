@@ -17,6 +17,7 @@ const clientOnly = [
   'my/orders',
   'my/learning',
   'reset-password',
+  'verify-email',
   'admin',
   'admin/login',
   'admin/content',

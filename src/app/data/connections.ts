@@ -60,4 +60,8 @@ export const PREREQS: Record<string, string[]> = {
   'access-modifiers': ['packages', 'classes'], forkjoin: ['executors', 'streams'], serialization: ['io', 'classes'],
   reflection: ['annotations', 'classes'], 'modern-features': ['records', 'patterns'], structural: ['creational', 'composition-vs-inheritance'],
   reactive: ['rest', 'cf'],
+  // Spring Core and Spring Security in depth
+  di: ['ioc'], configuration: ['di', 'beans'], proxies: ['aop', 'tx'], 'spring-events': ['di', 'tx'],
+  'sec-architecture': ['security', 'mvc'], 'sec-authentication': ['sec-architecture'], 'sec-passwords': ['sec-authentication'],
+  'sec-authorization': ['sec-authentication'], 'sec-jwt': ['sec-authorization'], 'sec-oauth2': ['sec-jwt'], 'sec-csrf-cors': ['sec-architecture'],
 };

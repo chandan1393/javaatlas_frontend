@@ -14,6 +14,9 @@ export interface LegalPage {
 
 const b = SETTINGS.business;
 const brand = SETTINGS.brand;
+/** The proprietor's name appears only where the E-Commerce Rules require it (see app.settings.ts). */
+const legalLine = b.showLegalName ? `, a sole proprietorship of ${b.legalName}` : '';
+const officer = b.showLegalName ? `${b.legalName}, Proprietor, ${b.tradeName}` : `The Proprietor, ${b.tradeName}`;
 const updated = 'September 2026';
 
 export const LEGAL: Record<string, LegalPage> = {
@@ -40,7 +43,7 @@ export const LEGAL: Record<string, LegalPage> = {
       },
       {
         h: 'Who runs it',
-        body: `${brand} is operated by **${b.legalName}**, ${b.address}. Write to us at ${b.email}.`,
+        body: `${brand} is run by **${b.tradeName}**, ${b.address} (GSTIN ${b.gstin}). Write to us at ${b.email}.`,
       },
     ],
   },
@@ -48,7 +51,7 @@ export const LEGAL: Record<string, LegalPage> = {
   privacy: {
     title: 'Privacy policy',
     description: `How ${brand} collects, uses and protects your information, including cookies and advertising.`,
-    intro: `This policy explains what information ${brand} (operated by ${b.legalName}) collects, why, and the choices you have. Last updated ${updated}.`,
+    intro: `This policy explains what information ${brand} (operated by ${b.tradeName}) collects, why, and the choices you have. Last updated ${updated}.`,
     sections: [
       {
         h: 'Information we collect',
@@ -104,7 +107,7 @@ export const LEGAL: Record<string, LegalPage> = {
       },
       {
         h: 'Changes and contact',
-        body: `We’ll update this page if the policy changes and change the date above. Questions? Write to ${b.email} or ${b.legalName}, ${b.address}.`,
+        body: `We’ll update this page if the policy changes and change the date above. Questions? Write to ${b.email} or to ${b.tradeName}, ${b.address}.`,
       },
     ],
   },
@@ -112,8 +115,12 @@ export const LEGAL: Record<string, LegalPage> = {
   terms: {
     title: 'Terms of use',
     description: `The terms for using ${brand}, its free lessons and its paid courses.`,
-    intro: `These terms apply when you use ${brand}, operated by ${b.legalName}. By using the site you agree to them. Last updated ${updated}.`,
+    intro: `These terms apply when you use ${brand}, operated by ${b.tradeName}${legalLine} (GSTIN ${b.gstin}). By using the site you agree to them. Last updated ${updated}.`,
     sections: [
+      {
+        h: 'Prices and GST',
+        body: `Course prices are in Indian rupees and **include GST at ${b.gstRate}%**. Payments are processed securely by Razorpay; we never see or store your card, UPI or bank details. You’ll see the full price before you pay, with no hidden charges.`,
+      },
       {
         h: 'Free lessons',
         body: `You may read and use the free lessons for your own learning. You may use the code examples in your own projects. You may not copy lessons in bulk, republish them or sell them.`,
@@ -168,7 +175,7 @@ export const LEGAL: Record<string, LegalPage> = {
       },
       {
         h: 'Processing',
-        body: `Approved refunds go back to the original payment method through Razorpay within 5 to 7 working days. Your bank may take a few more days to show it. Your access to the course ends when the refund is issued.`,
+        body: `Approved refunds are for the full amount paid, including GST, and go back to the original payment method through Razorpay within 5 to 7 working days. Your bank may take a few more days to show it. Your access to the course ends when the refund is issued.`,
       },
       {
         h: 'When refunds aren’t available',
@@ -203,8 +210,40 @@ export const LEGAL: Record<string, LegalPage> = {
       },
       {
         h: 'Business details',
-        body: `**${b.legalName}**
-${b.address}`,
+        body: `**${b.tradeName}**
+${b.address}
+GSTIN: ${b.gstin}`,
+      },
+      {
+        h: 'Grievance officer',
+        body: `Under the Consumer Protection (E-Commerce) Rules, 2020:
+- **${officer}**
+- Email: ${b.email}
+- We acknowledge every complaint within 48 hours and resolve it within one month.`,
+      },
+    ],
+  },
+
+  delivery: {
+    title: 'Delivery policy',
+    description: `How ${brand} courses are delivered after you pay.`,
+    intro: `All ${brand} courses are digital. Nothing is shipped: you get access online, straight away. Last updated ${updated}.`,
+    sections: [
+      {
+        h: 'How courses are delivered',
+        body: `Courses are delivered online through your ${brand} account. There are no physical goods and no shipping charges.`,
+      },
+      {
+        h: 'When you get access',
+        body: `Access starts as soon as Razorpay confirms your payment, usually within seconds. The course appears under My courses, and you can start immediately on any device by logging in with the same email.`,
+      },
+      {
+        h: 'If access doesn’t appear',
+        body: `If your payment went through but the course doesn’t appear within 30 minutes, email ${b.email} with the payment ID from your Razorpay receipt. We’ll give you access or a full refund within one working day.`,
+      },
+      {
+        h: 'How long access lasts',
+        body: `Courses are one-time purchases with no expiry, including every future update to the course, for as long as ${brand} is available. See the refund policy for refunds.`,
       },
     ],
   },

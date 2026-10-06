@@ -4,6 +4,11 @@ import { BlockingqueueLabComponent } from './blockingqueue-lab.component';
 import { ChmLabComponent } from './chm-lab.component';
 import { DequeLabComponent } from './deque-lab.component';
 import { DiagramComponent } from './diagram.component';
+import { JwtLabComponent } from './jwt-lab.component';
+import { PasswordLabComponent } from './password-lab.component';
+import { ProxyLabComponent } from './proxy-lab.component';
+import { SecurityLabComponent } from './security-lab.component';
+import { SpringLabComponent } from './spring-lab.component';
 import { HeapLabComponent } from './heap-lab.component';
 import { LinkedhashmapLabComponent } from './linkedhashmap-lab.component';
 import { LinkedlistLabComponent } from './linkedlist-lab.component';
@@ -18,6 +23,7 @@ import { ThreadsLabComponent } from './threads-lab.component';
 export const LAB_KINDS = [
   'hashmap', 'threads', 'memory', 'threadpool', 'stream', 'array',
   'linkedlist', 'deque', 'heap', 'tree', 'linkedhashmap', 'chm', 'blockingqueue', 'diagram',
+  'spring', 'proxy', 'security', 'jwt', 'password',
 ] as const;
 
 /**
@@ -30,7 +36,8 @@ export const LAB_KINDS = [
   imports: [
     HashmapLabComponent, ThreadsLabComponent, MemoryLabComponent, ThreadpoolLabComponent, StreamLabComponent, ArrayLabComponent,
     LinkedlistLabComponent, DequeLabComponent, HeapLabComponent, TreeLabComponent, LinkedhashmapLabComponent, ChmLabComponent,
-    BlockingqueueLabComponent, DiagramComponent,
+    BlockingqueueLabComponent, DiagramComponent, SpringLabComponent, ProxyLabComponent, SecurityLabComponent, JwtLabComponent,
+    PasswordLabComponent,
   ],
   template: `
     @switch (kind()) {
@@ -69,6 +76,21 @@ export const LAB_KINDS = [
       }
       @case ('chm') {
         @defer (on viewport) { <app-chm-lab [preset]="preset() || 'chm'" /> } @placeholder { <div class="lab-ph">ConcurrentHashMap lab</div> }
+      }
+      @case ('spring') {
+        @defer (on viewport) { <app-spring-lab [preset]="preset() || 'startup'" /> } @placeholder { <div class="lab-ph">Spring container lab</div> }
+      }
+      @case ('proxy') {
+        @defer (on viewport) { <app-proxy-lab [preset]="preset() || 'transactional'" /> } @placeholder { <div class="lab-ph">Proxy lab</div> }
+      }
+      @case ('security') {
+        @defer (on viewport) { <app-security-lab /> } @placeholder { <div class="lab-ph">Security filter chain lab</div> }
+      }
+      @case ('jwt') {
+        @defer (on viewport) { <app-jwt-lab /> } @placeholder { <div class="lab-ph">JWT lab</div> }
+      }
+      @case ('password') {
+        @defer (on viewport) { <app-password-lab /> } @placeholder { <div class="lab-ph">Password lab</div> }
       }
       @case ('diagram') {
         @defer (on viewport) { <app-diagram [id]="preset()" /> } @placeholder { <div class="lab-ph">Diagram</div> }

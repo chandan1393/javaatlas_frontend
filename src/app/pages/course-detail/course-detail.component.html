@@ -27,7 +27,7 @@
             <span class="trailer-tag">Course trailer</span>
           </div>
         }
-        <div class="price">{{ priceText(c.priceInr) }}</div>
+        <div class="price">{{ priceText(c.priceInr) }}@if (c.priceInr) {<small class="gst-note">incl. {{ gstRate }}% GST</small>}</div>
         @if (enrolled()) {
           <a class="btn btn-primary w100" [routerLink]="['/courses', c.slug, 'learn']">
             {{ done().size ? 'Continue learning' : 'Start learning' }}

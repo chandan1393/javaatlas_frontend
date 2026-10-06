@@ -120,4 +120,16 @@ export const PATHS: LearningPath[] = [
       'composition-vs-inheritance', 'relationships', 'object', 'immutability',
     ],
   },
+  {
+    id: 'spring-core-security',
+    title: 'Spring Core and Spring Security in depth',
+    level: 'Intermediate to advanced',
+    who: 'You use Spring Boot and want to understand what the framework is doing for you, and secure an API properly.',
+    blurb: 'The IoC container, dependency injection, scopes, configuration, proxies and events; then the security filter chain, authentication, password storage, authorization, JWT, OAuth 2.0 and CSRF/CORS. Every step has a lab or diagram.',
+    outcome: 'You can explain how Spring wires and proxies your beans, debug the classic traps, and design authentication and authorization for a real API.',
+    lessons: [
+      'ioc', 'di', 'beans', 'configuration', 'aop', 'proxies', 'spring-events',
+      'security', 'sec-architecture', 'sec-authentication', 'sec-passwords', 'sec-authorization', 'sec-jwt', 'sec-oauth2', 'sec-csrf-cors',
+    ],
+  },
 ];

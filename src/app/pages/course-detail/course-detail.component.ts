@@ -31,6 +31,7 @@ export class CourseDetailComponent {
   protected readonly error = signal('');
   protected readonly priceText = priceText;
   protected readonly refundDays = SETTINGS.business.refundDays;
+  protected readonly gstRate = SETTINGS.business.gstRate;
   protected readonly hoursText = hoursText;
 
   protected readonly enrolled = computed(() => !!this.course()?.enrolled || this.account.enrolled().has(this.slug()));

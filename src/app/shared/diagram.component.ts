@@ -14,14 +14,14 @@ import { DIAGRAMS, Diagram, DNode } from '../data/diagrams';
             <h2 [id]="'dg-h-' + d.id">{{ d.title }}</h2>
             <p class="muted">{{ d.intro }}</p>
           </div>
-          @if (d.tour?.length) {
+          @if (d.tour?.length || d.messages?.length) {
             <div class="dg-tour">
               @if (tourAt() < 0) {
                 <button type="button" class="btn btn-brand btn-sm" (click)="startTour()">Walk me through it</button>
               } @else {
                 <button type="button" class="btn btn-ghost btn-sm" (click)="tourGo(tourAt() - 1)" [disabled]="tourAt() === 0">←</button>
-                <span class="muted">{{ tourAt() + 1 }} / {{ d.tour!.length }}</span>
-                <button type="button" class="btn btn-primary btn-sm" (click)="tourGo(tourAt() + 1)" [disabled]="tourAt() >= d.tour!.length - 1">Next →</button>
+                <span class="muted">{{ tourAt() + 1 }} / {{ tourLength() }}</span>
+                <button type="button" class="btn btn-primary btn-sm" (click)="tourGo(tourAt() + 1)" [disabled]="tourAt() >= tourLength() - 1">Next →</button>
                 <button type="button" class="btn btn-ghost btn-sm" (click)="toggleAuto()">{{ auto() ? 'Pause' : 'Play' }}</button>
                 <button type="button" class="btn btn-ghost btn-sm" (click)="endTour()">Done</button>
               }
@@ -73,6 +73,33 @@ import { DIAGRAMS, Diagram, DNode } from '../data/diagrams';
                   <g class="dg-state" [attr.data-tone]="n.tone" [class.on]="n.id === active()" (click)="pick(n)" (keydown.enter)="pick(n)" tabindex="0" role="button" [attr.aria-label]="n.label">
                     <rect [attr.x]="n.x! - 64" [attr.y]="n.y! - 20" width="128" height="40" rx="10" />
                     <text [attr.x]="n.x" [attr.y]="n.y! + 5">{{ n.label }}</text>
+                  </g>
+                }
+              </svg>
+            </div>
+          }
+          @case ('sequence') {
+            <div class="table-wrap">
+              <svg class="dg-seq" [attr.viewBox]="'0 0 ' + seqW + ' ' + seqH()" role="img" [attr.aria-label]="d.title">
+                <defs>
+                  <marker [id]="'dg-sq-' + d.id" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" /></marker>
+                </defs>
+                @for (a of seqActors(); track a.id) {
+                  <g class="dg-actor" [attr.data-tone]="a.tone">
+                    <line class="dg-life" [attr.x1]="a.x" y1="46" [attr.x2]="a.x" [attr.y2]="seqH() - 6" />
+                    <rect [attr.x]="a.x - 66" y="8" width="132" height="38" rx="9" />
+                    <text [attr.x]="a.x" y="32">{{ a.label }}</text>
+                  </g>
+                }
+                @for (m of seqMsgs(); track m.id) {
+                  <g class="dg-msg" [class.on]="m.id === active()" [class.later]="m.later" [class.reply]="m.reply" (click)="active.set(m.id)" (keydown.enter)="active.set(m.id)" tabindex="0" role="button" [attr.aria-label]="m.label">
+                    @if (m.self) {
+                      <path [attr.d]="'M' + m.x1 + ' ' + (m.y - 8) + ' h40 v16 h-38'" [attr.marker-end]="'url(#dg-sq-' + d.id + ')'" />
+                      <text class="self" [attr.x]="m.x1 + 48" [attr.y]="m.y + 4">{{ m.n }}. {{ m.label }}</text>
+                    } @else {
+                      <line [attr.x1]="m.x1" [attr.y1]="m.y" [attr.x2]="m.x2" [attr.y2]="m.y" [attr.marker-end]="'url(#dg-sq-' + d.id + ')'" />
+                      <text [attr.x]="(m.x1 + m.x2) / 2" [attr.y]="m.y - 8">{{ m.n }}. {{ m.label }}</text>
+                    }
                   </g>
                 }
               </svg>
@@ -155,6 +182,7 @@ export class DiagramComponent implements OnDestroy {
     const d = this.d();
     d?.nodes?.forEach(walk);
     walk(d?.root);
+    d?.messages?.forEach((m, i) => map.set(m.id, { id: m.id, label: `${i + 1}. ${m.label}`, info: m.info }));
     return map;
   });
   protected readonly selected = computed(() => {
@@ -196,6 +224,25 @@ export class DiagramComponent implements OnDestroy {
     return leaves(this.d()?.root) > 4;
   });
 
+  protected readonly seqW = 720;
+  protected readonly seqActors = computed(() => {
+    const actors = this.d()?.actors ?? [];
+    return actors.map((a, i) => ({ ...a, x: ((i + 0.5) * this.seqW) / Math.max(1, actors.length) }));
+  });
+  protected readonly seqH = computed(() => 80 + (this.d()?.messages?.length ?? 0) * 44);
+  protected readonly seqMsgs = computed(() => {
+    const xs = new Map(this.seqActors().map((a) => [a.id, a.x]));
+    const msgs = this.d()?.messages ?? [];
+    const activeAt = msgs.findIndex((m) => m.id === this.active());
+    const touring = this.tourAt() >= 0;
+    return msgs.map((m, i) => {
+      const x1 = xs.get(m.from) ?? 0;
+      const x2 = xs.get(m.to) ?? 0;
+      const dir = Math.sign(x2 - x1);
+      return { ...m, n: i + 1, self: m.from === m.to, x1: x1 + dir * 4, x2: x2 - dir * 6, y: 78 + i * 44, later: touring && activeAt >= 0 && i > activeAt };
+    });
+  });
+
   private readonly maxBar = computed(() => Math.max(1, ...(this.d()?.bars ?? []).map((b) => b.value)));
 
   ngOnDestroy(): void {
@@ -218,12 +265,21 @@ export class DiagramComponent implements OnDestroy {
     return (v / this.maxBar()) * 100;
   }
 
+  protected tourLength(): number {
+    return this.tourIds().length;
+  }
+
   protected startTour(): void {
     this.tourGo(0);
   }
 
+  private tourIds(): string[] {
+    const d = this.d();
+    return d?.tour ?? d?.messages?.map((m) => m.id) ?? [];
+  }
+
   protected tourGo(i: number): void {
-    const tour = this.d()?.tour ?? [];
+    const tour = this.tourIds();
     const k = Math.max(0, Math.min(i, tour.length - 1));
     this.tourAt.set(k);
     this.active.set(tour[k]);
@@ -243,7 +299,7 @@ export class DiagramComponent implements OnDestroy {
     if (!this.browser) return;
     this.auto.set(true);
     this.timer = setInterval(() => {
-      const last = (this.d()?.tour?.length ?? 1) - 1;
+      const last = this.tourIds().length - 1;
       if (this.tourAt() >= last) {
         this.stopAuto();
         return;
